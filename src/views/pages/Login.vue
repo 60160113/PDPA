@@ -1,5 +1,8 @@
 <template>
-  <div class="c-app flex-row align-items-center" :class="{ 'c-dark-theme': $store.state.darkMode }">
+  <div
+    class="c-app flex-row align-items-center"
+    :class="{ 'c-dark-theme': $store.state.darkMode }"
+  >
     <CContainer>
       <CRow class="justify-content-center">
         <CCol md="8">
@@ -12,23 +15,35 @@
                   <CInput
                     placeholder="Username"
                     autocomplete="username email"
+                    v-model="user.userId"
                   >
-                    <template #prepend-content><CIcon name="cil-user"/></template>
+                    <template #prepend-content
+                      ><CIcon name="cil-user"
+                    /></template>
                   </CInput>
                   <CInput
                     placeholder="Password"
                     type="password"
                     autocomplete="curent-password"
+                    v-model="user.password"
                   >
-                    <template #prepend-content><CIcon name="cil-lock-locked"/></template>
+                    <template #prepend-content
+                      ><CIcon name="cil-lock-locked"
+                    /></template>
                   </CInput>
                   <CRow>
                     <CCol col="6" class="text-left">
-                      <CButton color="primary" class="px-4">Login</CButton>
+                      <CButton color="primary" class="px-4" @click="login"
+                        >Login</CButton
+                      >
                     </CCol>
                     <CCol col="6" class="text-right">
-                      <CButton color="link" class="px-0">Forgot password?</CButton>
-                      <CButton color="link" class="d-lg-none">Register now!</CButton>
+                      <CButton color="link" class="px-0"
+                        >Forgot password?</CButton
+                      >
+                      <CButton color="link" class="d-lg-none"
+                        >Register now!</CButton
+                      >
                     </CCol>
                   </CRow>
                 </CForm>
@@ -42,12 +57,8 @@
             >
               <CCardBody>
                 <h2>Sign up</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                <CButton
-                  color="light"
-                  variant="outline"
-                  size="lg"
-                >
+                <br />
+                <CButton color="light" variant="outline" size="lg">
                   Register Now!
                 </CButton>
               </CCardBody>
@@ -56,11 +67,69 @@
         </CCol>
       </CRow>
     </CContainer>
+    <CModal
+      title="ข้อมูลไม่ถูกต้อง"
+      color="danger"
+      size="lg"
+      :show.sync="loginErrorModal"
+      centered
+    >
+      <p>อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</p>
+      <template #footer>
+        <CButton
+          color="danger"
+          class="float-right"
+          @click="loginErrorModal = false"
+          >ปิด</CButton
+        >
+      </template>
+    </CModal>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Login'
-}
+  name: "Login",
+  data() {
+    return {
+      user: {
+        userId: "",
+        password: "",
+      },
+      loginErrorModal: false,
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const loginResponse = await this.$http.post(
+          `${process.env.VUE_APP_ALFRESCO_API}authentication/versions/1/tickets`,
+          this.user
+        );
+        const userDataResponse = await this.$http.get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/-me-`,
+          {
+            headers: {
+              Authorization:
+                "Basic " + window.btoa(loginResponse.data.entry.id),
+            },
+          }
+        );
+        const data = {
+          ticket: loginResponse.data.entry.id,
+          userId: this.user.userId,
+          displayName:
+            userDataResponse.data.entry.firstName +
+            (userDataResponse.data.entry.hasOwnProperty("lastName")
+              ? " " + userDataResponse.data.entry.lastName
+              : ""),
+        };
+        this.$store.commit("set", ["user", data]);
+        localStorage.setItem("user", JSON.stringify(data));
+      } catch (error) {
+        this.loginErrorModal = true;
+      }
+    },
+  },
+};
 </script>
