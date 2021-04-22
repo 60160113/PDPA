@@ -126,6 +126,11 @@ export default {
         };
         this.$store.commit("set", ["user", data]);
         localStorage.setItem("user", JSON.stringify(data));
+
+        this.$http.defaults.headers.common["Authorization"] =
+          "Basic " + window.btoa(loginResponse.data.entry.id);
+
+        this.$router.push("/myfiles");
       } catch (error) {
         this.loginErrorModal = true;
       }
