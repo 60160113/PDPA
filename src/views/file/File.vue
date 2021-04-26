@@ -44,7 +44,10 @@
               @click="getList(currentFolder.parentId)"
               ><CIcon name="cil-arrow-left" /> ย้อนกลับ</CButton
             >&nbsp;
-            <CButton color="primary" shape="pill"
+            <CButton
+              color="primary"
+              shape="pill"
+              @click="modalStatus.newFolder = true"
               ><CIcon name="cil-folder" /> สร้างโฟลเดอร์ใหม่</CButton
             >&nbsp;
             <CButton color="primary" shape="pill"
@@ -88,7 +91,10 @@
               <CButton
                 color="danger"
                 v-c-tooltip="'ลบ'"
-                @click="modalStatus.delete = true"
+                @click="
+                  selectId = item.id;
+                  modalStatus.remove = true;
+                "
                 ><CIcon name="cil-trash"
               /></CButton>
             </td>
@@ -98,9 +104,9 @@
       </CCardBody>
     </CCard>
 
-    <!-- Delete Modal -->
+    <!-- Remove Modal -->
     <CModal
-      :show.sync="modalStatus.delete"
+      :show.sync="modalStatus.remove"
       :no-close-on-backdrop="true"
       :centered="true"
       title="Modal title 2"
@@ -110,15 +116,40 @@
       คุณต้องการลบรายการที่เลือกนี้หรือไม่ ?
       <template #header>
         <h6 class="modal-title">ลบรายการ</h6>
-        <CButtonClose @click="modalStatus.delete = false" class="text-white" />
+        <CButtonClose @click="modalStatus.remove = false" class="text-white" />
       </template>
       <template #footer>
-        <CButton @click="modalStatus.delete = false" color="danger"
+        <CButton @click="modalStatus.remove = false" color="danger"
           >ยกเลิก</CButton
         >
-        <CButton @click="modalStatus.delete = false" color="success"
-          >ตกลง</CButton
+        <CButton @click="remove()" color="success">ตกลง</CButton>
+      </template>
+    </CModal>
+
+    <!-- New Folder Modal -->
+    <CModal
+      :show.sync="modalStatus.newFolder"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="สร้างโฟลเดอร์ใหม่"
+      size="lg"
+      color="primary"
+    >
+      <CInput label="ชื่อ" horizontal v-model="properties.name" />
+      <CInput label="หัวข้อ" horizontal v-model="properties.title" />
+      <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
+      <template #header>
+        <h6 class="modal-title">สร้างโฟลเดอร์ใหม่</h6>
+        <CButtonClose
+          @click="modalStatus.newFolder = false"
+          class="text-white"
+        />
+      </template>
+      <template #footer>
+        <CButton @click="modalStatus.newFolder = false" color="danger"
+          >ยกเลิก</CButton
         >
+        <CButton @click="createFolder()" color="success">ตกลง</CButton>
       </template>
     </CModal>
   </div>
@@ -164,14 +195,23 @@ export default {
         },
       },
 
+      properties: {
+        name: "",
+        title: "",
+        description: "",
+      },
+
       modalStatus: {
-        delete: false,
+        remove: false,
         move: false,
         copy: false,
+        newFolder: false,
+        upload: false,
       },
 
       isTableLoaded: false,
 
+      selectId: "",
       rootId: "",
     };
   },
@@ -221,6 +261,39 @@ export default {
       } catch (error) {
         this.isTableLoaded = false;
       }
+    },
+    createFolder() {
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.currentFolder.id}/children?autoRename=true`,
+          {
+            name: this.properties.name,
+            nodeType: "cm:folder",
+            properties: {
+              "cm:title": this.properties.title,
+              "cm:description": this.properties.description,
+            },
+          }
+        )
+        .then(() => {
+          this.modalStatus.newFolder = false;
+          this.properties = {
+            name: "",
+            title: "",
+            description: "",
+          };
+          this.getList(this.currentFolder.id);
+        });
+    },
+    remove() {
+      this.$http
+        .delete(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectId}`
+        )
+        .then(() => {
+          this.modalStatus.remove = false;
+          this.getList(this.currentFolder.id);
+        });
     },
     property(id) {
       console.log(id);
