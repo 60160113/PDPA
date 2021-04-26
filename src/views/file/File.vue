@@ -133,16 +133,17 @@ const fields = [
 
 export default {
   async created() {
-    let id = "-my-";
-    switch (this.$route.name) {
-      case "Shared Files":
-        id = "-shared-";
-        break;
-      case "Repository":
-        id = "-root-";
-        break;
-    }
-    await this.getList(id);
+    const id = () => {
+      switch (this.$route.name) {
+        case "My Files":
+          return "-my-";
+        case "Shared Files":
+          return "-shared-";
+        default:
+          return "-root-";
+      }
+    };
+    await this.getList(id());
     this.rootId = this.currentFolder.id;
   },
   data() {
