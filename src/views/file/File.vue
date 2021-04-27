@@ -143,10 +143,15 @@
       <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
       <template #header>
         <h6 class="modal-title">สร้างโฟลเดอร์ใหม่</h6>
-        <CButtonClose @click="closeModal()" class="text-white" />
+        <CButtonClose
+          @click="modalStatus.newFolder = false"
+          class="text-white"
+        />
       </template>
       <template #footer>
-        <CButton @click="closeModal()" color="danger">ยกเลิก</CButton>
+        <CButton @click="modalStatus.newFolder = false" color="danger"
+          >ยกเลิก</CButton
+        >
         <CButton @click="createFolder()" color="success">ตกลง</CButton>
       </template>
     </CModal>
@@ -167,10 +172,12 @@
       <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
       <template #header>
         <h6 class="modal-title">อัปโหลด</h6>
-        <CButtonClose @click="closeModal()" class="text-white" />
+        <CButtonClose @click="modalStatus.upload = false" class="text-white" />
       </template>
       <template #footer>
-        <CButton @click="closeModal()" color="danger">ยกเลิก</CButton>
+        <CButton @click="modalStatus.upload = false" color="danger"
+          >ยกเลิก</CButton
+        >
         <CButton color="success">ตกลง</CButton>
       </template>
     </CModal>
@@ -198,6 +205,18 @@ export default {
     };
     await this.getList(id());
     this.rootId = this.currentFolder.id;
+  },
+  watch: {
+    "modalStatus.newFolder": function (value) {
+      if (!value) {
+        this.clearProperties();
+      }
+    },
+    "modalStatus.upload": function (value) {
+      if (!value) {
+        this.clearProperties();
+      }
+    },
   },
   data() {
     return {
@@ -300,7 +319,7 @@ export default {
           }
         )
         .then(() => {
-          this.closeModal();
+          this.modalStatus.newFolder = false;
           this.getList(this.currentFolder.id);
         });
     },
@@ -321,9 +340,7 @@ export default {
         this.file.name.lastIndexOf(".")
       );
     },
-    closeModal() {
-      this.modalStatus.upload = false;
-      this.modalStatus.newFolder = false;
+    clearProperties() {
       this.properties = {
         name: "",
         title: "",
