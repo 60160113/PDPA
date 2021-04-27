@@ -165,7 +165,16 @@
       size="lg"
       color="primary"
     >
-      <CInputFile label="อัปโหลดไฟล์" horizontal @change="uploadHandler" />
+      <div class="row">
+        <label class="col-sm-3">อัปโหลดไฟล์</label>
+        <input
+          type="file"
+          class="col-sm-9"
+          ref="fileInput"
+          @change="uploadHandler"
+        />
+      </div>
+
       <hr />
       <CInput label="ชื่อ" horizontal v-model="properties.name" />
       <CInput label="หัวข้อ" horizontal v-model="properties.title" />
@@ -215,6 +224,7 @@ export default {
     "modalStatus.upload": function (value) {
       if (!value) {
         this.clearProperties();
+        this.$refs['fileInput'].value = null
       }
     },
   },
@@ -335,10 +345,14 @@ export default {
     },
     uploadHandler() {
       this.file = event.currentTarget.files[0];
-      this.properties.name = this.file.name.substring(
-        0,
-        this.file.name.lastIndexOf(".")
-      );
+      if (this.file) {
+        this.properties.name = this.file.name.substring(
+          0,
+          this.file.name.lastIndexOf(".")
+        );
+      } else {
+        this.clearProperties();
+      }
     },
     clearProperties() {
       this.properties = {
