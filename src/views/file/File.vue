@@ -245,6 +245,8 @@ export default {
         {
           name: "",
           modifiedAt: "",
+          title: "",
+          description: "",
         },
       ],
       fields,
