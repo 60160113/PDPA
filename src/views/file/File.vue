@@ -71,6 +71,15 @@
                 </CCol>
                 <CCol>
                   {{ item.name }}
+                  {{
+                    item.title != ""
+                      ? `(${
+                          item.title.length >= 20
+                            ? item.title.substring(20, 0) + "..."
+                            : item.title
+                        })`
+                      : ""
+                  }}
                   <br />
                   Description:
                   {{ item.description != "" ? item.description : "-" }}
@@ -154,6 +163,7 @@
         >
         <CButton @click="createFolder()" color="success">ตกลง</CButton>
       </template>
+      <CElementCover :opacity="0.8" v-show="modalLoaded" />
     </CModal>
 
     <!-- Upload Modal -->
@@ -187,8 +197,9 @@
         <CButton @click="modalStatus.upload = false" color="danger"
           >ยกเลิก</CButton
         >
-        <CButton color="success">ตกลง</CButton>
+        <CButton color="success" @click="upload">ตกลง</CButton>
       </template>
+      <CElementCover :opacity="0.8" v-show="modalLoaded" />
     </CModal>
   </div>
 </template>
@@ -224,7 +235,7 @@ export default {
     "modalStatus.upload": function (value) {
       if (!value) {
         this.clearProperties();
-        this.$refs['fileInput'].value = null
+        this.$refs["fileInput"].value = null;
       }
     },
   },
@@ -263,6 +274,7 @@ export default {
       },
 
       isTableLoaded: false,
+      modalLoaded: false,
 
       selectId: "",
       rootId: "",
@@ -316,6 +328,7 @@ export default {
       }
     },
     createFolder() {
+      this.modalLoaded = true;
       this.$http
         .post(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.currentFolder.id}/children?autoRename=true`,
@@ -332,6 +345,7 @@ export default {
           this.modalStatus.newFolder = false;
           this.getList(this.currentFolder.id);
         });
+      this.modalLoaded = false;
     },
     remove() {
       this.$http
@@ -353,6 +367,35 @@ export default {
       } else {
         this.clearProperties();
       }
+    },
+    async upload() {
+      this.modalLoaded = true;
+      let formData = new FormData();
+      formData.append(
+        "filedata",
+        this.file,
+        this.properties.name +
+          this.file.name.slice(this.file.name.lastIndexOf("."))
+      );
+      const { data } = await this.$http.post(
+        `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.currentFolder.id}/children?autoRename=true`,
+        formData
+      );
+      await this.$http
+        .put(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${data.entry.id}`,
+          {
+            properties: {
+              "cm:title": this.properties.title,
+              "cm:description": this.properties.description,
+            },
+          }
+        )
+        .then(() => {
+          this.modalStatus.upload = false;
+          this.getList(this.currentFolder.id);
+        });
+      this.modalLoaded = false;
     },
     clearProperties() {
       this.properties = {
