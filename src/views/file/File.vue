@@ -50,7 +50,10 @@
               @click="modalStatus.newFolder = true"
               ><CIcon name="cil-folder" /> สร้างโฟลเดอร์ใหม่</CButton
             >&nbsp;
-            <CButton color="primary" shape="pill"
+            <CButton
+              color="primary"
+              shape="pill"
+              @click="modalStatus.upload = true"
               ><CIcon name="cil-file" /> อัปโหลด</CButton
             >
           </template>
@@ -140,16 +143,35 @@
       <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
       <template #header>
         <h6 class="modal-title">สร้างโฟลเดอร์ใหม่</h6>
-        <CButtonClose
-          @click="modalStatus.newFolder = false"
-          class="text-white"
-        />
+        <CButtonClose @click="closeModal()" class="text-white" />
       </template>
       <template #footer>
-        <CButton @click="modalStatus.newFolder = false" color="danger"
-          >ยกเลิก</CButton
-        >
+        <CButton @click="closeModal()" color="danger">ยกเลิก</CButton>
         <CButton @click="createFolder()" color="success">ตกลง</CButton>
+      </template>
+    </CModal>
+
+    <!-- Upload Modal -->
+    <CModal
+      :show.sync="modalStatus.upload"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="อัปโหลด"
+      size="lg"
+      color="primary"
+    >
+      <CInputFile label="อัปโหลดไฟล์" horizontal @change="uploadHandler" />
+      <hr />
+      <CInput label="ชื่อ" horizontal v-model="properties.name" />
+      <CInput label="หัวข้อ" horizontal v-model="properties.title" />
+      <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
+      <template #header>
+        <h6 class="modal-title">อัปโหลด</h6>
+        <CButtonClose @click="closeModal()" class="text-white" />
+      </template>
+      <template #footer>
+        <CButton @click="closeModal()" color="danger">ยกเลิก</CButton>
+        <CButton color="success">ตกลง</CButton>
       </template>
     </CModal>
   </div>
@@ -186,6 +208,8 @@ export default {
         },
       ],
       fields,
+
+      file: null,
 
       currentFolder: {
         id: "",
@@ -276,12 +300,7 @@ export default {
           }
         )
         .then(() => {
-          this.modalStatus.newFolder = false;
-          this.properties = {
-            name: "",
-            title: "",
-            description: "",
-          };
+          this.closeModal();
           this.getList(this.currentFolder.id);
         });
     },
@@ -294,6 +313,22 @@ export default {
           this.modalStatus.remove = false;
           this.getList(this.currentFolder.id);
         });
+    },
+    uploadHandler() {
+      this.file = event.currentTarget.files[0];
+      this.properties.name = this.file.name.substring(
+        0,
+        this.file.name.lastIndexOf(".")
+      );
+    },
+    closeModal() {
+      this.modalStatus.upload = false;
+      this.modalStatus.newFolder = false;
+      this.properties = {
+        name: "",
+        title: "",
+        description: "",
+      };
     },
     property(id) {
       console.log(id);
