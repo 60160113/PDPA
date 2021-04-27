@@ -7,6 +7,7 @@ export default {
         {
           _name: "CSidebarNav",
           _children: [
+            // Files
             {
               _name: "CSidebarNavTitle",
               _children: ["Files"],
@@ -28,6 +29,17 @@ export default {
               name: "Repository",
               to: "/repository",
               icon: "cil-file",
+            },
+            // Search
+            {
+              _name: "CSidebarNavTitle",
+              _children: ["Search"],
+            },
+            {
+              _name: "CSidebarNavItem",
+              name: "Search",
+              to: "/search",
+              icon: "cil-search",
             },
           ],
         },

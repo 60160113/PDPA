@@ -2,6 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 
 import file from "../router/file";
+import search from "../router/search";
 
 // Containers
 const TheContainer = () => import("@/containers/TheContainer");
@@ -44,7 +45,7 @@ const router = new Router({
       path: "",
       name: "Home",
       component: TheContainer,
-      children: [...file]
+      children: [...file, ...search]
     },
     {
       path: "*",
