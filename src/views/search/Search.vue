@@ -1,84 +1,78 @@
 <template>
-  <div>
-    <CCard>
-      <CCardHeader>
-        <strong style="color: #321fdb">Search</strong>
-      </CCardHeader>
-      <CCardBody>
-        <CTabs variant="pills" :activeTab.sync="tabIndex">
-          <CTab style="width: 50%">
-            <template slot="title">
-              <CIcon height="25" name="cil-file" /> Files
-            </template>
-          </CTab>
-          <CTab style="width: 50%">
-            <template slot="title">
-              <CIcon height="25" name="cil-folder" /> Folders
-            </template>
-          </CTab>
-        </CTabs>
-        <br />
-        <p style="font-size: 16px" class="text-primary">รายละเอียด</p>
+  <CCard>
+    <CCardHeader>
+      <strong style="color: #321fdb">Search</strong>
+    </CCardHeader>
+    <CCardBody>
+      <CTabs variant="pills" :activeTab.sync="tabIndex">
+        <CTab style="width: 50%">
+          <template slot="title">
+            <CIcon height="25" name="cil-file" /> Files
+          </template>
+        </CTab>
+        <CTab style="width: 50%">
+          <template slot="title">
+            <CIcon height="25" name="cil-folder" /> Folders
+          </template>
+        </CTab>
+      </CTabs>
+      <br />
+      <p style="font-size: 16px" class="text-primary">รายละเอียด</p>
+      <CRow>
+        <CCol>
+          <CInput label="คำค้น" horizontal v-model="search.keywords" />
+        </CCol>
+        <CCol>
+          <CInput label="ชื่อ" horizontal v-model="search.name" />
+        </CCol>
+      </CRow>
+      <CRow>
+        <CCol>
+          <CTextarea label="หัวข้อ" horizontal v-model="search.title" />
+        </CCol>
+        <CCol>
+          <CTextarea label="คำอธิบาย" horizontal v-model="search.description" />
+        </CCol>
+      </CRow>
+      <div v-show="tabIndex == 0">
+        <hr />
+        <p style="font-size: 16px" class="text-primary">รายละเอียดไฟล์</p>
         <CRow>
           <CCol>
-            <CInput label="คำค้น" horizontal v-model="search.keywords" />
-          </CCol>
-          <CCol>
-            <CInput label="ชื่อ" horizontal v-model="search.name" />
-          </CCol>
-        </CRow>
-        <CRow>
-          <CCol>
-            <CTextarea label="หัวข้อ" horizontal v-model="search.title" />
-          </CCol>
-          <CCol>
-            <CTextarea
-              label="คำอธิบาย"
-              horizontal
-              v-model="search.description"
+            <v-select
+              v-model="search.mimeType"
+              :options="mimeTypeOptions"
+              label="description"
+              placeholder="กรุณาเลือก"
             />
           </CCol>
+          <CCol>
+            <CInput label="ผู้แก้ไข" horizontal v-model="search.modifier" />
+          </CCol>
         </CRow>
-        <div v-show="tabIndex == 0">
-          <hr />
-          <p style="font-size: 16px" class="text-primary">รายละเอียดไฟล์</p>
-          <CRow>
-            <CCol>
-              <v-select
-                v-model="search.mimeType"
-                :options="mimeTypeOptions"
-                label="description"
-                placeholder="กรุณาเลือก"
-              />
-            </CCol>
-            <CCol>
-              <CInput label="ผู้แก้ไข" horizontal v-model="search.modifier" />
-            </CCol>
-          </CRow>
-          <hr />
-          <p style="font-size: 16px" class="text-primary">วันที่แก้ไข</p>
-          <CRow>
-            <CCol>
-              <v-date-picker is-expanded mode="range" v-model="search.date" />
-            </CCol>
-            <CCol col="2">
-              <CButton color="warning" @click="search.date = null"
-                >ยกเลิก</CButton
-              >
-            </CCol>
-          </CRow>
-        </div>
         <hr />
+        <p style="font-size: 16px" class="text-primary">วันที่แก้ไข</p>
         <CRow>
           <CCol>
-            <CButton color="primary" style="width: 100%" @click="searching"
-              >ค้นหา</CButton
+            <v-date-picker is-expanded mode="range" v-model="search.date" />
+          </CCol>
+          <CCol col="2">
+            <CButton color="warning" @click="search.date = null"
+              >ยกเลิก</CButton
             >
           </CCol>
         </CRow>
-      </CCardBody>
-    </CCard>
-  </div>
+      </div>
+      <hr />
+      <CRow>
+        <CCol>
+          <CButton color="primary" style="width: 100%" @click="searching"
+            >ค้นหา</CButton
+          >
+        </CCol>
+      </CRow>
+    </CCardBody>
+  </CCard>
 </template>
 <script>
 import { DatePicker } from "v-calendar";
@@ -157,18 +151,13 @@ export default {
         // modified date //
         if (this.search.date !== null) {
           query += query.search("WHERE") === -1 ? " WHERE " : " AND ";
-          query += `D.cmis:lastModificationDate >= TIMESTAMP'${
-            this.search.date.start.toISOString().split("T")[0]
-          }T00:00:00.000+00:00' AND D.cmis:lastModificationDate <= TIMESTAMP'${
-            this.search.date.end.toISOString().split("T")[0]
-          }T23:59:59.000+00:00'`;
+          query += `D.cmis:lastModificationDate >= TIMESTAMP'${this.search.date.start.toISOString()}' AND D.cmis:lastModificationDate <= TIMESTAMP'${this.search.date.end.toISOString()}'`;
         }
       }
-      console.log(query);
-      // this.$router.push({
-      //   name: "search-results",
-      //   params: { query },
-      // });
+      this.$router.push({
+        name: "search-results",
+        params: { query },
+      });
     },
   },
   created() {
