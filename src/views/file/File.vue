@@ -40,19 +40,21 @@
             <CButton
               color="primary"
               shape="pill"
-              :disabled="rootId == currentFolder.id"
+              :disabled="rootId == currentFolder.id || isTableLoaded"
               @click="getList(currentFolder.parentId)"
               ><CIcon name="cil-arrow-left" /> ย้อนกลับ</CButton
             >&nbsp;
             <CButton
               color="primary"
               shape="pill"
+              :disabled="isTableLoaded"
               @click="modalStatus.newFolder = true"
               ><CIcon name="cil-folder" /> สร้างโฟลเดอร์ใหม่</CButton
             >&nbsp;
             <CButton
               color="primary"
               shape="pill"
+              :disabled="isTableLoaded"
               @click="modalStatus.upload = true"
               ><CIcon name="cil-file" /> อัปโหลด</CButton
             >
