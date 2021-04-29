@@ -127,11 +127,11 @@ export default {
         this.$store.commit("set", ["user", data]);
         localStorage.setItem("user", JSON.stringify(data));
 
-        this.$http.defaults.headers.common[
-          "Authorization"
-        ] = await `Basic ${window.btoa(loginResponse.data.entry.id)}`;
+        this.$http.defaults.headers["Authorization"] = `Basic ${window.btoa(
+          loginResponse.data.entry.id
+        )}`;
 
-        await this.$router.push("/myfiles");
+        this.$router.push("/myfiles");
       } catch (error) {
         this.loginErrorModal = true;
       }
