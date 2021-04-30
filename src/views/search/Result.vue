@@ -92,7 +92,7 @@
                           @change="filter"
                           inline
                           custom
-                          :label="data.text"
+                          :label="JSON.parse(data).text"
                           :value="data"
                         />
                       </CListGroupItem>
@@ -152,7 +152,7 @@
                           @change="filter"
                           inline
                           custom
-                          :label="data.text"
+                          :label="JSON.parse(data).text"
                           :value="data"
                         />
                       </CListGroupItem>
@@ -217,6 +217,11 @@
                   </CRow>
                 </td>
               </template>
+              <template #modifiedAt="{ item }">
+                <td>
+                  {{ new Date(item.modifiedAt).toLocaleDateString("th-TH") }}
+                </td>
+              </template>
             </CDataTable>
           </CCardBody>
         </CCard>
@@ -279,9 +284,6 @@ export default {
                 description: "-",
               });
             }
-            data.modifiedAt = new Date(data.modifiedAt).toLocaleDateString(
-              "th-TH"
-            );
 
             return data;
           })
@@ -321,6 +323,47 @@ export default {
       const currentDate = new Date();
       const d = new Date();
       const lastSixMonths = new Date(d.setMonth(d.getMonth() - 6));
+
+      const thisYearData = JSON.stringify({
+        text: "This year",
+        value: {
+          from: `${currentDate.getFullYear()}-01-01`,
+          to: `${currentDate.getFullYear()}-12-31`,
+        },
+      });
+
+      const lastSixMonthsData = JSON.stringify({
+        text: "Last 6 months",
+        value: {
+          from: `${lastSixMonths.getFullYear()}-${
+            lastSixMonths.getMonth() + 1
+          }-01`,
+          to: `${lastSixMonths.getFullYear()}-${
+            lastSixMonths.getMonth() + 1
+          }-${new Date(
+            lastSixMonths.getFullYear(),
+            lastSixMonths.getMonth() + 1,
+            0
+          ).getDate()}`,
+        },
+      });
+
+      const thisMonthData = JSON.stringify({
+        text: "This month",
+        value: {
+          from: `${currentDate.getFullYear()}-${
+            Number(currentDate.getMonth()) + 1
+          }-01`,
+          to: `${currentDate.getFullYear()}-${
+            Number(currentDate.getMonth()) + 1
+          }-${new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() + 1,
+            0
+          ).getDate()}`,
+        },
+      });
+
       // Created By //
       this.creatorList = [
         ...new Map(
@@ -345,7 +388,8 @@ export default {
       );
       if (filterCreated) {
         this.createdList = this.createdList.filter(
-          (item) => item.text === filterCreated.value.text
+          (item) =>
+            JSON.parse(item).text === JSON.parse(filterCreated.value).text
         );
       } else {
         this.createdList = [];
@@ -355,21 +399,7 @@ export default {
               new Date(item.createdAt).getMonth() === currentDate.getMonth()
           )
         ) {
-          this.createdList.push({
-            text: "This month",
-            value: {
-              from: `${currentDate.getFullYear()}-${
-                Number(currentDate.getMonth()) + 1
-              }-01`,
-              to: `${currentDate.getFullYear()}-${
-                Number(currentDate.getMonth()) + 1
-              }-${new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth() + 1,
-                0
-              ).getDate()}`,
-            },
-          });
+          this.createdList.push(thisMonthData);
         }
 
         if (
@@ -378,21 +408,7 @@ export default {
               new Date(item.createdAt).getMonth() >= currentDate.getMonth() - 6
           )
         ) {
-          this.createdList.push({
-            text: "Last 6 months",
-            value: {
-              from: `${lastSixMonths.getFullYear()}-${
-                lastSixMonths.getMonth() + 1
-              }-01`,
-              to: `${lastSixMonths.getFullYear()}-${
-                lastSixMonths.getMonth() + 1
-              }-${new Date(
-                lastSixMonths.getFullYear(),
-                lastSixMonths.getMonth() + 1,
-                0
-              ).getDate()}`,
-            },
-          });
+          this.createdList.push(lastSixMonthsData);
         }
 
         if (
@@ -402,13 +418,7 @@ export default {
               currentDate.getFullYear()
           )
         ) {
-          this.createdList.push({
-            text: "This year",
-            value: {
-              from: `${currentDate.getFullYear()}-01-01`,
-              to: `${currentDate.getFullYear()}-12-31`,
-            },
-          });
+          this.createdList.push(thisYearData);
         }
       }
 
@@ -418,7 +428,8 @@ export default {
       );
       if (filterModified) {
         this.modifiedList = this.modifiedList.filter(
-          (item) => item.text === filterModified.value.text
+          (item) =>
+            JSON.parse(item).text === JSON.parse(filterModified.value).text
         );
       } else {
         this.modifiedList = [];
@@ -428,21 +439,7 @@ export default {
               new Date(item.modifiedAt).getMonth() === currentDate.getMonth()
           )
         ) {
-          this.modifiedList.push({
-            text: "This month",
-            value: {
-              from: `${currentDate.getFullYear()}-${
-                Number(currentDate.getMonth()) + 1
-              }-01`,
-              to: `${currentDate.getFullYear()}-${
-                Number(currentDate.getMonth()) + 1
-              }-${new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth() + 1,
-                0
-              ).getDate()}`,
-            },
-          });
+          this.modifiedList.push(thisMonthData);
         }
 
         if (
@@ -451,21 +448,7 @@ export default {
               new Date(item.modifiedAt).getMonth() >= currentDate.getMonth() - 6
           )
         ) {
-          this.modifiedList.push({
-            text: "Last 6 months",
-            value: {
-              from: `${lastSixMonths.getFullYear()}-${
-                lastSixMonths.getMonth() + 1
-              }-01`,
-              to: `${lastSixMonths.getFullYear()}-${
-                lastSixMonths.getMonth() + 1
-              }-${new Date(
-                lastSixMonths.getFullYear(),
-                lastSixMonths.getMonth() + 1,
-                0
-              ).getDate()}`,
-            },
-          });
+          this.modifiedList.push(lastSixMonthsData);
         }
 
         if (
@@ -475,13 +458,7 @@ export default {
               currentDate.getFullYear()
           )
         ) {
-          this.modifiedList.push({
-            text: "This year",
-            value: {
-              from: `${currentDate.getFullYear()}-01-01`,
-              to: `${currentDate.getFullYear()}-12-31`,
-            },
-          });
+          this.modifiedList.push(thisYearData);
         }
       }
 
@@ -531,48 +508,54 @@ export default {
       }
 
       // Created //
-      // const filterCreated = await document.querySelector(
-      //   "input[name='filterCreated']:checked"
-      // );
+      const filterCreated = await document.querySelector(
+        "input[name='filterCreated']:checked"
+      );
 
-      // if (filterCreated) {
-      //   let arr = [];
-      //   for (let index = 0; index < this.resultList.length; index++) {
-      //     if (
-      //       new Date(this.resultList[index].createdAt) >=
-      //         new Date(filterCreated.value.value.from) &&
-      //       new Date(this.resultList[index].createdAt) <=
-      //         new Date(filterCreated.value.value.to)
-      //     ) {
-      //       arr.push(this.resultList[index]);
-      //     }
-      //   }
-      //   this.resultList = arr;
-      // }
+      if (filterCreated) {
+        let arr = [];
+        for (let index = 0; index < this.resultList.length; index++) {
+          if (
+            new Date(this.resultList[index].createdAt) >=
+              new Date(JSON.parse(filterCreated.value).value.from) &&
+            new Date(this.resultList[index].createdAt) <=
+              new Date(JSON.parse(filterCreated.value).value.to)
+          ) {
+            arr.push(this.resultList[index]);
+          }
+        }
+        this.resultList = arr;
+      }
 
       // Modified //
-      // const filterModified = await document.querySelector(
-      //   "input[name='filterModified']:checked"
-      // );
+      const filterModified = await document.querySelector(
+        "input[name='filterModified']:checked"
+      );
 
-      // if (filterModified) {
-      //   let arr = [];
-      //   for (let index = 0; index < this.resultList.length; index++) {
-      //     if (
-      //       new Date(this.resultList[index].modifiedAt) >=
-      //         new Date(filterModified.value.value.from) &&
-      //       new Date(this.resultList[index].modifiedAt) <=
-      //         new Date(filterModified.value.value.to)
-      //     ) {
-      //       arr.push(this.resultList[index]);
-      //     }
-      //   }
-      //   this.resultList = arr;
-      // }
+      if (filterModified) {
+        let arr = [];
+        for (let index = 0; index < this.resultList.length; index++) {
+          if (
+            new Date(this.resultList[index].modifiedAt) >=
+              new Date(JSON.parse(filterModified.value).value.from) &&
+            new Date(this.resultList[index].modifiedAt) <=
+              new Date(JSON.parse(filterModified.value).value.to)
+          ) {
+            arr.push(this.resultList[index]);
+          }
+        }
+        this.resultList = arr;
+      }
 
       this.refreshFilter();
     },
-    resetFilter() {
+    async resetFilter() {
+      const checkbox = await document.querySelectorAll(
+        ".custom-control-input:checked"
+      );
+      checkbox.forEach((element) => {
+        element.checked = false;
+      });
       this.resultList = this.searchResponse;
       this.refreshFilter();
     },
