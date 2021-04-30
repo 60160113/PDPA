@@ -64,6 +64,9 @@ export default {
   },
   methods: {
     logout() {
+      this.$http.delete(
+        `${process.env.VUE_APP_ALFRESCO_API}authentication/versions/1/tickets/-me-`
+      );
       localStorage.removeItem("user");
       this.$router.push("/");
     },
