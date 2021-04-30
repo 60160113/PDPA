@@ -221,8 +221,10 @@ export default {
           return "-my-";
         case "Shared Files":
           return "-shared-";
-        default:
+        case "Repository":
           return "-root-";
+        default:
+          return this.$route.params.id;
       }
     };
     await this.getList(id());

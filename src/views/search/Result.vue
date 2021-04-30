@@ -200,7 +200,14 @@
               cleaner
             >
               <template #name="{ item }">
-                <td style="cursor: pointer">
+                <td
+                  style="cursor: pointer"
+                  @click="
+                    item.isFile
+                      ? property(item.id)
+                      : $router.push(`/file/${item.id}`)
+                  "
+                >
                   <CRow>
                     <CCol md="2">
                       <CIcon
@@ -558,6 +565,9 @@ export default {
       });
       this.resultList = this.searchResponse;
       this.refreshFilter();
+    },
+    property(id) {
+      console.log(id);
     },
   },
 };
