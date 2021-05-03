@@ -106,12 +106,16 @@ export default {
           `${process.env.VUE_APP_ALFRESCO_API}authentication/versions/1/tickets`,
           this.user
         );
+
+        const Authorization = `Basic ${window.btoa(
+          loginResponse.data.entry.id
+        )}`;
+
         const userDataResponse = await this.$http.get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/-me-`,
           {
             headers: {
-              Authorization:
-                "Basic " + window.btoa(loginResponse.data.entry.id),
+              Authorization,
             },
           }
         );
@@ -127,9 +131,7 @@ export default {
         this.$store.commit("set", ["user", data]);
         localStorage.setItem("user", JSON.stringify(data));
 
-        this.$http.defaults.headers["Authorization"] = `Basic ${window.btoa(
-          loginResponse.data.entry.id
-        )}`;
+        this.$http.defaults.headers["Authorization"] = Authorization;
 
         this.$router.push("/myfiles");
       } catch (error) {
