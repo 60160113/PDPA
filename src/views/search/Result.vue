@@ -235,6 +235,29 @@
       </CCol>
     </CRow>
     <CElementCover :opacity="0.8" v-show="isLoaded" />
+
+    <!-- Properties Modal -->
+    <CModal
+      v-if="modalProperties"
+      :show.sync="modalProperties"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="Properties"
+      size="lg"
+      color="primary"
+    >
+      <Properties v-if="selectId != ''" :id="selectId" />
+      <template #header>
+        <h6 class="modal-title">Properties</h6>
+        <CButtonClose @click="modalProperties = false" class="text-white" />
+      </template>
+      <template #footer>
+        <CButton @click="modalProperties = false" color="danger"
+          >ยกเลิก</CButton
+        >
+        <CButton color="success">ตกลง</CButton>
+      </template>
+    </CModal>
   </div>
 </template>
 <script>
@@ -243,7 +266,12 @@ const fields = [
   { key: "modifiedAt", label: "Modified Date", _style: "min-width:20%;" },
 ];
 
+import Properties from "@/views/file/Properties";
+
 export default {
+  components: {
+    Properties,
+  },
   props: {
     query: {
       type: String,
@@ -323,6 +351,9 @@ export default {
       searchResponse: [],
 
       isLoaded: false,
+
+      modalProperties: false,
+      selectId: "",
     };
   },
   methods: {
@@ -567,7 +598,8 @@ export default {
       this.refreshFilter();
     },
     property(id) {
-      console.log(id);
+      this.selectId = id;
+      this.modalProperties = true;
     },
   },
 };
