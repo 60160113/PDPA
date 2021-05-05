@@ -203,6 +203,32 @@
       </template>
       <CElementCover :opacity="0.8" v-show="modalLoaded" />
     </CModal>
+
+    <!-- Properties Modal -->
+    <CModal
+      v-if="modalStatus.properties"
+      :show.sync="modalStatus.properties"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="Properties"
+      size="lg"
+      color="primary"
+    >
+      <Properties v-if="selectId != ''" :id="selectId" />
+      <template #header>
+        <h6 class="modal-title">Properties</h6>
+        <CButtonClose
+          @click="modalStatus.properties = false"
+          class="text-white"
+        />
+      </template>
+      <template #footer>
+        <CButton @click="modalStatus.properties = false" color="danger"
+          >ยกเลิก</CButton
+        >
+        <CButton color="success">ตกลง</CButton>
+      </template>
+    </CModal>
   </div>
 </template>
 
@@ -213,7 +239,12 @@ const fields = [
   { key: "actions", label: "Actions", _style: "min-width:20%;" },
 ];
 
+import Properties from "./Properties";
+
 export default {
+  components: {
+    Properties,
+  },
   async created() {
     const id = () => {
       switch (this.$route.name) {
@@ -277,6 +308,7 @@ export default {
         copy: false,
         newFolder: false,
         upload: false,
+        properties: false,
       },
 
       isTableLoaded: false,
@@ -411,7 +443,8 @@ export default {
       };
     },
     property(id) {
-      console.log(id);
+      this.selectId = id;
+      this.modalStatus.properties = true;
     },
   },
 };
