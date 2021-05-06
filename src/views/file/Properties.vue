@@ -1,58 +1,181 @@
 <template>
   <div>
     <CRow>
+      <!-- Preview Section -->
       <CCol>
-        <iframe
-          sandbox="allow-scripts allow-same-origin"
-          :src="src"
-          frameborder="0"
-          style="width: 100%; height: 400px"
-        />
+        <iframe :src="src" frameborder="0" style="width: 100%; height: 500px" />
       </CCol>
-      <CCol col="4">
-        <CButton color="primary">ดาวน์โหลด</CButton>
+      <!-- Properties Section -->
+      <CCol col="3">
+        <CButton
+          color="primary"
+          @click="download(properties.properties['cm:versionLabel'])"
+          >ดาวน์โหลด</CButton
+        >
         <hr />
         <b>ชื่อไฟล์:</b> {{ properties.name }} <br />
+
+        <b>หัวข้อ:</b>
+        {{
+          properties.properties.hasOwnProperty("cm:title")
+            ? properties.properties["cm:title"]
+            : "(None)"
+        }}
+        <br />
+
+        <b>คำอธิบาย:</b>
+        {{
+          properties.properties.hasOwnProperty("cm:description")
+            ? properties.properties["cm:description"]
+            : "(None)"
+        }}
+        <br />
+
+        <b>เวอร์ชัน:</b>&nbsp;
+        <CBadge color="primary">{{
+          properties.properties["cm:versionLabel"]
+        }}</CBadge>
+        <br />
+
         <b>Mime type:</b> {{ properties.content.mimeTypeName }} <br />
         <b>ขนาด:</b>
         {{ (properties.content.sizeInBytes / 1000).toFixed(2) }} KB <br />
+
+        <b>สร้างโดย:</b>
+        {{ properties.createdByUser.displayName }} <br />
         <b>วันที่สร้าง:</b>
-        {{ new Date(properties.createdAt).toLocaleDateString("th-TH") }}
+        {{ new Date(properties.createdAt).toLocaleDateString("th-TH") }} <br />
+
+        <b>แก้ไขโดย:</b>
+        {{ properties.modifiedByUser.displayName }} <br />
+        <b>วันที่แก้ไข:</b>
+        {{ new Date(properties.modifiedAt).toLocaleDateString("th-TH") }} <br />
       </CCol>
     </CRow>
+    <hr />
+
+    <!-- Comment Section -->
+    <strong style="color: #321fdb">ความคิดเห็น </strong>
+    <CButton color="primary" size="sm" @click="openEditor = true"
+      >เพิ่มความคิดเห็น</CButton
+    >
+    <hr />
+
+    <!-- Editor -->
+    <div v-show="openEditor">
+      <quill-editor
+        v-model="commentInput"
+        :options="{
+          modules: {
+            toolbar: {
+              container: [
+                ['bold', 'italic', 'underline'],
+                [{ color: [] }, { background: [] }],
+                [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              ],
+            },
+          },
+        }"
+      />
+      <br />
+      <CButton
+        :color="commentId == '' ? 'success' : 'warning'"
+        size="sm"
+        @click="commentId == '' ? addComment() : editComment()"
+        >{{ commentId == "" ? "เพิ่มความคิดเห็น" : "บันทึก" }}</CButton
+      >&nbsp;
+      <CButton color="danger" size="sm" @click="openEditor = false"
+        >ยกเลิก</CButton
+      >
+    </div>
+    <br />
+
+    <!-- Comments -->
+    <p v-if="comments.length == 0">ไม่มีความคิดเห็น</p>
+    <CListGroup v-else>
+      <CListGroupItem :key="index" v-for="(item, index) in comments">
+        <strong style="color: #321fdb"
+          >{{ item.modifiedBy.firstName + " " + item.modifiedBy.lastName }}
+        </strong>
+        <CButton
+          class="float-right"
+          size="sm"
+          color="warning"
+          v-c-tooltip="'แก้ไข'"
+          @click="editCommentHandler(item.id, item.content)"
+          :disabled="!item.canEdit"
+          ><CIcon name="cil-pencil" /></CButton
+        >&nbsp;
+        <CButton
+          class="float-right"
+          size="sm"
+          color="danger"
+          v-c-tooltip="'ลบ'"
+          @click="removeComment(item.id)"
+          :disabled="!item.canDelete"
+          ><CIcon name="cil-trash"
+        /></CButton>
+        <br />
+        <p v-html="item.content" />
+      </CListGroupItem>
+    </CListGroup>
   </div>
 </template>
+
 <script>
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+
+import { quillEditor } from "vue-quill-editor";
 
 export default {
   props: {
     id: String,
   },
-  async created() {
+  components: {
+    quillEditor,
+  },
+  watch: {
+    openEditor: function (val) {
+      if (!val) {
+        this.commentId = "";
+        this.commentInput = "";
+      }
+    },
+  },
+  created() {
     // Get properties
-    const { data } = await this.$http.get(
-      `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}?include=allowableOperations,path`
-    );
+    this.getProperties();
 
-    this.properties = data.entry;
+    // Get Comment
+    this.getComments();
 
-    // Preview content
-    const requestUrl = `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content?alf_ticket=${this.$store.state.user.ticket}`;
-
-    const encodedUrl = await encodeURIComponent(requestUrl);
-
-    this.src = `https://docs.google.com/viewerng/viewer?url=${encodedUrl}&embedded=true`;
+    // Get Content
+    this.getContent();
   },
   data() {
     return {
       src: "",
+
+      openEditor: false,
+
+      commentInput: "",
+
+      commentId: "",
+
+      comments: [],
 
       properties: {
         name: "",
         createdByUser: {
           displayName: "",
         },
+        modifiedByUser: {
+          displayName: "",
+        },
         createdAt: new Date(),
+        modifiedAt: new Date(),
         content: {
           mimeTypeName: "",
           sizeInBytes: 0,
@@ -62,6 +185,99 @@ export default {
         },
       },
     };
+  },
+  methods: {
+    // Properties
+    getProperties() {
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}?include=allowableOperations,path`
+        )
+        .then((res) => {
+          this.properties = res.data.entry;
+        });
+    },
+    // Preview
+    getContent() {
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content`,
+          { responseType: "blob" }
+        )
+        .then((res) => {
+          this.src = window.URL.createObjectURL(res.data);
+        });
+    },
+    // comment
+    getComments() {
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/comments?include=properties`
+        )
+        .then((res) => {
+          this.comments = res.data.list.entries.map((item) => {
+            return item.entry;
+          });
+        });
+    },
+    addComment() {
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/comments`,
+          {
+            content: this.commentInput,
+          }
+        )
+        .then(() => {
+          this.openEditor = false;
+
+          this.getComments();
+        });
+    },
+    removeComment(commentId) {
+      this.$http
+        .delete(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/comments/${commentId}`
+        )
+        .then(() => {
+          this.getComments();
+        });
+    },
+    editCommentHandler(id, content) {
+      this.openEditor = true;
+      this.commentInput = content;
+      this.commentId = id;
+    },
+    editComment() {
+      this.$http
+        .put(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/comments/${this.commentId}`,
+          {
+            content: this.commentInput,
+          }
+        )
+        .then(() => {
+          this.openEditor = false;
+
+          this.getComments();
+        });
+    },
+    // ETC
+    download(version) {
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/versions/${version}/content`,
+          { responseType: "blob" }
+        )
+        .then((res) => {
+          const url = window.URL.createObjectURL(res.data);
+
+          let link = document.createElement("a");
+          link.href = url;
+          link.download = this.properties.name;
+          link.dispatchEvent(new MouseEvent("click"));
+        });
+    },
   },
 };
 </script>

@@ -210,23 +210,21 @@
       :show.sync="modalStatus.properties"
       :no-close-on-backdrop="true"
       :centered="true"
-      title="Properties"
-      size="lg"
+      size="xl"
       color="primary"
     >
       <Properties v-if="selectId != ''" :id="selectId" />
       <template #header>
-        <h6 class="modal-title">Properties</h6>
+        <h6 class="modal-title">รายละเอียดเอกสาร</h6>
         <CButtonClose
           @click="modalStatus.properties = false"
           class="text-white"
         />
       </template>
       <template #footer>
-        <CButton @click="modalStatus.properties = false" color="danger"
-          >ยกเลิก</CButton
+        <CButton @click="modalStatus.properties = false" color="secondary"
+          >ปิด</CButton
         >
-        <CButton color="success">ตกลง</CButton>
       </template>
     </CModal>
   </div>
