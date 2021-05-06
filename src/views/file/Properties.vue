@@ -95,7 +95,7 @@
     <CListGroup v-else>
       <CListGroupItem :key="index" v-for="(item, index) in comments">
         <strong style="color: #321fdb"
-          >{{ item.modifiedBy.firstName }} 
+          >{{ item.modifiedBy.firstName }}
           {{ item.modifiedBy.lastName ? item.modifiedBy.lastName : "" }}
         </strong>
         <CButton
@@ -206,7 +206,7 @@ export default {
           { responseType: "blob" }
         )
         .then((res) => {
-          this.src = window.URL.createObjectURL(res.data);
+          this.src = `${window.URL.createObjectURL(res.data)}#toolbar=0`;
         });
     },
     // comment
