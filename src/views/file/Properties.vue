@@ -95,7 +95,8 @@
     <CListGroup v-else>
       <CListGroupItem :key="index" v-for="(item, index) in comments">
         <strong style="color: #321fdb"
-          >{{ item.modifiedBy.firstName + " " + item.modifiedBy.lastName }}
+          >{{ item.modifiedBy.firstName }} 
+          {{ item.modifiedBy.lastName ? item.modifiedBy.lastName : "" }}
         </strong>
         <CButton
           class="float-right"
