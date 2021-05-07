@@ -208,7 +208,7 @@ export default {
           { responseType: "blob" }
         )
         .then(async (res) => {
-          const url = await window.URL.createObjectURL(res.data);
+          const url = await URL.createObjectURL(res.data);
           const viewer = await document.getElementById("viewer");
 
           viewer.setAttribute("src", `${url}#toolbar=0`);
