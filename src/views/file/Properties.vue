@@ -8,50 +8,113 @@
         </iframe>
       </CCol>
       <!-- Properties Section -->
-      <CCol col="3">
+      <CCol col="3" style="word-wrap: break-word">
         <CButton
           color="primary"
           @click="download(properties.properties['cm:versionLabel'])"
           >ดาวน์โหลด</CButton
         >
         <hr />
-        <b>ชื่อไฟล์:</b> {{ properties.name }} <br />
 
-        <b>หัวข้อ:</b>
-        {{
-          properties.properties.hasOwnProperty("cm:title")
-            ? properties.properties["cm:title"]
-            : "(None)"
-        }}
-        <br />
+        <CButton
+          block
+          class="card-header"
+          @click="accordion = accordion === 0 ? false : 0"
+        >
+          <h5 class="m-0">รายละเอียด</h5>
+        </CButton>
+        <CCollapse :show="accordion === 0">
+          <br />
+          <b>ชื่อไฟล์:</b> {{ properties.name }} <br />
 
-        <b>คำอธิบาย:</b>
-        {{
-          properties.properties.hasOwnProperty("cm:description")
-            ? properties.properties["cm:description"]
-            : "(None)"
-        }}
-        <br />
+          <b>หัวข้อ:</b>
+          {{
+            properties.properties.hasOwnProperty("cm:title")
+              ? properties.properties["cm:title"]
+              : "(None)"
+          }}
+          <br />
 
-        <b>เวอร์ชัน:</b>&nbsp;
-        <CBadge color="primary">{{
-          properties.properties["cm:versionLabel"]
-        }}</CBadge>
-        <br />
+          <b>คำอธิบาย:</b>
+          {{
+            properties.properties.hasOwnProperty("cm:description")
+              ? properties.properties["cm:description"]
+              : "(None)"
+          }}
+          <br />
 
-        <b>Mime type:</b> {{ properties.content.mimeTypeName }} <br />
-        <b>ขนาด:</b>
-        {{ (properties.content.sizeInBytes / 1000).toFixed(2) }} KB <br />
+          <b>เวอร์ชัน:</b>&nbsp;
+          <CBadge color="primary">{{
+            properties.properties["cm:versionLabel"]
+          }}</CBadge>
+          <br />
 
-        <b>สร้างโดย:</b>
-        {{ properties.createdByUser.displayName }} <br />
-        <b>วันที่สร้าง:</b>
-        {{ new Date(properties.createdAt).toLocaleDateString("th-TH") }} <br />
+          <b>Mime type:</b> {{ properties.content.mimeTypeName }} <br />
+          <b>ขนาด:</b>
+          {{ (properties.content.sizeInBytes / 1000).toFixed(2) }} KB <br />
 
-        <b>แก้ไขโดย:</b>
-        {{ properties.modifiedByUser.displayName }} <br />
-        <b>วันที่แก้ไข:</b>
-        {{ new Date(properties.modifiedAt).toLocaleDateString("th-TH") }} <br />
+          <b>สร้างโดย:</b>
+          {{ properties.createdByUser.displayName }} <br />
+          <b>วันที่สร้าง:</b>
+          {{ new Date(properties.createdAt).toLocaleDateString("th-TH") }}
+          <br />
+
+          <b>แก้ไขโดย:</b>
+          {{ properties.modifiedByUser.displayName }} <br />
+          <b>วันที่แก้ไข:</b>
+          {{ new Date(properties.modifiedAt).toLocaleDateString("th-TH") }}
+          <br />
+        </CCollapse>
+        <hr />
+        <!-- Versions Section -->
+        <CButton
+          block
+          class="card-header"
+          @click="accordion = accordion === 1 ? false : 1"
+        >
+          <h5 class="m-0">ประวัติเวอร์ชัน</h5>
+        </CButton>
+        <CCollapse :show="accordion === 1"
+          ><br />
+          <CDataTable
+            :items="versions"
+            :fields="fields"
+            :items-per-page="3"
+            sorter
+            hover
+            striped
+            border
+            pagination
+          >
+            <template #id="{ item }">
+              <td>
+                &nbsp;
+                <CBadge color="primary">{{ item.id }}</CBadge
+                >&nbsp; {{ item.name }} <br />
+                ความคิดเห็น:
+                {{
+                  item.hasOwnProperty("versionComment")
+                    ? item.versionComment
+                    : "(ไม่มีความคิดเห็น)"
+                }}
+              </td>
+            </template>
+            <template #actions="{ item }">
+              <td>
+                <CButton color="warning" size="sm" v-c-tooltip="'ย้อนเวอร์ชัน'"
+                  ><CIcon name="cil-media-skip-backward" /></CButton
+                >&nbsp;
+                <CButton
+                  color="success"
+                  size="sm"
+                  v-c-tooltip="'ดาวน์โหลด'"
+                  @click="download(item.id)"
+                  ><CIcon name="cil-cloud-download"
+                /></CButton>
+              </td>
+            </template>
+          </CDataTable>
+        </CCollapse>
       </CCol>
     </CRow>
     <hr />
@@ -94,7 +157,7 @@
 
     <!-- Comments -->
     <p v-if="comments.length == 0">ไม่มีความคิดเห็น</p>
-    <CListGroup v-else>
+    <CListGroup v-else style="height: 200px; overflow-y: auto">
       <CListGroupItem :key="index" v-for="(item, index) in comments">
         <strong style="color: #321fdb"
           >{{ item.modifiedBy.firstName }}
@@ -132,6 +195,103 @@ import "quill/dist/quill.bubble.css";
 
 import { quillEditor } from "vue-quill-editor";
 
+const previewableTypes = [
+  "application/pdf",
+
+  "text/mediawiki",
+  "text/sgml",
+  "text/x-jsp",
+  "text/xml",
+  "text/html",
+  "application/vnd.oasis.opendocument.text-template",
+  "text/csv",
+  "text/css",
+  "text/calendar",
+  "text/x-java-source",
+  "application/vnd.oasis.opendocument.text-master",
+  "text/tab-separated-values",
+  "application/vnd.oasis.opendocument.text-web",
+  "application/vnd.oasis.opendocument.text",
+  "text/richtext",
+  "text/x-markdown",
+  "text/plain",
+
+  "video/x-rad-screenplay",
+  "video/x-msvideo",
+  "video/quicktime",
+  "video/mp4",
+  "video/webm",
+  "video/x-m4v",
+  "video/3gpp",
+  "video/mpeg",
+  "video/mp2t",
+  "video/ogg",
+  "video/x-ms-asf",
+  "video/3gpp2",
+  "video/x-ms-wmv",
+  "video/x-flv",
+  "video/x-sgi-movie",
+  "video/mpeg2",
+  "application/json",
+  "application/java-archive",
+  "application/x-javascript",
+  "application/java",
+
+  "image/x-portable-graymap",
+  "image/x-portable-bitmap",
+  "image/x-rgb",
+  "image/vnd.adobe.premiere",
+  "image/x-raw-nikon",
+  "image/x-xpixmap",
+  "image/x-raw-panasonic",
+  "image/cgm",
+  "image/bmp",
+  "image/x-cmu-raster",
+  "image/x-raw-sony",
+  "image/vnd.dwg",
+  "image/jp2",
+  "image/tiff",
+  "image/x-raw-fuji",
+  "image/ief",
+  "image/vnd.adobe.photoshop",
+  "image/x-raw-pentax",
+  "image/gif",
+  "image/x-raw-olympus",
+  "image/x-raw-leica",
+  "image/x-xbitmap",
+  "image/x-raw-minolta",
+  "image/x-portable-pixmap",
+  "image/x-raw-kodak",
+  "image/jpeg",
+  "image/x-raw-sigma",
+  "image/svg+xml",
+  "image/x-raw-canon",
+  "image/x-raw-hasselblad",
+  "application/vnd.oasis.opendocument.image",
+  "image/png",
+  "image/x-xwindowdump",
+  "image/x-dwt",
+  "image/x-raw-adobe",
+  "image/x-raw-red",
+  "image/x-portable-anymap",
+
+  "audio/x-flac",
+  "audio/mp4",
+  "audio/x-ms-wma",
+  "audio/basic",
+  "audio/x-wav",
+  "audio/x-aiff",
+  "audio/mpeg",
+  "audio/vorbis",
+  "audio/ogg",
+  "audio/vnd.adobe.soundbooth",
+];
+
+const fields = [
+  { key: "id", label: "Version" },
+  { key: "actions", label: "Actions" },
+];
+
 export default {
   props: {
     id: String,
@@ -156,16 +316,24 @@ export default {
 
     // Get Content
     this.getContent();
+
+    // Get Versions
+    this.getVersions();
   },
   data() {
     return {
       openEditor: false,
+
+      accordion: 0,
 
       commentInput: "",
 
       commentId: "",
 
       comments: [],
+
+      versions: [],
+      fields,
 
       properties: {
         name: "",
@@ -206,19 +374,28 @@ export default {
           { responseType: "blob" }
         )
         .then(async (res) => {
-          const url = await URL.createObjectURL(res.data);
           const viewer = await document.getElementById("viewer");
+          if (previewableTypes.includes(res.data.type)) {
+            const url = await URL.createObjectURL(res.data);
 
-          viewer.setAttribute("src", `${url}#toolbar=0`);
+            viewer.setAttribute("src", `${url}#toolbar=0`);
 
-          viewer.onload = await function () {
-            // Disable Download Video
-            if (viewer.contentWindow.document.querySelector("[name='media']")) {
-              viewer.contentWindow.document
-                .querySelector("[name='media']")
-                .setAttribute("controlsList", "nodownload");
-            }
-          };
+            viewer.onload = await function () {
+              // Disable Download Video
+              if (
+                viewer.contentWindow.document.querySelector("[name='media']")
+              ) {
+                viewer.contentWindow.document
+                  .querySelector("[name='media']")
+                  .setAttribute("controlsList", "nodownload");
+              }
+            };
+          } else {
+            viewer.setAttribute(
+              "srcdoc",
+              "<h1>This document can't be previewed.</h1>"
+            );
+          }
         });
     },
     // comment
@@ -275,7 +452,20 @@ export default {
           this.getComments();
         });
     },
-    // ETC
+    // Versions
+    getVersions() {
+      this.$http
+        .get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/versions`
+        )
+        .then((res) => {
+          this.versions = res.data.list.entries.map((item) => {
+            return item.entry;
+          });
+          console.log(this.versions);
+        });
+    },
+    // Download
     download(version) {
       this.$http
         .get(
@@ -283,7 +473,7 @@ export default {
           { responseType: "blob" }
         )
         .then((res) => {
-          const url = window.URL.createObjectURL(res.data);
+          const url = URL.createObjectURL(res.data);
 
           let link = document.createElement("a");
           link.href = url;
