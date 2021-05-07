@@ -3,11 +3,9 @@
     <CRow>
       <!-- Preview Section -->
       <CCol>
-        <iframe
-          id="viewer"
-          frameborder="0"
-          style="width: 100%; height: 500px"
-        />
+        <iframe id="viewer" frameborder="0" style="width: 100%; height: 500px">
+          <p>Your browser does not support iframes.</p>
+        </iframe>
       </CCol>
       <!-- Properties Section -->
       <CCol col="3">
@@ -220,7 +218,6 @@ export default {
                 .querySelector("[name='media']")
                 .setAttribute("controlsList", "nodownload");
             }
-            URL.revokeObjectURL(url);
           };
         });
     },
