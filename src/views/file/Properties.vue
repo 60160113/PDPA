@@ -3,7 +3,11 @@
     <CRow>
       <!-- Preview Section -->
       <CCol>
-        <iframe :src="src" frameborder="0" style="width: 100%; height: 500px" />
+        <iframe
+          id="viewer"
+          frameborder="0"
+          style="width: 100%; height: 500px"
+        />
       </CCol>
       <!-- Properties Section -->
       <CCol col="3">
@@ -157,8 +161,6 @@ export default {
   },
   data() {
     return {
-      src: "",
-
       openEditor: false,
 
       commentInput: "",
@@ -205,8 +207,21 @@ export default {
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content`,
           { responseType: "blob" }
         )
-        .then((res) => {
-          this.src = `${window.URL.createObjectURL(res.data)}#toolbar=0`;
+        .then(async (res) => {
+          const url = await window.URL.createObjectURL(res.data);
+          const viewer = await document.getElementById("viewer");
+
+          viewer.setAttribute("src", `${url}#toolbar=0`);
+
+          viewer.onload = await function () {
+            // Disable Download Video
+            if (viewer.contentWindow.document.querySelector("[name='media']")) {
+              viewer.contentWindow.document
+                .querySelector("[name='media']")
+                .setAttribute("controlsList", "nodownload");
+            }
+            URL.revokeObjectURL(url);
+          };
         });
     },
     // comment
