@@ -77,18 +77,10 @@
                 </CCol>
                 <CCol>
                   {{ item.name }}
-                  {{
-                    item.title != ""
-                      ? `(${
-                          item.title.length >= 20
-                            ? item.title.substring(20, 0) + "..."
-                            : item.title
-                        })`
-                      : ""
-                  }}
+                  {{ item.title }}
                   <br />
                   Description:
-                  {{ item.description != "" ? item.description : "-" }}
+                  {{ item.description }}
                 </CCol>
               </CRow>
             </td>
@@ -343,16 +335,16 @@ export default {
             if (e.entry.hasOwnProperty("properties")) {
               Object.assign(e.entry, {
                 title: e.entry.properties.hasOwnProperty("cm:title")
-                  ? e["entry"]["properties"]["cm:title"]
+                  ? `(${e["entry"]["properties"]["cm:title"]})`
                   : "",
                 description: e.entry.properties.hasOwnProperty("cm:description")
                   ? e["entry"]["properties"]["cm:description"]
-                  : "",
+                  : "-",
               });
             } else {
               Object.assign(e.entry, {
                 title: "",
-                description: "",
+                description: "-",
               });
             }
             e.entry.modifiedAt = new Date(
