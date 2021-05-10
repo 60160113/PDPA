@@ -107,18 +107,18 @@ export default {
           this.user
         );
 
-        const Authorization = `Basic ${window.btoa(
+        this.$http.defaults.headers["Authorization"] = `Basic ${window.btoa(
           loginResponse.data.entry.id
         )}`;
 
         const userDataResponse = await this.$http.get(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/-me-`,
-          {
-            headers: {
-              Authorization,
-            },
-          }
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/-me-`
         );
+
+        const userGroupsResponse = await this.$http.get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/-me-/groups`
+        );
+
         const data = {
           ticket: loginResponse.data.entry.id,
           userId: this.user.userId,
@@ -127,11 +127,12 @@ export default {
             (userDataResponse.data.entry.hasOwnProperty("lastName")
               ? " " + userDataResponse.data.entry.lastName
               : ""),
+          groups: userGroupsResponse.data.list.entries.map(
+            (item) => item.entry.id
+          ),
         };
         this.$store.commit("set", ["user", data]);
         localStorage.setItem("user", JSON.stringify(data));
-
-        this.$http.defaults.headers["Authorization"] = Authorization;
 
         this.$router.push("/myfiles");
       } catch (error) {
