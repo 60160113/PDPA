@@ -13,6 +13,9 @@
           color="primary"
           @click="download(properties.properties['cm:versionLabel'])"
           >ดาวน์โหลด</CButton
+        >&nbsp;
+        <CButton color="primary" @click="uploadNewVersionModal = true"
+          >นำเข้าเวอร์ชันใหม่</CButton
         >
         <hr />
 
@@ -227,7 +230,7 @@
       color="primary"
     >
       <CInputRadioGroup
-        name="majorVersion"
+        name="revert-isMajor"
         :options="[
           { value: 'false', label: 'การเปลี่ยนแปลงย่อย' },
           { value: 'true', label: 'การเปลี่ยนแปลงหลัก' },
@@ -249,6 +252,56 @@
       <template #footer>
         <CButton @click="revertModal = false" color="danger">ยกเลิก</CButton>
         <CButton color="success" @click="revertVersion">ตกลง</CButton>
+      </template>
+    </CModal>
+
+    <!-- upload new version Modal -->
+    <CModal
+      :show.sync="uploadNewVersionModal"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="นำเข้าเวอร์ชันใหม่"
+      size="lg"
+      color="primary"
+    >
+      <div class="row">
+        <label class="col-sm-3">อัปโหลดไฟล์</label>
+        <input
+          type="file"
+          class="col-sm-9"
+          ref="fileInput"
+          @change="uploadHandler"
+        />
+      </div>
+      <hr />
+      <CInputRadioGroup
+        name="upload-isMajor"
+        :options="[
+          { value: 'false', label: 'การเปลี่ยนแปลงย่อย' },
+          { value: 'true', label: 'การเปลี่ยนแปลงหลัก' },
+        ]"
+        :checked.sync="versionProperties.majorVersion"
+        inline
+        custom
+      />
+      <br />
+      <CTextarea
+        label="คำอธิบาย"
+        horizontal
+        v-model="versionProperties.comment"
+      />
+      <template #header>
+        <h6 class="modal-title">นำเข้าเวอร์ชันใหม่</h6>
+        <CButtonClose
+          @click="uploadNewVersionModal = false"
+          class="text-white"
+        />
+      </template>
+      <template #footer>
+        <CButton @click="uploadNewVersionModal = false" color="danger"
+          >ยกเลิก</CButton
+        >
+        <CButton color="success" @click="upload">ตกลง</CButton>
       </template>
     </CModal>
   </div>
@@ -282,19 +335,32 @@ export default {
         this.commentInput = "";
       }
     },
+    revertModal: function (val) {
+      if (!val) {
+        this.versionProperties.majorVersion = "false";
+        this.versionProperties.comment = "";
+      }
+    },
+    uploadNewVersionModal: function (val) {
+      if (!val) {
+        this.$refs["fileInput"].value = null;
+        this.versionProperties.majorVersion = "false";
+        this.versionProperties.comment = "";
+      }
+    },
   },
   created() {
-    // Get Content
-    this.getContent();
-    
     // Get properties
     this.getProperties();
 
-    // Get Comment
-    this.getComments();
+    // Get Content
+    this.getContent();
 
     // Get Versions
     this.getVersions();
+
+    // Get Comment
+    this.getComments();
   },
   data() {
     return {
@@ -312,7 +378,10 @@ export default {
       versions: [],
       fields,
 
+      file: null,
+
       revertModal: false,
+      uploadNewVersionModal: false,
       removeCommentModal: false,
 
       properties: {
@@ -367,6 +436,8 @@ export default {
 
             viewer.setAttribute("src", `${url}#toolbar=0`);
 
+            viewer.removeAttribute("srcdoc");
+            
             viewer.onload = await function () {
               // Disable Download Video
               if (
@@ -376,6 +447,8 @@ export default {
                   .querySelector("[name='media']")
                   .setAttribute("controlsList", "nodownload");
               }
+              const body = viewer.contentWindow.document.querySelector("body");
+              body.setAttribute("oncontextmenu", "return false");
             };
           } else {
             viewer.setAttribute(
@@ -484,6 +557,23 @@ export default {
           this.getContent();
           this.getVersions();
           this.revertModal = false;
+        });
+    },
+    // New Version
+    uploadHandler() {
+      this.file = event.currentTarget.files[0];
+    },
+    upload() {
+      this.$http
+        .put(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content?majorVersion=${this.versionProperties.majorVersion}&comment=${this.versionProperties.comment}&name=${this.file.name}`,
+          this.file
+        )
+        .then(() => {
+          this.getProperties();
+          this.getContent();
+          this.getVersions();
+          this.uploadNewVersionModal = false;
         });
     },
   },
