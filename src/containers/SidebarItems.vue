@@ -41,6 +41,23 @@ export default {
               to: "/search",
               icon: "cil-search",
             },
+            // Audit
+            {
+              _name: "CSidebarNavTitle",
+              _children: ["Audit"],
+            },
+            {
+              _name: "CSidebarNavItem",
+              name: "Files Report",
+              to: "/files-report",
+              icon: "cil-history",
+            },
+            {
+              _name: "CSidebarNavItem",
+              name: "Users Report",
+              to: "/users-report",
+              icon: "cil-people",
+            },
           ],
         },
       ];
