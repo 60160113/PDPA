@@ -14,7 +14,10 @@
           @click="download(properties.properties['cm:versionLabel'])"
           >ดาวน์โหลด</CButton
         >&nbsp;
-        <CButton color="primary" @click="uploadNewVersionModal = true"
+        <CButton
+          color="primary"
+          :disabled="!permissionCheck('update')"
+          @click="uploadNewVersionModal = true"
           >นำเข้าเวอร์ชันใหม่</CButton
         >
         <hr />
@@ -108,6 +111,7 @@
                   color="warning"
                   size="sm"
                   v-c-tooltip="{ content: 'ย้อนเวอร์ชัน', placement: 'left' }"
+                  :disabled="!permissionCheck('update')"
                   @click="
                     versionId = item.id;
                     revertModal = true;
@@ -131,7 +135,11 @@
 
     <!-- Comment Section -->
     <strong style="color: #321fdb">ความคิดเห็น </strong>
-    <CButton color="primary" size="sm" @click="openEditor = true"
+    <CButton
+      color="primary"
+      size="sm"
+      :disabled="!permissionCheck('update')"
+      @click="openEditor = true"
       >เพิ่มความคิดเห็น</CButton
     >
     <hr />
@@ -437,7 +445,7 @@ export default {
             viewer.setAttribute("src", `${url}#toolbar=0`);
 
             viewer.removeAttribute("srcdoc");
-            
+
             viewer.onload = await function () {
               // Disable Download Video
               if (
@@ -575,6 +583,13 @@ export default {
           this.getVersions();
           this.uploadNewVersionModal = false;
         });
+    },
+    // Permission
+    permissionCheck(value) {
+      return (
+        this.properties.hasOwnProperty("allowableOperations") &&
+        this.properties.allowableOperations.indexOf(value) != -1
+      );
     },
   },
 };
