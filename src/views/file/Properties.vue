@@ -101,13 +101,20 @@
             </template>
             <template #actions="{ item }">
               <td>
-                <CButton color="warning" size="sm" v-c-tooltip="'ย้อนเวอร์ชัน'"
+                <CButton
+                  color="warning"
+                  size="sm"
+                  v-c-tooltip="{ content: 'ย้อนเวอร์ชัน', placement: 'left' }"
+                  @click="
+                    versionId = item.id;
+                    revertModal = true;
+                  "
                   ><CIcon name="cil-media-skip-backward" /></CButton
                 >&nbsp;
                 <CButton
                   color="success"
                   size="sm"
-                  v-c-tooltip="'ดาวน์โหลด'"
+                  v-c-tooltip="{ content: 'ดาวน์โหลด', placement: 'right' }"
                   @click="download(item.id)"
                   ><CIcon name="cil-cloud-download"
                 /></CButton>
@@ -177,7 +184,10 @@
           size="sm"
           color="danger"
           v-c-tooltip="'ลบ'"
-          @click="removeComment(item.id)"
+          @click="
+            commentId = item.id;
+            removeCommentModal = true;
+          "
           :disabled="!item.canDelete"
           ><CIcon name="cil-trash"
         /></CButton>
@@ -185,6 +195,62 @@
         <p v-html="item.content" />
       </CListGroupItem>
     </CListGroup>
+
+    <!-- Remove comment Modal -->
+    <CModal
+      :show.sync="removeCommentModal"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      size="sm"
+      color="danger"
+    >
+      คุณต้องการลบความคิดเห็นที่เลือกนี้หรือไม่ ?
+      <template #header>
+        <h6 class="modal-title">ลบความคิดเห็น</h6>
+        <CButtonClose @click="removeCommentModal = false" class="text-white" />
+      </template>
+      <template #footer>
+        <CButton @click="removeCommentModal = false" color="danger"
+          >ยกเลิก</CButton
+        >
+        <CButton color="success" @click="removeComment">ตกลง</CButton>
+      </template>
+    </CModal>
+
+    <!-- Revert Modal -->
+    <CModal
+      :show.sync="revertModal"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="ย้อนเวอร์ชัน"
+      size="lg"
+      color="primary"
+    >
+      <CInputRadioGroup
+        name="majorVersion"
+        :options="[
+          { value: 'false', label: 'การเปลี่ยนแปลงย่อย' },
+          { value: 'true', label: 'การเปลี่ยนแปลงหลัก' },
+        ]"
+        :checked.sync="versionProperties.majorVersion"
+        inline
+        custom
+      />
+      <br />
+      <CTextarea
+        label="คำอธิบาย"
+        horizontal
+        v-model="versionProperties.comment"
+      />
+      <template #header>
+        <h6 class="modal-title">ย้อนเวอร์ชัน</h6>
+        <CButtonClose @click="revertModal = false" class="text-white" />
+      </template>
+      <template #footer>
+        <CButton @click="revertModal = false" color="danger">ยกเลิก</CButton>
+        <CButton color="success" @click="revertVersion">ตกลง</CButton>
+      </template>
+    </CModal>
   </div>
 </template>
 
@@ -218,14 +284,14 @@ export default {
     },
   },
   created() {
+    // Get Content
+    this.getContent();
+    
     // Get properties
     this.getProperties();
 
     // Get Comment
     this.getComments();
-
-    // Get Content
-    this.getContent();
 
     // Get Versions
     this.getVersions();
@@ -239,11 +305,15 @@ export default {
       commentInput: "",
 
       commentId: "",
+      versionId: "",
 
       comments: [],
 
       versions: [],
       fields,
+
+      revertModal: false,
+      removeCommentModal: false,
 
       properties: {
         name: "",
@@ -262,6 +332,11 @@ export default {
         properties: {
           "cm:versionLabel": "",
         },
+      },
+
+      versionProperties: {
+        majorVersion: "false",
+        comment: "",
       },
 
       previewableTypes,
@@ -336,13 +411,14 @@ export default {
           this.getComments();
         });
     },
-    removeComment(commentId) {
+    removeComment() {
       this.$http
         .delete(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/comments/${commentId}`
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/comments/${this.commentId}`
         )
         .then(() => {
           this.getComments();
+          this.removeCommentModal = false;
         });
     },
     editCommentHandler(id, content) {
@@ -390,6 +466,24 @@ export default {
           link.href = url;
           link.download = this.properties.name;
           link.dispatchEvent(new MouseEvent("click"));
+        });
+    },
+    // Revert
+    revertVersion() {
+      const data = {
+        majorVersion: JSON.parse(this.versionProperties.majorVersion),
+        comment: this.versionProperties.comment,
+      };
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/versions/${this.versionId}/revert`,
+          data
+        )
+        .then(() => {
+          this.getProperties();
+          this.getContent();
+          this.getVersions();
+          this.revertModal = false;
         });
     },
   },
