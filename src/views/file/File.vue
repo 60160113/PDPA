@@ -47,14 +47,18 @@
             <CButton
               color="primary"
               shape="pill"
-              :disabled="isTableLoaded"
+              :disabled="
+                isTableLoaded || !permissionCheck(currentFolder, 'create')
+              "
               @click="modalStatus.newFolder = true"
               ><CIcon name="cil-folder" /> สร้างโฟลเดอร์ใหม่</CButton
             >&nbsp;
             <CButton
               color="primary"
               shape="pill"
-              :disabled="isTableLoaded"
+              :disabled="
+                isTableLoaded || !permissionCheck(currentFolder, 'create')
+              "
               @click="modalStatus.upload = true"
               ><CIcon name="cil-file" /> อัปโหลด</CButton
             >
@@ -96,15 +100,16 @@
           </template>
           <template #actions="{ item }">
             <td>
-              <CButton color="success" v-c-tooltip="'ย้าย'"
+              <!-- <CButton color="success" v-c-tooltip="'ย้าย'"
                 ><CIcon name="cil-cursor" /></CButton
               >&nbsp;
               <CButton color="warning" v-c-tooltip="'คัดลอก'"
                 ><CIcon name="cil-copy" /></CButton
-              >&nbsp;
+              >&nbsp; -->
               <CButton
                 color="danger"
                 v-c-tooltip="'ลบ'"
+                :disabled="!permissionCheck(item, 'delete')"
                 @click="
                   selectId = item.id;
                   modalStatus.remove = true;
@@ -443,6 +448,12 @@ export default {
     property(id) {
       this.selectId = id;
       this.modalStatus.properties = true;
+    },
+    permissionCheck(file, value) {
+      return (
+        file.hasOwnProperty("allowableOperations") &&
+        file.allowableOperations.indexOf(value) != -1
+      );
     },
   },
 };
