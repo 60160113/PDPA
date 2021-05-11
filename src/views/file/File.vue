@@ -244,7 +244,7 @@
       :show.sync="modalStatus.move"
       :no-close-on-backdrop="true"
       :centered="true"
-      size="xl"
+      size="lg"
       color="primary"
     >
       <Destination
@@ -265,7 +265,7 @@
       :show.sync="modalStatus.copy"
       :no-close-on-backdrop="true"
       :centered="true"
-      size="xl"
+      size="lg"
       color="primary"
     >
       <Destination
