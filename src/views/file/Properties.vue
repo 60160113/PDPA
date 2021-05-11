@@ -361,9 +361,6 @@ export default {
     // Get properties
     this.getProperties();
 
-    // Get Content
-    this.getContent();
-
     // Get Versions
     this.getVersions();
 
@@ -428,6 +425,20 @@ export default {
         )
         .then((res) => {
           this.properties = res.data.entry;
+
+          // Get Content
+          if (
+            this.previewableTypes.includes(this.properties.content.mimeType)
+          ) {
+            this.getContent();
+          } else {
+            document
+              .getElementById("viewer")
+              .setAttribute(
+                "srcdoc",
+                "<h1>This document can't be previewed.</h1>"
+              );
+          }
         });
     },
     // Preview
@@ -439,31 +450,22 @@ export default {
         )
         .then(async (res) => {
           const viewer = await document.getElementById("viewer");
-          if (this.previewableTypes.includes(res.data.type)) {
-            const url = await URL.createObjectURL(res.data);
+          const url = await URL.createObjectURL(res.data);
 
-            viewer.setAttribute("src", `${url}#toolbar=0`);
+          viewer.setAttribute("src", `${url}#toolbar=0`);
 
-            viewer.removeAttribute("srcdoc");
+          viewer.removeAttribute("srcdoc");
 
-            viewer.onload = await function () {
-              // Disable Download Video
-              if (
-                viewer.contentWindow.document.querySelector("[name='media']")
-              ) {
-                viewer.contentWindow.document
-                  .querySelector("[name='media']")
-                  .setAttribute("controlsList", "nodownload");
-              }
-              const body = viewer.contentWindow.document.querySelector("body");
-              body.setAttribute("oncontextmenu", "return false");
-            };
-          } else {
-            viewer.setAttribute(
-              "srcdoc",
-              "<h1>This document can't be previewed.</h1>"
-            );
-          }
+          viewer.onload = await function () {
+            // Disable Download Video
+            if (viewer.contentWindow.document.querySelector("[name='media']")) {
+              viewer.contentWindow.document
+                .querySelector("[name='media']")
+                .setAttribute("controlsList", "nodownload");
+            } 
+            const body = viewer.contentWindow.document.querySelector("body");
+            body.setAttribute("oncontextmenu", "return false");
+          };
         });
     },
     // comment
@@ -562,7 +564,6 @@ export default {
         )
         .then(() => {
           this.getProperties();
-          this.getContent();
           this.getVersions();
           this.revertModal = false;
         });
@@ -579,7 +580,6 @@ export default {
         )
         .then(() => {
           this.getProperties();
-          this.getContent();
           this.getVersions();
           this.uploadNewVersionModal = false;
         });
