@@ -92,12 +92,25 @@
           </template>
           <template #actions="{ item }">
             <td>
-              <!-- <CButton color="success" v-c-tooltip="'ย้าย'"
+              <CButton
+                color="success"
+                v-c-tooltip="'ย้าย'"
+                :disabled="!permissionCheck(item, 'delete')"
+                @click="
+                  selectId = item.id;
+                  modalStatus.move = true;
+                "
                 ><CIcon name="cil-cursor" /></CButton
               >&nbsp;
-              <CButton color="warning" v-c-tooltip="'คัดลอก'"
+              <CButton
+                color="warning"
+                v-c-tooltip="'คัดลอก'"
+                @click="
+                  selectId = item.id;
+                  modalStatus.copy = true;
+                "
                 ><CIcon name="cil-copy" /></CButton
-              >&nbsp; -->
+              >&nbsp;
               <CButton
                 color="danger"
                 v-c-tooltip="'ลบ'"
@@ -224,6 +237,48 @@
         >
       </template>
     </CModal>
+
+    <!-- Move File Modal -->
+    <CModal
+      v-if="modalStatus.move"
+      :show.sync="modalStatus.move"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      size="xl"
+      color="primary"
+    >
+      <Destination
+        :button="{ label: 'ย้ายเอกสาร' }"
+        :from="{ destination: currentFolder.id, selected: selectId }"
+        :onComplete="moveFile"
+      />
+      <template #header>
+        <h6 class="modal-title">ย้ายเอกสาร</h6>
+        <CButtonClose @click="modalStatus.move = false" class="text-white" />
+      </template>
+      <template #footer><div /></template>
+    </CModal>
+
+    <!-- Copy File Modal -->
+    <CModal
+      v-if="modalStatus.copy"
+      :show.sync="modalStatus.copy"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      size="xl"
+      color="primary"
+    >
+      <Destination
+        :button="{ label: 'คัดลอกเอกสาร' }"
+        :from="{ destination: currentFolder.id, selected: selectId }"
+        :onComplete="copyFile"
+      />
+      <template #header>
+        <h6 class="modal-title">คัดลอกเอกสาร</h6>
+        <CButtonClose @click="modalStatus.copy = false" class="text-white" />
+      </template>
+      <template #footer><div /></template>
+    </CModal>
   </div>
 </template>
 
@@ -236,9 +291,12 @@ const fields = [
 
 import Properties from "./Properties";
 
+import Destination from "./Destination";
+
 export default {
   components: {
     Properties,
+    Destination,
   },
   async created() {
     const id = () => {
@@ -429,6 +487,31 @@ export default {
           this.getList(this.currentFolder.id);
         });
       this.modalLoaded = false;
+    },
+    moveFile(destination) {
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectId}/move`,
+          {
+            targetParentId: destination.id,
+          }
+        )
+        .then(() => {
+          this.modalStatus.move = false;
+          this.getList(this.currentFolder.id);
+        });
+    },
+    copyFile(destination) {
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectId}/copy`,
+          {
+            targetParentId: destination.id,
+          }
+        )
+        .then(() => {
+          this.modalStatus.copy = false;
+        });
     },
     clearProperties() {
       this.properties = {
