@@ -329,14 +329,7 @@ export default {
   },
   data() {
     return {
-      list: [
-        {
-          name: "",
-          modifiedAt: "",
-          title: "",
-          description: "",
-        },
-      ],
+      list: [],
       fields,
 
       file: null,
@@ -373,46 +366,51 @@ export default {
   },
   methods: {
     async getList(id) {
-      this.isTableLoaded = true;
       try {
+        this.isTableLoaded = true;
         const currentFolder = await this.$http.get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}?include=allowableOperations,path,properties`
         );
         this.currentFolder = await currentFolder.data.entry;
+
         let isMoreItems = false,
           maxItems = 1000,
-          skipCount = 0;
+          skipCount = 0,
+          responseList = [];
         do {
           const response = await this.$http.get(
             `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations`
           );
 
-          this.list = [];
-
-          response.data.list.entries.map((e) => {
-            if (e.entry.hasOwnProperty("properties")) {
-              Object.assign(e.entry, {
-                title: e.entry.properties.hasOwnProperty("cm:title")
-                  ? `(${e["entry"]["properties"]["cm:title"]})`
-                  : "",
-                description: e.entry.properties.hasOwnProperty("cm:description")
-                  ? e["entry"]["properties"]["cm:description"]
-                  : "-",
-              });
-            } else {
-              Object.assign(e.entry, {
-                title: "",
-                description: "-",
-              });
-            }
-            e.entry.modifiedAt = new Date(
-              e.entry.modifiedAt
-            ).toLocaleDateString("th-TH");
-            this.list.push(e.entry);
-          });
+          responseList.push(
+            ...response.data.list.entries.map((e) => {
+              if (e.entry.hasOwnProperty("properties")) {
+                Object.assign(e.entry, {
+                  title: e.entry.properties.hasOwnProperty("cm:title")
+                    ? `(${e["entry"]["properties"]["cm:title"]})`
+                    : "",
+                  description: e.entry.properties.hasOwnProperty(
+                    "cm:description"
+                  )
+                    ? e["entry"]["properties"]["cm:description"]
+                    : "-",
+                });
+              } else {
+                Object.assign(e.entry, {
+                  title: "",
+                  description: "-",
+                });
+              }
+              e.entry.modifiedAt = new Date(
+                e.entry.modifiedAt
+              ).toLocaleDateString("th-TH");
+              return e.entry;
+            })
+          );
           isMoreItems = await response.data.list.pagination.hasMoreItems;
           skipCount += maxItems;
         } while (isMoreItems);
+        this.list = responseList;
         this.isTableLoaded = false;
       } catch (error) {
         this.isTableLoaded = false;
