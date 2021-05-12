@@ -188,7 +188,6 @@ export default {
         this.selectedDestination = null;
         this.isLoaded = false;
       } catch (error) {
-        console.log(error);
         this.isLoaded = false;
       }
     },
