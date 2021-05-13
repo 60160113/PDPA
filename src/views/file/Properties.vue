@@ -6,6 +6,7 @@
         <iframe id="viewer" frameborder="0" style="width: 100%; height: 500px">
           <p>Your browser does not support iframes.</p>
         </iframe>
+        <CElementCover :opacity="0.8" v-show="isContentLoaded" />
       </CCol>
       <!-- Properties Section -->
       <CCol col="3" style="word-wrap: break-word">
@@ -370,6 +371,7 @@ export default {
   data() {
     return {
       openEditor: false,
+      isContentLoaded: false,
 
       accordion: 0,
 
@@ -443,6 +445,7 @@ export default {
     },
     // Preview
     getContent() {
+      this.isContentLoaded = true;
       this.$http
         .get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content`,
@@ -455,17 +458,20 @@ export default {
           viewer.setAttribute("src", `${url}#toolbar=0`);
 
           viewer.removeAttribute("srcdoc");
-
+          this.isContentLoaded = false;
           viewer.onload = await function () {
             // Disable Download Video
             if (viewer.contentWindow.document.querySelector("[name='media']")) {
               viewer.contentWindow.document
                 .querySelector("[name='media']")
                 .setAttribute("controlsList", "nodownload");
-            } 
+            }
             const body = viewer.contentWindow.document.querySelector("body");
             body.setAttribute("oncontextmenu", "return false");
           };
+        })
+        .catch(() => {
+          this.isContentLoaded = false;
         });
     },
     // comment
