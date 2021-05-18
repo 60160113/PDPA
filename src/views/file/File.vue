@@ -72,6 +72,7 @@
                 <CCol md="2">
                   <CIcon
                     height="42"
+                    :style="`color: ${item.isFile ? '#3c4b64' : '#f9b115'}`"
                     :name="item.isFile ? 'cil-file' : 'cil-folder'"
                   />
                 </CCol>
