@@ -357,6 +357,13 @@ export default {
         this.versionProperties.comment = "";
       }
     },
+    removeCommentModal: function (val) {
+      if (!val) {
+        this.commentId = "";
+      } else {
+        this.openEditor = false;
+      }
+    },
   },
   created() {
     // Get properties
