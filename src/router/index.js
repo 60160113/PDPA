@@ -2,6 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 
 import file from "./file";
+import workflow from "./workflow";
 import search from "./search";
 
 import audit from "./audit";
@@ -47,7 +48,7 @@ const router = new Router({
       path: "",
       name: "Home",
       component: TheContainer,
-      children: [...file, ...search, ...audit]
+      children: [...file, ...workflow, ...search, ...audit]
     },
     {
       path: "*",

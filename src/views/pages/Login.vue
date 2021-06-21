@@ -100,9 +100,15 @@ export default {
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/-me-/groups`
         );
 
+        const tokenResponse = await this.$http.post(
+          `${process.env.VUE_APP_BACKEND_API}auth/sign`,
+          { username: this.user.userId }
+        );
+
         const data = {
           ticket: loginResponse.data.entry.id,
           userId: this.user.userId,
+          token: tokenResponse.data.token,
           displayName:
             userDataResponse.data.entry.firstName +
             (userDataResponse.data.entry.hasOwnProperty("lastName")

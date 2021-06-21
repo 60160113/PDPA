@@ -25,6 +25,17 @@ export default [
   // Search
   {
     _name: "CSidebarNavTitle",
+    _children: ["Workflow"]
+  },
+  {
+    _name: "CSidebarNavItem",
+    name: "Workflow",
+    to: "/workflow",
+    icon: "cil-check"
+  },
+  // Search
+  {
+    _name: "CSidebarNavTitle",
     _children: ["Search"]
   },
   {
