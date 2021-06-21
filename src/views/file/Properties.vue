@@ -10,17 +10,24 @@
       </CCol>
       <!-- Properties Section -->
       <CCol col="3" style="word-wrap: break-word">
-        <CButton
-          color="primary"
-          @click="download(properties.properties['cm:versionLabel'])"
-          >ดาวน์โหลด</CButton
-        >&nbsp;
-        <CButton
-          color="primary"
-          :disabled="!permissionCheck('update')"
-          @click="uploadNewVersionModal = true"
-          >นำเข้าเวอร์ชันใหม่</CButton
-        >
+        <CButtonToolbar justify>
+          <CButton
+            block
+            color="primary"
+            @click="download(properties.properties['cm:versionLabel'])"
+            >ดาวน์โหลด</CButton
+          ><CButton block color="primary" @click="sharedModal = true"
+            >แชร์</CButton
+          >
+          <CButton
+            block
+            color="primary"
+            :disabled="!permissionCheck('update')"
+            @click="uploadNewVersionModal = true"
+            >นำเข้าเวอร์ชันใหม่</CButton
+          >
+        </CButtonToolbar>
+
         <hr />
 
         <CButton
@@ -313,6 +320,60 @@
         <CButton color="success" @click="upload">ตกลง</CButton>
       </template>
     </CModal>
+
+    <!-- Shared Modal -->
+    <CModal
+      :show.sync="sharedModal"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="แชร์"
+      size="lg"
+      color="primary"
+    >
+      <div v-if="sharedLink.link">
+        <CInput
+          label="ลิงค์:"
+          horizontal
+          id="shared-link"
+          v-model="sharedLink.link"
+          readonly
+        />
+
+        <hr />
+        <CButton color="danger" @click="deleteSharedLink()">ยกเลิกแชร์</CButton>
+      </div>
+
+      <div v-else>
+        <CRow>
+          <CCol col="2"
+            ><label style="margin-top: 6px">ระยะเวลาที่แชร์: </label></CCol
+          >
+          <CCol>
+            <v-date-picker
+              :min-date="disabledDate"
+              v-model="sharedLink.expiresAt"
+            />
+          </CCol>
+          <CCol col="2"
+            ><CButton block color="warning" @click="sharedLink.expiresAt = null"
+              >ยกเลิก</CButton
+            ></CCol
+          >
+        </CRow>
+        <br />
+        <CButton block color="primary" @click="createSharedLink()"
+          >แชร์</CButton
+        >
+      </div>
+
+      <template #header>
+        <h6 class="modal-title">แชร์</h6>
+        <CButtonClose @click="sharedModal = false" class="text-white" />
+      </template>
+      <template #footer>
+        <CButton @click="sharedModal = false" color="danger">ปิด</CButton>
+      </template>
+    </CModal>
   </div>
 </template>
 
@@ -322,6 +383,8 @@ import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 
 import { quillEditor } from "vue-quill-editor";
+
+import { DatePicker } from "v-calendar";
 
 import previewableTypes from "@/views/file/previewableTypes";
 
@@ -336,6 +399,7 @@ export default {
   },
   components: {
     quillEditor,
+    "v-date-picker": DatePicker,
   },
   watch: {
     openEditor: function (val) {
@@ -363,6 +427,21 @@ export default {
       } else {
         this.openEditor = false;
       }
+    },
+    sharedModal: async function (val) {
+      if (val && this.sharedLink.link) {
+        const Link = await document.getElementById("shared-link");
+        Link.select();
+        Link.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+      }
+    },
+  },
+  computed: {
+    disabledDate() {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow;
     },
   },
   created() {
@@ -397,6 +476,13 @@ export default {
       revertModal: false,
       uploadNewVersionModal: false,
       removeCommentModal: false,
+      sharedModal: false,
+
+      sharedLink: {
+        expiresAt: null,
+        link: false,
+        id: "",
+      },
 
       properties: {
         name: "",
@@ -434,6 +520,11 @@ export default {
         )
         .then((res) => {
           this.properties = res.data.entry;
+
+          if (this.properties.properties.hasOwnProperty("qshare:sharedId")) {
+            this.sharedLink.id = this.properties.properties["qshare:sharedId"];
+            this.sharedLink.link = `${process.env.VUE_APP_ALFRESCO_BASE}share/s/${this.sharedLink.id}`;
+          }
 
           // Get Content
           if (
@@ -603,6 +694,38 @@ export default {
         this.properties.hasOwnProperty("allowableOperations") &&
         this.properties.allowableOperations.indexOf(value) != -1
       );
+    },
+    // Create a shared link to a file
+    createSharedLink() {
+      var data = {
+        nodeId: this.id,
+      };
+      if (this.sharedLink.expiresAt != null) {
+        data.expiresAt = this.sharedLink.expiresAt.toISOString();
+      }
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/shared-links`,
+          data
+        )
+        .then((response) => {
+          this.sharedLink.id = response.data.entry.id;
+          this.sharedLink.link = `${process.env.VUE_APP_ALFRESCO_BASE}share/s/${this.sharedLink.id}`;
+        });
+    },
+    // Deletes a shared link
+    deleteSharedLink() {
+      this.$http
+        .delete(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/shared-links/${this.sharedLink.id}`
+        )
+        .then(() => {
+          this.sharedLink = {
+            expiresAt: null,
+            link: false,
+            id: "",
+          };
+        });
     },
   },
 };
