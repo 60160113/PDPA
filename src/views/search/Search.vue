@@ -58,7 +58,7 @@
             <v-date-picker is-expanded mode="range" v-model="search.date" />
           </CCol>
           <CCol col="2">
-            <CButton color="warning" @click="search.date = null"
+            <CButton block color="warning" @click="search.date = null"
               >ยกเลิก</CButton
             >
           </CCol>
