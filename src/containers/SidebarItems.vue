@@ -1,64 +1,46 @@
 <script>
+import menu from "./menu";
 export default {
   name: "nav",
+  data() {
+    return {
+      items: menu.filter((element) => {
+        if (element["_name"] == "CSidebarNavItem") {
+          // CSidebarNavItem
+          if (
+            this.$router.match(element.to).meta.hasOwnProperty("restriction")
+          ) {
+            if (
+              this.$store.state.user.groups.indexOf(
+                this.$router.match(element.to).meta.restriction
+              ) != -1
+            ) {
+              return true;
+            }
+            return false;
+          }
+          return true;
+        } else {
+          // CSidebarNavTitle
+          if (element.hasOwnProperty("restriction")) {
+            if (
+              this.$store.state.user.groups.indexOf(element.restriction) != -1
+            ) {
+              return true;
+            }
+            return false;
+          }
+          return true;
+        }
+      }),
+    };
+  },
   computed: {
     sidebarItems() {
       return [
         {
           _name: "CSidebarNav",
-          _children: [
-            // Files
-            {
-              _name: "CSidebarNavTitle",
-              _children: ["Files"],
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "My Files",
-              to: "/myfiles",
-              icon: "cil-file",
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Shared Files",
-              to: "/sharedfiles",
-              icon: "cil-file",
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Repository",
-              to: "/repository",
-              icon: "cil-file",
-            },
-            // Search
-            {
-              _name: "CSidebarNavTitle",
-              _children: ["Search"],
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Search",
-              to: "/search",
-              icon: "cil-search",
-            },
-            // Audit
-            {
-              _name: "CSidebarNavTitle",
-              _children: ["Audit"],
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Files Report",
-              to: "/files-report",
-              icon: "cil-history",
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Users Report",
-              to: "/users-report",
-              icon: "cil-people",
-            },
-          ],
+          _children: [...this.items],
         },
       ];
     },

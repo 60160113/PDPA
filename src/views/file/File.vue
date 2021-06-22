@@ -72,6 +72,7 @@
                 <CCol md="2">
                   <CIcon
                     height="42"
+                    :style="`color: ${item.isFile ? '#3c4b64' : '#f9b115'}`"
                     :name="item.isFile ? 'cil-file' : 'cil-folder'"
                   />
                 </CCol>
@@ -92,12 +93,25 @@
           </template>
           <template #actions="{ item }">
             <td>
-              <!-- <CButton color="success" v-c-tooltip="'ย้าย'"
+              <CButton
+                color="success"
+                v-c-tooltip="'ย้าย'"
+                :disabled="!permissionCheck(item, 'delete')"
+                @click="
+                  selectId = item.id;
+                  modalStatus.move = true;
+                "
                 ><CIcon name="cil-cursor" /></CButton
               >&nbsp;
-              <CButton color="warning" v-c-tooltip="'คัดลอก'"
+              <CButton
+                color="warning"
+                v-c-tooltip="'คัดลอก'"
+                @click="
+                  selectId = item.id;
+                  modalStatus.copy = true;
+                "
                 ><CIcon name="cil-copy" /></CButton
-              >&nbsp; -->
+              >&nbsp;
               <CButton
                 color="danger"
                 v-c-tooltip="'ลบ'"
@@ -224,6 +238,48 @@
         >
       </template>
     </CModal>
+
+    <!-- Move File Modal -->
+    <CModal
+      v-if="modalStatus.move"
+      :show.sync="modalStatus.move"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      size="lg"
+      color="primary"
+    >
+      <Destination
+        :button="{ label: 'ย้ายเอกสาร' }"
+        :from="{ destination: currentFolder.id, selected: selectId }"
+        :onComplete="moveFile"
+      />
+      <template #header>
+        <h6 class="modal-title">ย้ายเอกสาร</h6>
+        <CButtonClose @click="modalStatus.move = false" class="text-white" />
+      </template>
+      <template #footer><div /></template>
+    </CModal>
+
+    <!-- Copy File Modal -->
+    <CModal
+      v-if="modalStatus.copy"
+      :show.sync="modalStatus.copy"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      size="lg"
+      color="primary"
+    >
+      <Destination
+        :button="{ label: 'คัดลอกเอกสาร' }"
+        :from="{ destination: currentFolder.id, selected: selectId }"
+        :onComplete="copyFile"
+      />
+      <template #header>
+        <h6 class="modal-title">คัดลอกเอกสาร</h6>
+        <CButtonClose @click="modalStatus.copy = false" class="text-white" />
+      </template>
+      <template #footer><div /></template>
+    </CModal>
   </div>
 </template>
 
@@ -236,9 +292,12 @@ const fields = [
 
 import Properties from "./Properties";
 
+import Destination from "./Destination";
+
 export default {
   components: {
     Properties,
+    Destination,
   },
   async created() {
     const id = () => {
@@ -271,14 +330,7 @@ export default {
   },
   data() {
     return {
-      list: [
-        {
-          name: "",
-          modifiedAt: "",
-          title: "",
-          description: "",
-        },
-      ],
+      list: [],
       fields,
 
       file: null,
@@ -315,46 +367,51 @@ export default {
   },
   methods: {
     async getList(id) {
-      this.isTableLoaded = true;
       try {
+        this.isTableLoaded = true;
         const currentFolder = await this.$http.get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}?include=allowableOperations,path,properties`
         );
         this.currentFolder = await currentFolder.data.entry;
+
         let isMoreItems = false,
           maxItems = 1000,
-          skipCount = 0;
+          skipCount = 0,
+          responseList = [];
         do {
           const response = await this.$http.get(
             `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations`
           );
 
-          this.list = [];
-
-          response.data.list.entries.map((e) => {
-            if (e.entry.hasOwnProperty("properties")) {
-              Object.assign(e.entry, {
-                title: e.entry.properties.hasOwnProperty("cm:title")
-                  ? `(${e["entry"]["properties"]["cm:title"]})`
-                  : "",
-                description: e.entry.properties.hasOwnProperty("cm:description")
-                  ? e["entry"]["properties"]["cm:description"]
-                  : "-",
-              });
-            } else {
-              Object.assign(e.entry, {
-                title: "",
-                description: "-",
-              });
-            }
-            e.entry.modifiedAt = new Date(
-              e.entry.modifiedAt
-            ).toLocaleDateString("th-TH");
-            this.list.push(e.entry);
-          });
+          responseList.push(
+            ...response.data.list.entries.map((e) => {
+              if (e.entry.hasOwnProperty("properties")) {
+                Object.assign(e.entry, {
+                  title: e.entry.properties.hasOwnProperty("cm:title")
+                    ? `(${e["entry"]["properties"]["cm:title"]})`
+                    : "",
+                  description: e.entry.properties.hasOwnProperty(
+                    "cm:description"
+                  )
+                    ? e["entry"]["properties"]["cm:description"]
+                    : "-",
+                });
+              } else {
+                Object.assign(e.entry, {
+                  title: "",
+                  description: "-",
+                });
+              }
+              e.entry.modifiedAt = new Date(
+                e.entry.modifiedAt
+              ).toLocaleDateString("th-TH");
+              return e.entry;
+            })
+          );
           isMoreItems = await response.data.list.pagination.hasMoreItems;
           skipCount += maxItems;
         } while (isMoreItems);
+        this.list = responseList;
         this.isTableLoaded = false;
       } catch (error) {
         this.isTableLoaded = false;
@@ -429,6 +486,31 @@ export default {
           this.getList(this.currentFolder.id);
         });
       this.modalLoaded = false;
+    },
+    moveFile(destination) {
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectId}/move`,
+          {
+            targetParentId: destination.id,
+          }
+        )
+        .then(() => {
+          this.modalStatus.move = false;
+          this.getList(this.currentFolder.id);
+        });
+    },
+    copyFile(destination) {
+      this.$http
+        .post(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectId}/copy`,
+          {
+            targetParentId: destination.id,
+          }
+        )
+        .then(() => {
+          this.modalStatus.copy = false;
+        });
     },
     clearProperties() {
       this.properties = {
