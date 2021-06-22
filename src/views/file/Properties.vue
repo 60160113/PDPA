@@ -330,7 +330,7 @@
       size="lg"
       color="primary"
     >
-      <div v-if="sharedLink.link">
+      <div v-show="sharedLink.link">
         <CInput
           label="ลิงค์:"
           horizontal
@@ -343,7 +343,7 @@
         <CButton color="danger" @click="deleteSharedLink()">ยกเลิกแชร์</CButton>
       </div>
 
-      <div v-else>
+      <div v-show="!sharedLink.link">
         <CRow>
           <CCol col="2"
             ><label style="margin-top: 6px">ระยะเวลาที่แชร์: </label></CCol
@@ -428,12 +428,14 @@ export default {
         this.openEditor = false;
       }
     },
-    sharedModal: async function (val) {
+    "sharedLink.id": function (val) {
+      if (val) {
+        this.sharedLink.link = `${process.env.VUE_APP_ALFRESCO_BASE}share/s/${val}`;
+      }
+    },
+    sharedModal: function (val) {
       if (val && this.sharedLink.link) {
-        const Link = await document.getElementById("shared-link");
-        Link.select();
-        Link.setSelectionRange(0, 99999);
-        document.execCommand("copy");
+        this.copyLink();
       }
     },
   },
@@ -480,7 +482,7 @@ export default {
 
       sharedLink: {
         expiresAt: null,
-        link: false,
+        link: "",
         id: "",
       },
 
@@ -523,7 +525,6 @@ export default {
 
           if (this.properties.properties.hasOwnProperty("qshare:sharedId")) {
             this.sharedLink.id = this.properties.properties["qshare:sharedId"];
-            this.sharedLink.link = `${process.env.VUE_APP_ALFRESCO_BASE}share/s/${this.sharedLink.id}`;
           }
 
           // Get Content
@@ -710,7 +711,8 @@ export default {
         )
         .then((response) => {
           this.sharedLink.id = response.data.entry.id;
-          this.sharedLink.link = `${process.env.VUE_APP_ALFRESCO_BASE}share/s/${this.sharedLink.id}`;
+
+          this.copyLink();
         });
     },
     // Deletes a shared link
@@ -722,10 +724,16 @@ export default {
         .then(() => {
           this.sharedLink = {
             expiresAt: null,
-            link: false,
+            link: "",
             id: "",
           };
         });
+    },
+    async copyLink() {
+      const Link = await document.getElementById("shared-link");
+      Link.select();
+      Link.setSelectionRange(0, 99999);
+      document.execCommand("copy");
     },
   },
 };
