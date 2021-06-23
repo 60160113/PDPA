@@ -702,7 +702,14 @@ export default {
         nodeId: this.id,
       };
       if (this.sharedLink.expiresAt != null) {
-        data.expiresAt = this.sharedLink.expiresAt.toISOString();
+        let expiresAt = this.sharedLink.expiresAt;
+        let currentDate = new Date();
+
+        expiresAt.setHours(currentDate.getHours());
+        expiresAt.setMinutes(currentDate.getMinutes());
+        expiresAt.setSeconds(currentDate.getSeconds());
+
+        data.expiresAt = expiresAt.toISOString().replace("Z", "+0000");
       }
       this.$http
         .post(
