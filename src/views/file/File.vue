@@ -32,10 +32,7 @@
 
         <div style="margin-top: 10px; opacity: 0.7">
           <span>Path :</span>
-          <span
-            :key="index"
-            v-for="(item, index) in currentFolder.path.elements"
-          >
+          <span :key="index" v-for="(item, index) in breadCrumb">
             <CLink @click="openFilePage(item.id)"> {{ item.name }} </CLink>/
           </span>
           <span>
@@ -388,6 +385,33 @@ export default {
         }
       } else {
         return true;
+      }
+    },
+    breadCrumb() {
+      if (this.currentFolder.path.elements) {
+        const folderName = () => {
+          switch (this.$route.name) {
+            case "My Files":
+              return this.$store.state.user.userId;
+            case "Shared Files":
+              return "Shared";
+            case "Repository":
+              return "Company Home";
+          }
+        };
+        const index = this.currentFolder.path.elements.findIndex(
+          (item) => item.name == folderName()
+        );
+        if (index != -1) {
+          return this.currentFolder.path.elements.slice(
+            index,
+            this.currentFolder.path.elements.length
+          );
+        } else {
+          return [];
+        }
+      } else {
+        return [];
       }
     },
   },
