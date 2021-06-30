@@ -127,7 +127,8 @@
           </template>
           <template #modifiedAt="{ item }">
             <td>
-              {{ item.modifiedAt }}
+              {{ new Date(item.modifiedAt).toLocaleDateString() }}
+              {{ new Date(item.modifiedAt).toLocaleTimeString() }}
             </td>
           </template>
           <template #actions="{ item }">
@@ -516,9 +517,6 @@ export default {
                   description: "-",
                 });
               }
-              e.entry.modifiedAt = new Date(
-                e.entry.modifiedAt
-              ).toLocaleDateString();
               return e.entry;
             })
           );
