@@ -14,9 +14,4 @@ export default [
     name: "Repository",
     component: () => import("@/views/file/File.vue")
   },
-  {
-    path: "/file/:id",
-    name: "File",
-    component: () => import("@/views/file/File.vue")
-  }
 ];

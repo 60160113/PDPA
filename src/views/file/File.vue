@@ -80,9 +80,7 @@
                 color="primary"
                 shape="pill"
                 :disabled="
-                  rootFolder == $route.name ||
-                  isTableLoaded ||
-                  !currentFolder.parentId
+                  isRootPath || isTableLoaded || !currentFolder.parentId
                 "
                 @click="openFilePage(currentFolder.parentId)"
                 ><CIcon name="cil-arrow-left" /> ย้อนกลับ</CButton
@@ -345,18 +343,17 @@ export default {
   },
   async created() {
     const id = () => {
-      switch (this.$route.name) {
-        case "My Files":
-          this.rootFolder = this.$route.name;
-          return "-my-";
-        case "Shared Files":
-          this.rootFolder = this.$route.name;
-          return "-shared-";
-        case "Repository":
-          this.rootFolder = this.$route.name;
-          return "-root-";
-        default:
-          return this.$route.params.id;
+      if (this.$route.query.id) {
+        return this.$route.query.id;
+      } else {
+        switch (this.$route.name) {
+          case "My Files":
+            return "-my-";
+          case "Shared Files":
+            return "-shared-";
+          case "Repository":
+            return "-root-";
+        }
       }
     };
     await this.getList(id());
@@ -367,6 +364,31 @@ export default {
     },
     countFolders() {
       return this.list.filter((item) => item.isFolder).length.toString();
+    },
+    isRootPath() {
+      if (this.$route.query.id) {
+        const folderName = () => {
+          switch (this.$route.name) {
+            case "My Files":
+              return this.$store.state.user.userId;
+            case "Shared Files":
+              return "Shared";
+            case "Repository":
+              return "Company Home";
+          }
+        };
+        if (this.currentFolder.path.elements) {
+          return (
+            this.currentFolder.path.elements.filter(
+              (item) => item.name == folderName()
+            ).length == 0
+          );
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
     },
   },
   watch: {
@@ -381,6 +403,21 @@ export default {
         this.$refs["fileInput"].value = null;
       }
     },
+    "$route.query.id": function (value) {
+      if (!value) {
+        const id = () => {
+          switch (this.$route.name) {
+            case "My Files":
+              return "-my-";
+            case "Shared Files":
+              return "-shared-";
+            case "Repository":
+              return "-root-";
+          }
+        };
+        this.getList(id());
+      }
+    },
   },
   data() {
     return {
@@ -393,7 +430,7 @@ export default {
         id: "",
         name: "Loading...",
         path: {
-          name: "",
+          elements: [],
         },
       },
 
@@ -416,7 +453,6 @@ export default {
       modalLoaded: false,
 
       selectId: "",
-      rootFolder: "",
     };
   },
   methods: {
@@ -584,9 +620,10 @@ export default {
       );
     },
     openFilePage(id) {
+      this.getList(id);
       this.$router.push({
-        name: "File",
-        params: {
+        name: this.$route.name,
+        query: {
           id,
         },
       });

@@ -205,7 +205,7 @@
                   @click="
                     item.isFile
                       ? property(item.id)
-                      : $router.push(`/file/${item.id}`)
+                      : $router.push(`/repository?id=${item.id}`)
                   "
                 >
                   <CRow>
