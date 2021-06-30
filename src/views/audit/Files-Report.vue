@@ -58,7 +58,9 @@ export default {
           /app:|cm:|st:|fm:/gi,
           ""
         );
-        item.action = item.values["/alfresco-access/transaction/action"];
+        item.action = this.getActionLabel(
+          item.values["/alfresco-access/transaction/action"]
+        );
         return item;
       })
       .filter(
@@ -76,6 +78,36 @@ export default {
 
       isLoaded: false,
     };
+  },
+  methods: {
+    getActionLabel(action) {
+      switch (action) {
+        case "READ":
+          return "อ่าน";
+        case "DELETE":
+          return "ลบ";
+        case "MOVE":
+          return "เคลื่อนย้าย";
+        case "COPY":
+          return "คัดลอก";
+        case "CREATE":
+          return "สร้าง";
+        case "CREATE VERSION":
+          return "สร้างเวอร์ชันใหม่";
+        case "CHECK IN":
+          return "เช็คอิน";
+        case "UPDATE CONTENT":
+          return "แก้ไขเนื้อหา";
+        case "updateNodeProperties":
+          return "แก้ไขคุณสมบัติ";
+        case "addNodeAspect":
+          return "เพิ่มลักษณะ";
+        case "readContent":
+          return "อ่านเนื้อหา";
+        default:
+          return action;
+      }
+    },
   },
 };
 </script>
