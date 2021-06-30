@@ -1,10 +1,48 @@
 <template>
   <div>
+    <!-- Widget -->
+    <CRow>
+      <CCol col="6">
+        <CWidgetIcon
+          :header="countFiles"
+          text="Files"
+          color="gradient-primary"
+          :icon-padding="false"
+        >
+          <CIcon name="cil-file" width="24" />
+        </CWidgetIcon>
+      </CCol>
+
+      <CCol col="6">
+        <CWidgetIcon
+          :header="countFolders"
+          text="Folders"
+          color="gradient-warning"
+          :icon-padding="false"
+        >
+          <CIcon name="cil-folder" width="24" />
+        </CWidgetIcon>
+      </CCol>
+    </CRow>
+
+    <!-- Table -->
     <CCard>
       <CCardHeader>
         <strong style="color: #321fdb">{{ currentFolder.name }}</strong>
+
         <div style="margin-top: 10px; opacity: 0.7">
-          Path : {{ currentFolder.path.name + "/" + currentFolder.name }}
+          <span>Path :</span>
+          <span
+            :key="index"
+            v-for="(item, index) in currentFolder.path.elements"
+          >
+            <CLink @click="openFilePage(item.id)"> {{ item.name }} </CLink>/
+          </span>
+          <span>
+            <CLink disabled>
+              {{ currentFolder.name }}
+            </CLink>
+          </span>
         </div>
       </CCardHeader>
       <CCardBody>
@@ -37,36 +75,42 @@
           </template>
 
           <template #over-table>
-            <CButton
-              color="primary"
-              shape="pill"
-              :disabled="rootId == currentFolder.id || isTableLoaded"
-              @click="getList(currentFolder.parentId)"
-              ><CIcon name="cil-arrow-left" /> ย้อนกลับ</CButton
-            >&nbsp;
-            <CButton
-              color="primary"
-              shape="pill"
-              :disabled="
-                isTableLoaded || !permissionCheck(currentFolder, 'create')
-              "
-              @click="modalStatus.newFolder = true"
-              ><CIcon name="cil-folder" /> สร้างโฟลเดอร์ใหม่</CButton
-            >&nbsp;
-            <CButton
-              color="primary"
-              shape="pill"
-              :disabled="
-                isTableLoaded || !permissionCheck(currentFolder, 'create')
-              "
-              @click="modalStatus.upload = true"
-              ><CIcon name="cil-file" /> อัปโหลด</CButton
-            >
+            <div style="margin-bottom: 10px">
+              <CButton
+                color="primary"
+                shape="pill"
+                :disabled="
+                  rootFolder == $route.name ||
+                  isTableLoaded ||
+                  !currentFolder.parentId
+                "
+                @click="openFilePage(currentFolder.parentId)"
+                ><CIcon name="cil-arrow-left" /> ย้อนกลับ</CButton
+              >&nbsp;
+              <CButton
+                color="primary"
+                shape="pill"
+                :disabled="
+                  isTableLoaded || !permissionCheck(currentFolder, 'create')
+                "
+                @click="modalStatus.newFolder = true"
+                ><CIcon name="cil-folder" /> สร้างโฟลเดอร์ใหม่</CButton
+              >&nbsp;
+              <CButton
+                color="primary"
+                shape="pill"
+                :disabled="
+                  isTableLoaded || !permissionCheck(currentFolder, 'create')
+                "
+                @click="modalStatus.upload = true"
+                ><CIcon name="cil-file" /> อัปโหลด</CButton
+              >
+            </div>
           </template>
           <template #name="{ item }">
             <td
               style="cursor: pointer"
-              @click="item.isFile ? property(item.id) : getList(item.id)"
+              @click="item.isFile ? property(item.id) : openFilePage(item.id)"
             >
               <CRow>
                 <CCol md="2">
@@ -303,17 +347,27 @@ export default {
     const id = () => {
       switch (this.$route.name) {
         case "My Files":
+          this.rootFolder = this.$route.name;
           return "-my-";
         case "Shared Files":
+          this.rootFolder = this.$route.name;
           return "-shared-";
         case "Repository":
+          this.rootFolder = this.$route.name;
           return "-root-";
         default:
           return this.$route.params.id;
       }
     };
     await this.getList(id());
-    this.rootId = this.currentFolder.id;
+  },
+  computed: {
+    countFiles() {
+      return this.list.filter((item) => item.isFile).length.toString();
+    },
+    countFolders() {
+      return this.list.filter((item) => item.isFolder).length.toString();
+    },
   },
   watch: {
     "modalStatus.newFolder": function (value) {
@@ -362,7 +416,7 @@ export default {
       modalLoaded: false,
 
       selectId: "",
-      rootId: "",
+      rootFolder: "",
     };
   },
   methods: {
@@ -528,6 +582,14 @@ export default {
         file.hasOwnProperty("allowableOperations") &&
         file.allowableOperations.indexOf(value) != -1
       );
+    },
+    openFilePage(id) {
+      this.$router.push({
+        name: "File",
+        params: {
+          id,
+        },
+      });
     },
   },
 };
