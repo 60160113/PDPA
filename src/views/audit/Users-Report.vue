@@ -27,14 +27,10 @@
           pagination
           cleaner
         >
-          <template #date="{ item }">
-            <td>
-              {{ new Date(item.date).toLocaleDateString("th-TH") }}
-            </td>
-          </template>
           <template #time="{ item }">
             <td>
-              {{ new Date(item.time).toLocaleTimeString("th-TH") }}
+              {{ new Date(item.time).toLocaleDateString() }}
+              {{ new Date(item.time).toLocaleTimeString() }}
             </td>
           </template>
         </CDataTable>
@@ -46,7 +42,6 @@
 <script>
 const fields = [
   { key: "user", label: "User" },
-  { key: "date", label: "Date" },
   { key: "time", label: "Time" },
   { key: "action", label: "Actions" },
 ];
@@ -67,7 +62,6 @@ export default {
       .map((item) => {
         item.action =
           "/alfresco-access/login/user" in item.values ? "login" : "logout";
-        item.date = item.time;
 
         return item;
       })

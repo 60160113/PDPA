@@ -226,7 +226,7 @@
               </template>
               <template #modifiedAt="{ item }">
                 <td>
-                  {{ new Date(item.modifiedAt).toLocaleDateString("th-TH") }}
+                  {{ new Date(item.modifiedAt).toLocaleDateString() }}
                 </td>
               </template>
             </CDataTable>

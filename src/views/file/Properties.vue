@@ -70,13 +70,13 @@
           <b>สร้างโดย:</b>
           {{ properties.createdByUser.displayName }} <br />
           <b>วันที่สร้าง:</b>
-          {{ new Date(properties.createdAt).toLocaleDateString("th-TH") }}
+          {{ new Date(properties.createdAt).toLocaleDateString() }}
           <br />
 
           <b>แก้ไขโดย:</b>
           {{ properties.modifiedByUser.displayName }} <br />
           <b>วันที่แก้ไข:</b>
-          {{ new Date(properties.modifiedAt).toLocaleDateString("th-TH") }}
+          {{ new Date(properties.modifiedAt).toLocaleDateString() }}
           <br />
         </CCollapse>
         <hr />

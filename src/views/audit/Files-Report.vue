@@ -27,7 +27,8 @@
         >
           <template #time="{ item }">
             <td>
-              {{ new Date(item.time).toLocaleDateString("th-TH") }}
+              {{ new Date(item.time).toLocaleDateString() }}
+              {{ new Date(item.time).toLocaleTimeString() }}
             </td>
           </template>
         </CDataTable>
@@ -39,7 +40,7 @@
 <script>
 const fields = [
   { key: "path", label: "Path" },
-  { key: "time", label: "Date" },
+  { key: "time", label: "Time" },
   { key: "user", label: "Modifier" },
   { key: "action", label: "Actions" },
 ];

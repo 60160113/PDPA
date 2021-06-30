@@ -518,7 +518,7 @@ export default {
               }
               e.entry.modifiedAt = new Date(
                 e.entry.modifiedAt
-              ).toLocaleDateString("th-TH");
+              ).toLocaleDateString();
               return e.entry;
             })
           );
