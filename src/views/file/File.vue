@@ -214,7 +214,12 @@
         <CButton @click="modalStatus.newFolder = false" color="danger"
           >ยกเลิก</CButton
         >
-        <CButton @click="createFolder()" color="success">ตกลง</CButton>
+        <CButton
+          :disabled="!properties.name"
+          @click="createFolder()"
+          color="success"
+          >ตกลง</CButton
+        >
       </template>
       <CElementCover :opacity="0.8" v-show="modalLoaded" />
     </CModal>
@@ -250,7 +255,12 @@
         <CButton @click="modalStatus.upload = false" color="danger"
           >ยกเลิก</CButton
         >
-        <CButton color="success" @click="upload">ตกลง</CButton>
+        <CButton
+          color="success"
+          :disabled="!file || !properties.name"
+          @click="upload"
+          >ตกลง</CButton
+        >
       </template>
       <CElementCover :opacity="0.8" v-show="modalLoaded" />
     </CModal>
