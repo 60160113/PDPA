@@ -441,6 +441,8 @@ export default {
           }
         };
         this.getList(id());
+      } else {
+        this.getList(value);
       }
     },
   },
