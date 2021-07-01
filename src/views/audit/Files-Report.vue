@@ -54,20 +54,23 @@ export default {
 
     this.list = data.entries
       .map((item) => {
-        item.path = item.values["/alfresco-access/transaction/path"].replace(
-          /app:|cm:|st:|fm:/gi,
-          ""
-        );
-        item.action = this.getActionLabel(
-          item.values["/alfresco-access/transaction/action"]
-        );
-        return item;
+        return {
+          path: item.values["/alfresco-access/transaction/path"]
+            .replace(/app:|cm:|st:|fm:/gi, "")
+            .replace("/doclib", "")
+            .replace("/imgpreview", "")
+            .split("/discussion/Comments/")[0],
+          time: item.time,
+          user: item.user,
+          action: this.getActionLabel(
+            item.values["/alfresco-access/transaction/action"]
+          ),
+        };
       })
       .filter(
         (item) =>
-          item.values["/alfresco-access/transaction/path"].search(
-            "/sys:system/"
-          ) == -1
+          item.path.search("/sys:system/") == -1 &&
+          item.path.search("ver2:versionedState") == -1
       );
     this.isLoaded = false;
   },
