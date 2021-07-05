@@ -7,7 +7,6 @@ export default [
   {
     path: "/search/results",
     name: "search-results",
-    props: true,
     component: () => import("@/views/search/Result.vue")
   }
 ];

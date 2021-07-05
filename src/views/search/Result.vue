@@ -189,10 +189,6 @@
                 placeholder: 'ค้นหา',
               }"
               sorter
-              :sorterValue="{
-                column: 'name',
-                asc: 'true',
-              }"
               hover
               striped
               border
@@ -212,6 +208,7 @@
                     <CCol md="2">
                       <CIcon
                         height="42"
+                        :style="`color: ${item.isFile ? '#3c4b64' : '#f9b115'}`"
                         :name="item.isFile ? 'cil-file' : 'cil-folder'"
                       />
                     </CCol>
@@ -270,71 +267,27 @@ export default {
   components: {
     Properties,
   },
-  props: {
-    query: {
-      type: String,
-      default: "",
-    },
-  },
   async created() {
     if (this.query != "") {
-      this.isLoaded = true;
-      let isMoreItems = false,
-        maxItems = 1000,
-        skipCount = 0;
-
-      do {
-        const data = {
-          query: {
-            query: this.query,
-            language: "cmis",
-          },
-          paging: {
-            maxItems,
-            skipCount,
-          },
-          include: ["path", "properties"],
-        };
-        const response = await this.$http.post(
-          `${process.env.VUE_APP_ALFRESCO_API}search/versions/1/search`,
-          data
-        );
-        this.searchResponse.push(
-          ...response.data.list.entries.map((obj) => {
-            let data = obj.entry;
-            if (data.hasOwnProperty("properties")) {
-              Object.assign(data, {
-                title: data.properties.hasOwnProperty("cm:title")
-                  ? `(${data["properties"]["cm:title"]})`
-                  : "",
-                description: data.properties.hasOwnProperty("cm:description")
-                  ? data["properties"]["cm:description"]
-                  : "-",
-              });
-            } else {
-              Object.assign(data, {
-                title: "",
-                description: "-",
-              });
-            }
-
-            return data;
-          })
-        );
-        isMoreItems = await response.data.list.pagination.hasMoreItems;
-        skipCount += maxItems;
-      } while (isMoreItems);
-
-      this.resultList = this.searchResponse;
-      this.isLoaded = false;
+      this.search();
     } else {
       this.$router.push("/search");
     }
-
-    this.refreshFilter();
+  },
+  watch: {
+    "$route.query.query": function (value) {
+      if (value) {
+        this.query = value;
+        this.search();
+      } else {
+        this.$router.push("/search");
+      }
+    },
   },
   data() {
     return {
+      query: this.$route.query.query,
+
       fields,
       accordion: false,
 
@@ -594,6 +547,60 @@ export default {
       });
       this.resultList = this.searchResponse;
       this.refreshFilter();
+    },
+    async search() {
+      this.isLoaded = true;
+      let hasMoreItems = false,
+        maxItems = 1000,
+        skipCount = 0;
+
+      this.searchResponse = [];
+
+      do {
+        const data = {
+          query: {
+            query: this.query,
+            language: this.$route.query.language || "afts",
+          },
+          paging: {
+            maxItems,
+            skipCount,
+          },
+          include: ["path", "properties"],
+        };
+        const response = await this.$http.post(
+          `${process.env.VUE_APP_ALFRESCO_API}search/versions/1/search`,
+          data
+        );
+        this.searchResponse.push(
+          ...response.data.list.entries.map((obj) => {
+            let data = obj.entry;
+            if (data.hasOwnProperty("properties")) {
+              Object.assign(data, {
+                title: data.properties.hasOwnProperty("cm:title")
+                  ? `(${data["properties"]["cm:title"]})`
+                  : "",
+                description: data.properties.hasOwnProperty("cm:description")
+                  ? data["properties"]["cm:description"]
+                  : "-",
+              });
+            } else {
+              Object.assign(data, {
+                title: "",
+                description: "-",
+              });
+            }
+
+            return data;
+          })
+        );
+        hasMoreItems = await response.data.list.pagination.hasMoreItems;
+        skipCount += maxItems;
+      } while (hasMoreItems);
+
+      this.resultList = this.searchResponse;
+      this.refreshFilter();
+      this.isLoaded = false;
     },
     property(id) {
       this.selectId = id;

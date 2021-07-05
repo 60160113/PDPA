@@ -11,7 +11,7 @@
       @click="$store.commit('toggleSidebarDesktop')"
     />
     <CHeaderBrand class="mx-auto d-lg-none" to="/">
-      <CIcon name="logo" height="48" alt="Logo"/>
+      <CIcon name="logo" height="48" alt="Logo" />
     </CHeaderBrand>
     <CHeaderNav class="d-md-down-none mr-auto">
       <!-- <CHeaderNavItem class="px-3">
@@ -31,19 +31,35 @@
       </CHeaderNavItem> -->
     </CHeaderNav>
     <CHeaderNav>
+      <CHeaderNavItem>
+        <CRow class="mt-3 c-header-nav-item">
+          <CCol col="8">
+            <CInput
+              size="sm"
+              placeholder="Search"
+              @keypress.enter="search"
+              v-model="keyword"
+            />
+          </CCol>
+          <CCol>
+            <CButton size="sm" color="primary" @click="search">Search</CButton>
+          </CCol>
+        </CRow>
+      </CHeaderNavItem>
+
       <CHeaderNavItem class="px-3 c-d-legacy-none">
         <button
           @click="() => $store.commit('toggle', 'darkMode')"
           class="c-header-nav-btn"
         >
-          <CIcon v-if="$store.state.darkMode" name="cil-sun"/>
-          <CIcon v-else name="cil-moon"/>
+          <CIcon v-if="$store.state.darkMode" name="cil-sun" />
+          <CIcon v-else name="cil-moon" />
         </button>
       </CHeaderNavItem>
       <!-- <TheHeaderDropdownNotif/> -->
       <!-- <TheHeaderDropdownTasks/> -->
       <!-- <TheHeaderDropdownMssgs/> -->
-      <TheHeaderDropdownAccnt/>
+      <TheHeaderDropdownAccnt />
       <!-- <CHeaderNavItem class="px-3">
         <button
           class="c-header-nav-btn"
@@ -61,18 +77,32 @@
 </template>
 
 <script>
-import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
-import TheHeaderDropdownNotif from './TheHeaderDropdownNotif'
-import TheHeaderDropdownTasks from './TheHeaderDropdownTasks'
-import TheHeaderDropdownMssgs from './TheHeaderDropdownMssgs'
+import TheHeaderDropdownAccnt from "./TheHeaderDropdownAccnt";
+import TheHeaderDropdownNotif from "./TheHeaderDropdownNotif";
+import TheHeaderDropdownTasks from "./TheHeaderDropdownTasks";
+import TheHeaderDropdownMssgs from "./TheHeaderDropdownMssgs";
 
 export default {
-  name: 'TheHeader',
+  name: "TheHeader",
   components: {
     TheHeaderDropdownAccnt,
     TheHeaderDropdownNotif,
     TheHeaderDropdownTasks,
-    TheHeaderDropdownMssgs
-  }
-}
+    TheHeaderDropdownMssgs,
+  },
+  data() {
+    return {
+      keyword: "",
+    };
+  },
+  methods: {
+    search() {
+      let query = `TEXT:*${this.keyword}* OR cm:name:*${this.keyword}* OR cm:title:*${this.keyword}* OR cm:description:*${this.keyword}* OR cm:creator:*${this.keyword}* OR cm:modifier:*${this.keyword}*`;
+      this.$router.push({
+        name: "search-results",
+        query: { query, language: "afts" },
+      });
+    },
+  },
+};
 </script>

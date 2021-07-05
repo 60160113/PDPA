@@ -157,7 +157,7 @@ export default {
       }
       this.$router.push({
         name: "search-results",
-        params: { query },
+        query: { query, language: "cmis" },
       });
     },
   },
