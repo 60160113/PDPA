@@ -56,10 +56,6 @@
             placeholder: 'ค้นหา',
           }"
           sorter
-          :sorterValue="{
-            column: 'name',
-            asc: 'true',
-          }"
           :loading="isTableLoaded"
           hover
           striped
@@ -500,7 +496,7 @@ export default {
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}?include=allowableOperations,path,properties`
         );
         if (currentFolder.response) {
-          throw currentFolder.response
+          throw currentFolder.response;
         }
 
         this.currentFolder = await currentFolder.data.entry;
@@ -511,7 +507,7 @@ export default {
           responseList = [];
         do {
           const { data: list } = await this.$http.get(
-            `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations`
+            `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations&orderBy=modifiedAt DESC`
           );
 
           responseList.push(
@@ -543,7 +539,7 @@ export default {
         this.isTableLoaded = false;
       } catch (error) {
         if (error.status === 404) {
-          this.$router.replace(this.$route.path)
+          this.$router.replace(this.$route.path);
         }
         this.isTableLoaded = false;
       }
