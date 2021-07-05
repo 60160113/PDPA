@@ -499,19 +499,23 @@ export default {
         const currentFolder = await this.$http.get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}?include=allowableOperations,path,properties`
         );
+        if (currentFolder.response) {
+          throw currentFolder.response
+        }
+
         this.currentFolder = await currentFolder.data.entry;
 
-        let isMoreItems = false,
+        let hasMoreItems = false,
           maxItems = 1000,
           skipCount = 0,
           responseList = [];
         do {
-          const response = await this.$http.get(
+          const { data: list } = await this.$http.get(
             `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations`
           );
 
           responseList.push(
-            ...response.data.list.entries.map((e) => {
+            ...list.list.entries.map((e) => {
               if (e.entry.hasOwnProperty("properties")) {
                 Object.assign(e.entry, {
                   title: e.entry.properties.hasOwnProperty("cm:title")
@@ -532,12 +536,15 @@ export default {
               return e.entry;
             })
           );
-          isMoreItems = await response.data.list.pagination.hasMoreItems;
+          hasMoreItems = await list.list.pagination.hasMoreItems;
           skipCount += maxItems;
-        } while (isMoreItems);
+        } while (hasMoreItems);
         this.list = responseList;
         this.isTableLoaded = false;
       } catch (error) {
+        if (error.status === 404) {
+          this.$router.replace(this.$route.path)
+        }
         this.isTableLoaded = false;
       }
     },
