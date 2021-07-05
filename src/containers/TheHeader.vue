@@ -14,7 +14,7 @@
       <CIcon name="logo" height="48" alt="Logo"/>
     </CHeaderBrand>
     <CHeaderNav class="d-md-down-none mr-auto">
-      <CHeaderNavItem class="px-3">
+      <!-- <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="/dashboard">
           Dashboard
         </CHeaderNavLink>
@@ -28,7 +28,7 @@
         <CHeaderNavLink>
           Settings
         </CHeaderNavLink>
-      </CHeaderNavItem>
+      </CHeaderNavItem> -->
     </CHeaderNav>
     <CHeaderNav>
       <CHeaderNavItem class="px-3 c-d-legacy-none">
@@ -40,23 +40,23 @@
           <CIcon v-else name="cil-moon"/>
         </button>
       </CHeaderNavItem>
-      <TheHeaderDropdownNotif/>
-      <TheHeaderDropdownTasks/>
-      <TheHeaderDropdownMssgs/>
+      <!-- <TheHeaderDropdownNotif/> -->
+      <!-- <TheHeaderDropdownTasks/> -->
+      <!-- <TheHeaderDropdownMssgs/> -->
       <TheHeaderDropdownAccnt/>
-      <CHeaderNavItem class="px-3">
+      <!-- <CHeaderNavItem class="px-3">
         <button
           class="c-header-nav-btn"
           @click="$store.commit('toggle', 'asideShow')"
         >
           <CIcon size="lg" name="cil-applications-settings" class="mr-2"/>
         </button>
-      </CHeaderNavItem>
+      </CHeaderNavItem> -->
     </CHeaderNav>
 
-    <CSubheader class="px-3">
+    <!-- <CSubheader class="px-3">
       <CBreadcrumbRouter class="border-0 mb-0"/>
-    </CSubheader>
+    </CSubheader> -->
   </CHeader>
 </template>
 
