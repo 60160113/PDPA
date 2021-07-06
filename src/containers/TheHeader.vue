@@ -37,12 +37,18 @@
             <CInput
               size="sm"
               placeholder="Search"
-              @keypress.enter="search"
+              @keypress.enter="keyword ? search() : null"
               v-model="keyword"
             />
           </CCol>
           <CCol>
-            <CButton size="sm" color="primary" @click="search">Search</CButton>
+            <CButton
+              size="sm"
+              color="primary"
+              :disabled="!keyword"
+              @click="search"
+              >Search</CButton
+            >
           </CCol>
         </CRow>
       </CHeaderNavItem>
