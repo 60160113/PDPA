@@ -216,8 +216,7 @@
                       {{ item.name }} {{ item.title }}
 
                       <br />
-                      Description: {{ item.description }}
-                      <br />
+                      Description: {{ item.description }} <br /><br />
                       Path:
                       <span :key="i" v-for="(element, i) in item.path.elements">
                         <CLink
@@ -619,7 +618,7 @@ export default {
       } while (hasMoreItems);
 
       this.resultList = this.searchResponse;
-      
+
       this.refreshFilter();
       this.isLoaded = false;
     },
