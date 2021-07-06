@@ -147,6 +147,8 @@ export default {
           return "แก้ไขคุณสมบัติ";
         case "addNodeAspect":
           return "เพิ่มลักษณะ";
+        case "deleteNodeAspect":
+          return "ลบลักษณะ";
         case "readContent":
           return "อ่านเนื้อหา";
         default:
