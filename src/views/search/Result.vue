@@ -2,7 +2,7 @@
   <div>
     <CRow>
       <!-- Filter Column -->
-      <CCol col="4">
+      <CCol md="4" sm="12">
         <CCard>
           <CCardHeader>
             <strong style="color: #321fdb">ฟิลเตอร์</strong>
