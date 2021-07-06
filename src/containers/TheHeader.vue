@@ -103,7 +103,7 @@ export default {
   },
   methods: {
     search() {
-      let query = `TEXT:*${this.keyword}* OR cm:name:*${this.keyword}* OR cm:title:*${this.keyword}* OR cm:description:*${this.keyword}* OR cm:creator:*${this.keyword}* OR cm:modifier:*${this.keyword}*`;
+      let query = `(TEXT:*${this.keyword}* OR cm:name:*${this.keyword}* OR cm:title:*${this.keyword}* OR cm:description:*${this.keyword}* OR cm:creator:*${this.keyword}* OR cm:modifier:*${this.keyword}*) AND NOT (TYPE:'fm:topic' OR TYPE:'fm:post')`;
       this.$router.push({
         name: "search-results",
         query: { query, language: "afts" },

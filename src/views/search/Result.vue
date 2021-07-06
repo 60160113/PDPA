@@ -217,6 +217,26 @@
 
                       <br />
                       Description: {{ item.description }}
+                      <br />
+                      Path:
+                      <span :key="i" v-for="(element, i) in item.path.elements">
+                        <CLink
+                          @click="$router.push(`/repository?id=${element.id}`)"
+                        >
+                          {{ element.name }} </CLink
+                        >/
+                      </span>
+                      <span>
+                        <CLink
+                          @click="
+                            item.isFile
+                              ? property(item.id)
+                              : $router.push(`/repository?id=${item.id}`)
+                          "
+                        >
+                          {{ item.name }}
+                        </CLink>
+                      </span>
                     </CCol>
                   </CRow>
                 </td>
@@ -599,6 +619,7 @@ export default {
       } while (hasMoreItems);
 
       this.resultList = this.searchResponse;
+      
       this.refreshFilter();
       this.isLoaded = false;
     },
