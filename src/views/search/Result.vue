@@ -592,26 +592,28 @@ export default {
           data
         );
         this.searchResponse.push(
-          ...response.data.list.entries.map((obj) => {
-            let data = obj.entry;
-            if (data.hasOwnProperty("properties")) {
-              Object.assign(data, {
-                title: data.properties.hasOwnProperty("cm:title")
-                  ? `(${data["properties"]["cm:title"]})`
-                  : "",
-                description: data.properties.hasOwnProperty("cm:description")
-                  ? data["properties"]["cm:description"]
-                  : "-",
-              });
-            } else {
-              Object.assign(data, {
-                title: "",
-                description: "-",
-              });
-            }
+          ...response.data.list.entries
+            .map((obj) => {
+              let data = obj.entry;
+              if (data.hasOwnProperty("properties")) {
+                Object.assign(data, {
+                  title: data.properties.hasOwnProperty("cm:title")
+                    ? `(${data["properties"]["cm:title"]})`
+                    : "",
+                  description: data.properties.hasOwnProperty("cm:description")
+                    ? data["properties"]["cm:description"]
+                    : "-",
+                });
+              } else {
+                Object.assign(data, {
+                  title: "",
+                  description: "-",
+                });
+              }
 
-            return data;
-          })
+              return data;
+            })
+            .filter((item) => !["fm:topic", "fm:post"].includes(item.nodeType))
         );
         hasMoreItems = await response.data.list.pagination.hasMoreItems;
         skipCount += maxItems;
