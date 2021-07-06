@@ -3,6 +3,7 @@
     <CRow>
       <!-- Preview Section -->
       <CCol>
+        <p><b>PATH: </b>{{ properties.path.name }}/{{ properties.name }}</p>
         <iframe id="viewer" frameborder="0" style="width: 100%; height: 500px">
           <p>Your browser does not support iframes.</p>
         </iframe>
@@ -498,6 +499,9 @@ export default {
         },
         properties: {
           "cm:versionLabel": "",
+        },
+        path: {
+          name: "",
         },
       },
 
