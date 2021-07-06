@@ -1,5 +1,9 @@
 <template>
   <div>
+    <!-- cannot work with the link ALERT -->
+    <CAlert :show="alertStatus" color="danger"
+      >Cannot activate this link.</CAlert
+    >
     <CCard>
       <CCardHeader
         ><strong style="color: #321fdb">รายงานไฟล์</strong></CCardHeader
@@ -25,6 +29,11 @@
           pagination
           cleaner
         >
+          <template #path="{ item }">
+            <td>
+              <CLink @click="pathLink(item.fullPath)">{{ item.path }}</CLink>
+            </td>
+          </template>
           <template #time="{ item }">
             <td>
               {{ new Date(item.time).toLocaleDateString() }}
@@ -34,6 +43,27 @@
         </CDataTable>
       </CCardBody>
     </CCard>
+
+    <!-- Properties Modal -->
+    <CModal
+      v-if="modalProperties"
+      :show.sync="modalProperties"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      size="xl"
+      color="primary"
+    >
+      <Properties v-if="selectId != ''" :id="selectId" />
+      <template #header>
+        <h6 class="modal-title">รายละเอียดเอกสาร</h6>
+        <CButtonClose @click="modalProperties = false" class="text-white" />
+      </template>
+      <template #footer>
+        <CButton @click="modalProperties = false" color="secondary"
+          >ปิด</CButton
+        >
+      </template>
+    </CModal>
   </div>
 </template>
 
@@ -44,7 +74,13 @@ const fields = [
   { key: "user", label: "Modifier" },
   { key: "action", label: "Actions" },
 ];
+
+import Properties from "@/views/file/Properties";
+
 export default {
+  components: {
+    Properties,
+  },
   async created() {
     this.isLoaded = true;
 
@@ -60,6 +96,7 @@ export default {
             .replace("/doclib", "")
             .replace("/imgpreview", "")
             .split("/discussion/Comments/")[0],
+          fullPath: item.values["/alfresco-access/transaction/path"],
           time: item.time,
           user: item.user,
           action: this.getActionLabel(
@@ -80,6 +117,11 @@ export default {
       fields,
 
       isLoaded: false,
+
+      modalProperties: false,
+      selectId: "",
+
+      alertStatus: false,
     };
   },
   methods: {
@@ -110,6 +152,57 @@ export default {
         default:
           return action;
       }
+    },
+    async pathLink(path) {
+      const words = path.split("cm:");
+
+      var txt = words[0];
+
+      words.forEach((item, index) => {
+        if (index > 0) {
+          txt += item.includes("/")
+            ? `cm:"${item.replace("/", "")}"`
+            : `cm:"${item}"`;
+          if (index < words.length - 1) txt += "/";
+        }
+      });
+      const query = `PATH:"${txt}"`;
+
+      console.log(query);
+
+      const res = await this.$http.post(
+        `${process.env.VUE_APP_ALFRESCO_API}search/versions/1/search`,
+        {
+          query: {
+            query,
+            language: "lucene",
+          },
+          paging: {
+            maxItems: 1,
+          },
+        }
+      );
+
+      if (res.data.list.entries.length > 0) {
+        console.log(res.data.list.entries[0].entry);
+        if (res.data.list.entries[0].entry.isFile) {
+          this.property(res.data.list.entries[0].entry.id);
+        } else {
+          this.$router.push(
+            `/repository?id=${res.data.list.entries[0].entry.id}`
+          );
+        }
+      } else {
+        this.alertStatus = true;
+
+        setTimeout(() => {
+          this.alertStatus = false;
+        }, 2000);
+      }
+    },
+    property(id) {
+      this.selectId = id;
+      this.modalProperties = true;
     },
   },
 };
