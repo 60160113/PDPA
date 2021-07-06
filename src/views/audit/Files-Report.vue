@@ -168,8 +168,6 @@ export default {
       });
       const query = `PATH:"${txt}"`;
 
-      console.log(query);
-
       const res = await this.$http.post(
         `${process.env.VUE_APP_ALFRESCO_API}search/versions/1/search`,
         {
@@ -184,7 +182,6 @@ export default {
       );
 
       if (res.data.list.entries.length > 0) {
-        console.log(res.data.list.entries[0].entry);
         if (res.data.list.entries[0].entry.isFile) {
           this.property(res.data.list.entries[0].entry.id);
         } else {
