@@ -646,8 +646,6 @@ export default {
 
       requestURL += "/content";
 
-      console.log(requestURL);
-
       this.$http.get(requestURL, { responseType: "blob" }).then((res) => {
         const url = URL.createObjectURL(res.data);
 
