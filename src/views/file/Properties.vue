@@ -11,11 +11,7 @@
       <!-- Properties Section -->
       <CCol col="3" style="word-wrap: break-word">
         <CButtonToolbar justify>
-          <CButton
-            block
-            color="primary"
-            @click="download(properties.properties['cm:versionLabel'])"
-            >ดาวน์โหลด</CButton
+          <CButton block color="primary" @click="download()">ดาวน์โหลด</CButton
           ><CButton block color="primary" @click="sharedModal = true"
             >แชร์</CButton
           >
@@ -641,20 +637,25 @@ export default {
         });
     },
     // Download
-    download(version) {
-      this.$http
-        .get(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/versions/${version}/content`,
-          { responseType: "blob" }
-        )
-        .then((res) => {
-          const url = URL.createObjectURL(res.data);
+    download(version = false) {
+      let requestURL = `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}`;
 
-          let link = document.createElement("a");
-          link.href = url;
-          link.download = this.properties.name;
-          link.dispatchEvent(new MouseEvent("click"));
-        });
+      if (version) {
+        requestURL += `/versions/${version}`;
+      }
+
+      requestURL += "/content";
+
+      console.log(requestURL);
+
+      this.$http.get(requestURL, { responseType: "blob" }).then((res) => {
+        const url = URL.createObjectURL(res.data);
+
+        let link = document.createElement("a");
+        link.href = url;
+        link.download = this.properties.name;
+        link.dispatchEvent(new MouseEvent("click"));
+      });
     },
     // Revert
     revertVersion() {
