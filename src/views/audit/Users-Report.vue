@@ -33,6 +33,17 @@
               {{ new Date(item.time).toLocaleTimeString() }}
             </td>
           </template>
+          <template #action="{ item }">
+            <td>
+              <CBadge
+                :color="item.action == 'Login' ? 'success' : 'danger'"
+                class="mfs-auto"
+                style="font-size: 15px"
+              >
+                {{ item.action }}
+              </CBadge>
+            </td>
+          </template>
         </CDataTable>
       </CCardBody>
     </CCard>
@@ -61,7 +72,7 @@ export default {
     this.list = [...loginReport.data.entries, ...logoutReport.data.entries]
       .map((item) => {
         item.action =
-          "/alfresco-access/login/user" in item.values ? "login" : "logout";
+          "/alfresco-access/login/user" in item.values ? "Login" : "Logout";
 
         return item;
       })
