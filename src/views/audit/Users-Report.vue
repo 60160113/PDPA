@@ -71,10 +71,12 @@ export default {
 
     this.list = [...loginReport.data.entries, ...logoutReport.data.entries]
       .map((item) => {
-        item.action =
-          "/alfresco-access/login/user" in item.values ? "Login" : "Logout";
-
-        return item;
+        return {
+          user: item.user,
+          time: item.time,
+          action:
+            "/alfresco-access/login/user" in item.values ? "Login" : "Logout",
+        };
       })
       .sort((a, b) => (new Date(a.time) > new Date(b.time) ? -1 : 1));
     this.isLoaded = false;
