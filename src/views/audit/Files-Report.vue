@@ -40,6 +40,13 @@
               {{ new Date(item.time).toLocaleTimeString() }}
             </td>
           </template>
+          <template #action="{ item }">
+            <td>
+              <CBadge :color="item.color" style="font-size: 15px">
+                {{ item.action }}
+              </CBadge>
+            </td>
+          </template>
         </CDataTable>
       </CCardBody>
     </CCard>
@@ -90,6 +97,9 @@ export default {
 
     this.list = data.entries
       .map((item) => {
+        const action = this.getActionLabel(
+          item.values["/alfresco-access/transaction/action"]
+        );
         return {
           path: item.values["/alfresco-access/transaction/path"]
             .replace(/app:|cm:|st:|fm:/gi, "")
@@ -99,9 +109,8 @@ export default {
           fullPath: item.values["/alfresco-access/transaction/path"],
           time: item.time,
           user: item.user,
-          action: this.getActionLabel(
-            item.values["/alfresco-access/transaction/action"]
-          ),
+          action: action.label,
+          color: action.color,
         };
       })
       .filter(
@@ -128,31 +137,31 @@ export default {
     getActionLabel(action) {
       switch (action) {
         case "READ":
-          return "อ่าน";
+          return { label: "อ่าน", color: "info" };
         case "DELETE":
-          return "ลบ";
+          return { label: "ลบ", color: "danger" };
         case "MOVE":
-          return "เคลื่อนย้าย";
+          return { label: "เคลื่อนย้าย", color: "warning" };
         case "COPY":
-          return "คัดลอก";
+          return { label: "คัดลอก", color: "warning" };
         case "CREATE":
-          return "สร้าง";
+          return { label: "สร้าง", color: "success" };
         case "CREATE VERSION":
-          return "สร้างเวอร์ชันใหม่";
+          return { label: "สร้างเวอร์ชันใหม่", color: "success" };
         case "CHECK IN":
-          return "เช็คอิน";
+          return { label: "เช็คอิน", color: "secondary" };
         case "UPDATE CONTENT":
-          return "แก้ไขเนื้อหา";
+          return { label: "แก้ไขเนื้อหา", color: "warning" };
         case "updateNodeProperties":
-          return "แก้ไขคุณสมบัติ";
+          return { label: "แก้ไขคุณสมบัติ", color: "warning" };
         case "addNodeAspect":
-          return "เพิ่มลักษณะ";
+          return { label: "เพิ่มลักษณะ", color: "success" };
         case "deleteNodeAspect":
-          return "ลบลักษณะ";
+          return { label: "ลบลักษณะ", color: "danger" };
         case "readContent":
-          return "อ่านเนื้อหา";
+          return { label: "อ่านเนื้อหา", color: "info" };
         default:
-          return action;
+          return { label: action, color: "secondary" };
       }
     },
     async pathLink(path) {
