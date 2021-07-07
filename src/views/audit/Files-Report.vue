@@ -106,7 +106,10 @@ export default {
             .replace("/doclib", "")
             .replace("/imgpreview", "")
             .split("/discussion/Comments/")[0],
-          fullPath: item.values["/alfresco-access/transaction/path"],
+          fullPath: item.values["/alfresco-access/transaction/path"]
+            .split("/cm:doclib")[0]
+            .split("/cm:imgpreview")[0]
+            .split("/fm:discussion/cm:Comments/")[0],
           time: item.time,
           user: item.user,
           action: action.label,
@@ -165,42 +168,56 @@ export default {
       }
     },
     async pathLink(path) {
-      const words = path.split("cm:");
+      try {
+        const words = path.split("cm:");
 
-      var txt = words[0];
+        var txt = words[0];
 
-      words.forEach((item, index) => {
-        if (index > 0) {
-          txt += item.includes("/")
-            ? `cm:"${item.replace("/", "")}"`
-            : `cm:"${item}"`;
+        words.shift();
+
+        words.forEach((item, index) => {
+          item = item.replace("/", "");
+          if (/^[A-Za-z0-9]*$/.test(item)) {
+            txt += `cm:${item}`;
+          } else {
+            txt += `cm:"${item}"`;
+          }
           if (index < words.length - 1) txt += "/";
-        }
-      });
-      const query = `PATH:"${txt}"`;
+        });
 
-      const res = await this.$http.post(
-        `${process.env.VUE_APP_ALFRESCO_API}search/versions/1/search`,
-        {
-          query: {
-            query,
-            language: "lucene",
-          },
-          paging: {
-            maxItems: 1,
-          },
-        }
-      );
+        const splitPath = path.split("/");
+        const NAME = splitPath[splitPath.length - 1].replace("cm:", "");
+        const query = `PATH:"${txt}"`;
 
-      if (res.data.list.entries.length > 0) {
-        if (res.data.list.entries[0].entry.isFile) {
-          this.property(res.data.list.entries[0].entry.id);
+        const res = await this.$http.post(
+          `${process.env.VUE_APP_ALFRESCO_API}search/versions/1/search`,
+          {
+            query: {
+              query,
+              language: "lucene",
+            },
+            paging: {
+              maxItems: 1,
+            },
+            fields: ["name", "id", "isFile"],
+          }
+        );
+
+        if (
+          res.data.list.entries.length > 0 &&
+          NAME == res.data.list.entries[0].entry.name
+        ) {
+          if (res.data.list.entries[0].entry.isFile) {
+            this.property(res.data.list.entries[0].entry.id);
+          } else {
+            this.$router.push(
+              `/repository?id=${res.data.list.entries[0].entry.id}`
+            );
+          }
         } else {
-          this.$router.push(
-            `/repository?id=${res.data.list.entries[0].entry.id}`
-          );
+          throw null
         }
-      } else {
+      } catch (error) {
         this.alertStatus = true;
 
         setTimeout(() => {
