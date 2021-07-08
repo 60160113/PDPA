@@ -210,12 +210,14 @@ export default {
           if (res.data.list.entries[0].entry.isFile) {
             this.property(res.data.list.entries[0].entry.id);
           } else {
-            this.$router.push(
-              `/repository?id=${res.data.list.entries[0].entry.id}`
-            );
+            const routeData = this.$router.resolve({
+              name: "Repository",
+              query: { id: res.data.list.entries[0].entry.id },
+            });
+            window.open(routeData.href, "_blank");
           }
         } else {
-          throw null
+          throw null;
         }
       } catch (error) {
         this.alertStatus = true;
