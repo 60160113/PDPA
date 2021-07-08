@@ -201,7 +201,7 @@
                   @click="
                     item.isFile
                       ? property(item.id)
-                      : $router.push(`/repository?id=${item.id}`)
+                      : openFilePage(item.id)
                   "
                 >
                   <CRow>
@@ -220,7 +220,7 @@
                       Path:
                       <span :key="i" v-for="(element, i) in item.path.elements">
                         <CLink
-                          @click="$router.push(`/repository?id=${element.id}`)"
+                          @click="openFilePage(element.id)"
                         >
                           {{ element.name }} </CLink
                         >/
@@ -230,7 +230,7 @@
                           @click="
                             item.isFile
                               ? property(item.id)
-                              : $router.push(`/repository?id=${item.id}`)
+                              : openFilePage(item.id)
                           "
                         >
                           {{ item.name }}
@@ -627,6 +627,13 @@ export default {
     property(id) {
       this.selectId = id;
       this.modalProperties = true;
+    },
+    openFilePage(id) {
+      const routeData = this.$router.resolve({
+        name: "Repository",
+        query: { id },
+      });
+      window.open(routeData.href, "_blank");
     },
   },
 };
