@@ -6,7 +6,7 @@
     >
     <CCard>
       <CCardHeader
-        ><strong style="color: #321fdb">รายงานไฟล์</strong></CCardHeader
+        ><strong class="text-primary">รายงานไฟล์</strong></CCardHeader
       >
       <CCardBody>
         <CDataTable

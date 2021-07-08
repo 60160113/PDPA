@@ -50,5 +50,16 @@ export default [
     name: "Users Report",
     to: "/users-report",
     icon: "cil-people"
-  }
+  },
+  // PDPA
+  {
+    _name: "CSidebarNavTitle",
+    _children: ["PDPA"]
+  },
+  {
+    _name: "CSidebarNavItem",
+    name: "Request Data",
+    to: "/request",
+    icon: "cil-people"
+  },
 ];

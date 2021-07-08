@@ -2,7 +2,7 @@
   <div>
     <CCard>
       <CCardHeader
-        ><strong style="color: #321fdb"
+        ><strong class="text-primary"
           >รายงานการเข้าใช้งานระบบ</strong
         ></CCardHeader
       >

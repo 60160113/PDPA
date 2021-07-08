@@ -1,7 +1,7 @@
 <template>
   <CCard>
     <CCardHeader>
-      <strong style="color: #321fdb">Search</strong>
+      <strong class="text-primary">Search</strong>
     </CCardHeader>
     <CCardBody>
       <CTabs variant="pills" :activeTab.sync="tabIndex">
@@ -38,7 +38,7 @@
         <hr />
         <p style="font-size: 16px" class="text-primary">รายละเอียดไฟล์</p>
         <CRow>
-          <CCol col=1><label style="margin-top:5px">Mime Type</label></CCol>
+          <CCol col="1"><label style="margin-top: 5px">Mime Type</label></CCol>
           <CCol>
             <v-select
               v-model="search.mimeType"

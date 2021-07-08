@@ -5,7 +5,7 @@
       <CCol md="4" sm="12">
         <CCard>
           <CCardHeader>
-            <strong style="color: #321fdb">ฟิลเตอร์</strong>
+            <strong class="text-primary">ฟิลเตอร์</strong>
           </CCardHeader>
           <CCardBody>
             <div>
@@ -173,7 +173,7 @@
       <CCol>
         <CCard>
           <CCardHeader>
-            <strong style="color: #321fdb">ผลลัพธ์การค้นหา</strong>
+            <strong class="text-primary">ผลลัพธ์การค้นหา</strong>
           </CCardHeader>
           <CCardBody>
             <CDataTable

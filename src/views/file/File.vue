@@ -28,7 +28,7 @@
     <!-- Table -->
     <CCard>
       <CCardHeader>
-        <strong style="color: #321fdb">{{ currentFolder.name }}</strong>
+        <strong class="text-primary">{{ currentFolder.name }}</strong>
 
         <div style="margin-top: 10px; opacity: 0.7">
           <span>Path :</span>

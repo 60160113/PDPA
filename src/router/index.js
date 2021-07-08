@@ -6,6 +6,8 @@ import search from "./search";
 
 import audit from "./audit";
 
+import pdpa from "./pdpa";
+
 // Containers
 const TheContainer = () => import("@/containers/TheContainer");
 
@@ -47,7 +49,7 @@ const router = new Router({
       path: "",
       name: "Home",
       component: TheContainer,
-      children: [...file, ...search, ...audit]
+      children: [...file, ...search, ...audit, ...pdpa]
     },
     {
       path: "*",

@@ -4,7 +4,7 @@
       <CCol col="4">
         <CCard>
           <CCardHeader
-            ><strong style="color: #321fdb">Destination</strong></CCardHeader
+            ><strong class="text-primary">Destination</strong></CCardHeader
           >
           <CCardBody>
             <CInputRadioGroup
@@ -24,7 +24,7 @@
       <CCol>
         <CCard>
           <CCardHeader
-            ><strong style="color: #321fdb">Path</strong></CCardHeader
+            ><strong class="text-primary">Path</strong></CCardHeader
           >
           <CCardBody>
             <CInput

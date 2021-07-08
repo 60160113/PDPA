@@ -139,7 +139,7 @@
     <hr />
 
     <!-- Comment Section -->
-    <strong style="color: #321fdb">ความคิดเห็น </strong>
+    <strong class="text-primary">ความคิดเห็น </strong>
     <CButton
       color="primary"
       size="sm"
@@ -182,7 +182,7 @@
     <p v-if="comments.length == 0">ไม่มีความคิดเห็น</p>
     <CListGroup v-else style="height: 200px; overflow-y: auto">
       <CListGroupItem :key="index" v-for="(item, index) in comments">
-        <strong style="color: #321fdb"
+        <strong class="text-primary"
           >{{ item.modifiedBy.firstName }}
           {{ item.modifiedBy.lastName ? item.modifiedBy.lastName : "" }}
         </strong>
