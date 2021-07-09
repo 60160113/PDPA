@@ -507,7 +507,7 @@ export default {
           responseList = [];
         do {
           const { data: list } = await this.$http.get(
-            `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations&orderBy=modifiedAt DESC`
+            `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children?maxItems=${maxItems}&skipCount=${skipCount}&include=properties,allowableOperations`
           );
 
           responseList.push(
