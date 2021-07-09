@@ -6,7 +6,25 @@
       </CCardHeader>
 
       <CCardBody>
-        <!-- <hr /> -->
+        <b style="font-size: 16px" class="text-primary">ไฟล์</b>
+        <CRow class="mt-3">
+          <CCol col="2">
+            <label style="margin-top: 5px"
+              >เลือกไฟล์&nbsp;<b style="color: red">*</b>
+            </label>
+          </CCol>
+          <CCol>
+            <v-select
+              v-model="personalDataId"
+              :options="personalDataList"
+              :reduce="(item) => item.id"
+              label="name"
+              placeholder="กรุณาเลือก"
+            />
+          </CCol>
+        </CRow>
+
+        <hr />
 
         <CRow>
           <CCol>
@@ -43,7 +61,9 @@
         </CRow>
 
         <div class="text-right">
-          <CButton color="primary" @click="request"> บันทึก </CButton>
+          <CButton color="primary" :disabled="!personalDataId" @click="request">
+            บันทึก
+          </CButton>
         </div>
       </CCardBody>
     </CCard>
@@ -51,15 +71,55 @@
 </template>
 
 <script>
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
+
 export default {
+  components: {
+    vSelect,
+  },
+  created() {
+    this.getPersonalDataList();
+  },
   data() {
     return {
+      personalDataList: [],
+      personalDataId: "",
+
       consents: [""],
     };
   },
   methods: {
+    async getPersonalDataList() {
+      this.personalDataList = [];
+
+      let hasMoreItems = false,
+        maxItems = 1000,
+        skipCount = 0;
+
+      do {
+        const res = await this.$http.get(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${process.env.VUE_APP_PERSONAL_DATA_FOLDER}/children?maxItems=${maxItems}&skipCount=${skipCount}&where=(isFile=true)`
+        );
+
+        this.personalDataList.push(
+          ...res.data.list.entries.map((item) => {
+            return {
+              id: item.entry.id,
+              name: item.entry.name,
+            };
+          })
+        );
+        hasMoreItems = res.data.list.pagination.hasMoreItems;
+        skipCount += maxItems;
+      } while (hasMoreItems);
+    },
     request() {
+      console.log(this.personalDataId);
       console.log(this.consents);
+      console.log(this.$store.state.user.userId);
+      console.log(this.$store.state.user.displayName);
+      console.log("-------------------");
     },
   },
 };
