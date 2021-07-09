@@ -15,9 +15,8 @@
           </CCol>
           <CCol>
             <v-select
-              v-model="personalDataId"
+              v-model="personalData"
               :options="personalDataList"
-              :reduce="(item) => item.id"
               label="name"
               placeholder="กรุณาเลือก"
             />
@@ -59,9 +58,11 @@
             </CButton>
           </CCol>
         </CRow>
-
+        <CAlert :show="alertConfig.show" :color="alertConfig.color">
+          {{ alertConfig.text }}
+        </CAlert>
         <div class="text-right">
-          <CButton color="primary" :disabled="!personalDataId" @click="request">
+          <CButton color="primary" :disabled="!personalData" @click="request">
             บันทึก
           </CButton>
         </div>
@@ -84,9 +85,15 @@ export default {
   data() {
     return {
       personalDataList: [],
-      personalDataId: "",
+      personalData: null,
 
       consents: [""],
+
+      alertConfig: {
+        show: false,
+        text: "บันทึกเสร็จสิ้น",
+        color: "success",
+      },
     };
   },
   methods: {
@@ -115,11 +122,37 @@ export default {
       } while (hasMoreItems);
     },
     request() {
-      console.log(this.personalDataId);
-      console.log(this.consents);
-      console.log(this.$store.state.user.userId);
-      console.log(this.$store.state.user.displayName);
-      console.log("-------------------");
+      this.$http
+        .post(`${process.env.VUE_APP_PDPA_SERVICES}personal_data`, {
+          requester: {
+            id: this.$store.state.user.userId,
+            name: this.$store.state.user.displayName,
+          },
+          data: {
+            id: this.personalData.id,
+            name: this.personalData.name,
+          },
+          consents: this.consents,
+        })
+        .then((res) => {
+          if (res.response) {
+            this.alertConfig = {
+              show: true,
+              text: res.response.data,
+              color: "danger",
+            };
+          } else {
+            this.alertConfig = {
+              show: true,
+              text: "บันทึกเสร็จสิ้น",
+              color: "success",
+            };
+          }
+
+          setTimeout(() => {
+            this.alertConfig.show = false;
+          }, 1500);
+        });
     },
   },
 };

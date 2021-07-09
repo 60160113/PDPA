@@ -62,4 +62,10 @@ export default [
     to: "/request",
     icon: "cil-people"
   },
+  {
+    _name: "CSidebarNavItem",
+    name: "Request Approval",
+    to: "/request-approval",
+    icon: "cil-people"
+  },
 ];
