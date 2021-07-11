@@ -52,7 +52,7 @@
 
           <template #actions="{ item }">
             <td>
-              <CButton color="success"> อนุมัติ </CButton>&nbsp;
+              <CButton color="success" @click="approveRequest(item)"> อนุมัติ </CButton>&nbsp;
               <CButton color="danger" @click="removeRequest(item['_id'])">
                 ไม่อนุมัติ
               </CButton>
@@ -87,6 +87,16 @@ export default {
         .delete(`${process.env.VUE_APP_PDPA_SERVICES}personal_data/${id}`)
         .then(() => {
           this.getRequests();
+        });
+    },
+    approveRequest(item) {
+      this.$http
+        .post(`${process.env.VUE_APP_PDPA_SERVICES}publish_data`, {
+          data: item.data,
+          requester: item.requester,
+        })
+        .then((res) => {
+          console.log(res.data);
         });
     },
   },
