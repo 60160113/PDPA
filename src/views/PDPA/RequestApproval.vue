@@ -38,7 +38,10 @@
               <p class="text-primary">{{ item.data.name }}</p>
               <span v-if="item.publish.isPublished">
                 Link:
-                <CLink :href="getSharedURL(item.publish.id).href" target="_blank">
+                <CLink
+                  :href="getSharedURL(item.publish.id).href"
+                  target="_blank"
+                >
                   {{ getSharedURL(item.publish.id).label }}
                 </CLink>
               </span>
@@ -48,6 +51,18 @@
           <template #requester="{ item }">
             <td>
               {{ item.requester.name }}
+            </td>
+          </template>
+
+          <template #consents="{ item }">
+            <td>
+              <ul
+                :key="index"
+                v-for="(consent, index) in item.consents"
+                style="line-height: 80%"
+              >
+                <li>{{ consent }}</li>
+              </ul>
             </td>
           </template>
 
@@ -78,7 +93,11 @@
               >
                 อนุมัติ </CButton
               >&nbsp;
-              <CButton color="danger" @click="removeRequest(item['_id'])">
+              <CButton
+                color="danger"
+                :disabled="item.publish.isPublished"
+                @click="removeRequest(item['_id'])"
+              >
                 ไม่อนุมัติ
               </CButton>
             </td>
