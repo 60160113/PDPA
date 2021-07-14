@@ -38,11 +38,8 @@
               <p class="text-primary">{{ item.data.name }}</p>
               <span v-if="item.publish.isPublished">
                 Link:
-                <CLink
-                  :href="`http://localhost:8080/#/property/${item.publish.id}`"
-                  target="_blank"
-                >
-                  http://localhost:8080/#/property/{{ item.publish.id }}
+                <CLink :href="getSharedURL(item.publish.id).href" target="_blank">
+                  {{ getSharedURL(item.publish.id).label }}
                 </CLink>
               </span>
             </td>
@@ -135,6 +132,10 @@ export default {
           this.getRequests();
           this.loading = false;
         });
+    },
+    getSharedURL(id) {
+      const href = `/#/property/${id}`;
+      return { label: `${window.location.host}${href}`, href };
     },
   },
 };
