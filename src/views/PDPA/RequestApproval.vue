@@ -128,7 +128,9 @@ export default {
         .then((res) => {
           this.requests = res.data;
           this.loading = false;
-        });
+        }).catch(() => {
+          this.loading = false;
+        })
     },
     removeRequest(id) {
       this.$http
