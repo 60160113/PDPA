@@ -13,7 +13,7 @@
             { key: 'requester', label: 'Requester', _style: 'width:20%' },
             { key: 'consents', label: 'Consents', _style: 'width:20%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
-            { key: 'status', label: 'Status', _style: 'width:5%' },
+            { key: 'statusLabel', label: 'Status', _style: 'width:5%' },
             { key: 'actions', label: 'Actions', _style: 'width:15%' },
           ]"
           :tableFilter="{
@@ -73,13 +73,10 @@
             </td>
           </template>
 
-          <template #status="{ item }">
+          <template #statusLabel="{ item }">
             <td>
-              <CBadge
-                style="font-size: 15px"
-                :color="item.publish.isPublished ? 'success' : 'primary'"
-              >
-                {{ item.publish.isPublished ? "อนุมัติ" : "รออนุมัติ" }}
+              <CBadge style="font-size: 15px" :color="item.statusColor">
+                {{ item.statusLabel }}
               </CBadge>
             </td>
           </template>
@@ -88,7 +85,7 @@
             <td>
               <CButton
                 color="success"
-                :disabled="item.publish.isPublished"
+                :disabled="item.status !== 'pending'"
                 @click="
                   selectedItem = item;
                   approvedModal = true;
@@ -98,7 +95,7 @@
               >&nbsp;
               <CButton
                 color="danger"
-                :disabled="item.publish.isPublished"
+                :disabled="item.status !== 'pending'"
                 @click="
                   selectedItem = item;
                   disapprovedModal = true;
@@ -126,7 +123,10 @@
         <CButton @click="disapprovedModal = false" color="danger">
           ยกเลิก
         </CButton>
-        <CButton @click="removeRequest(selectedItem['_id'])" color="success">
+        <CButton
+          @click="disapproveRequest(selectedItem['_id'])"
+          color="success"
+        >
           ตกลง
         </CButton>
       </template>
@@ -209,16 +209,24 @@ export default {
       this.$http
         .get(`${process.env.VUE_APP_PDPA_SERVICES}personal_data`)
         .then((res) => {
-          this.requests = res.data;
+          this.requests = res.data.map((item) => {
+            const statusData = this.getStatusBadgeStyle(item.status);
+            item.statusLabel = statusData.label;
+            item.statusColor = statusData.color;
+
+            return item;
+          });
           this.loading = false;
         })
         .catch(() => {
           this.loading = false;
         });
     },
-    removeRequest(id) {
+    disapproveRequest(id) {
       this.$http
-        .delete(`${process.env.VUE_APP_PDPA_SERVICES}personal_data/${id}`)
+        .put(`${process.env.VUE_APP_PDPA_SERVICES}personal_data/${id}`, {
+          status: "disapproved",
+        })
         .then(() => {
           this.getRequests();
 
@@ -246,6 +254,20 @@ export default {
     getSharedURL(id) {
       const href = `/#/property/${id}`;
       return { label: `${window.location.host}${href}`, href };
+    },
+    getStatusBadgeStyle(status) {
+      switch (status) {
+        case "pending":
+          return { color: "primary", label: "รออนุมัติ" };
+        case "approved":
+          return { color: "success", label: "อนุมัติ" };
+        case "disapproved":
+          return { color: "danger", label: "ไม่อนุมัติ" };
+        case "expired":
+          return { color: "secondary", label: "หมดอายุ" };
+        default:
+          return { color: "info", label: status || "unknown" };
+      }
     },
   },
   computed: {
