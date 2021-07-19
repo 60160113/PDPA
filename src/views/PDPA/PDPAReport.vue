@@ -16,7 +16,9 @@
     <!-- Chart -->
     <CCard>
       <CCardHeader>
-        {{ status }}
+        <strong class="text-primary">
+          Requests in {{ new Date().getFullYear() }}
+        </strong>
         <CSelect
           class="float-right mb-0"
           size="sm"
@@ -27,7 +29,7 @@
       </CCardHeader>
       <CCardBody>
         <CChartBar
-          style="height: 300px"
+          style="height: 400px"
           :datasets="[
             {
               data: chartData[status],
