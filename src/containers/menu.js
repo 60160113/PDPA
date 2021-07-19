@@ -60,7 +60,7 @@ export default [
         _name: "CSidebarNavItem",
         name: "Request Data",
         to: "/request",
-        icon: "cil-lock-locked"
+        icon: "cil-phone"
     },
     {
         _name: "CSidebarNavItem",
