@@ -2,7 +2,7 @@
   <div>
     <!-- Widget -->
     <CRow>
-      <CCol :key="index" v-for="(item, index) in statusFields">
+      <CCol :key="index" v-for="(item, index) in statusFields" md="3" sm="12">
         <CWidgetIcon
           :header="total[item.label]"
           :text="item.label"
