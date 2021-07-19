@@ -9,4 +9,9 @@ export default [
     name: "Request Approval",
     component: () => import("@/views/PDPA/RequestApproval.vue")
   },
+  {
+    path: "/PDPA/report",
+    name: "PDPA Report",
+    component: () => import("@/views/PDPA/PDPAReport.vue")
+  }
 ];
