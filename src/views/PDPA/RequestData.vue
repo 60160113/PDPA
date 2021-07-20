@@ -126,15 +126,13 @@ export default {
       } while (hasMoreItems);
 
       const filter = await this.$http.get(
-        `${process.env.VUE_APP_PDPA_SERVICES}personal_data?status=pending&requester.id=${this.$store.state.user.userId}`
+        `${process.env.VUE_APP_PDPA_SERVICES}personal_data?status=pending&status=approved&requester.id=${this.$store.state.user.userId}`
       );
 
       this.personalDataList = this.personalDataList.filter((item) => {
         return (
-          filter.data.filter(
-            (element) =>
-              element.data.id == item.id || element.data.status == "approved"
-          ).length === 0
+          filter.data.filter((element) => element.data.id == item.id).length ===
+          0
         );
       });
     },
