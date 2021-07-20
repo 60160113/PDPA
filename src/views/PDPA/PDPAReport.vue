@@ -93,7 +93,7 @@ export default {
           color: "gradient-danger",
           icon: "cil-x-circle",
         },
-        { label: "expired", color: "gradient-secondary", icon: "cil-clock" },
+        { label: "expired", color: "gradient-dark", icon: "cil-clock" },
       ],
 
       status: "pending",
