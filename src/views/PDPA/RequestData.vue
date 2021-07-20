@@ -131,8 +131,10 @@ export default {
 
       this.personalDataList = this.personalDataList.filter((item) => {
         return (
-          filter.data.filter((element) => element.data.id == item.id).length ===
-          0
+          filter.data.filter(
+            (element) =>
+              element.data.id == item.id || element.data.status == "approved"
+          ).length === 0
         );
       });
     },
