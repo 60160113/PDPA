@@ -124,6 +124,17 @@ export default {
         hasMoreItems = res.data.list.pagination.hasMoreItems;
         skipCount += maxItems;
       } while (hasMoreItems);
+
+      const filter = await this.$http.get(
+        `${process.env.VUE_APP_PDPA_SERVICES}personal_data?status=pending&requester.id=${this.$store.state.user.userId}`
+      );
+
+      this.personalDataList = this.personalDataList.filter((item) => {
+        return (
+          filter.data.filter((element) => element.data.id == item.id).length ===
+          0
+        );
+      });
     },
     request() {
       this.loading = true;
@@ -153,6 +164,8 @@ export default {
               text: "บันทึกเสร็จสิ้น",
               color: "success",
             };
+            this.personalData = null;
+            this.getPersonalDataList();
           }
 
           setTimeout(() => {
