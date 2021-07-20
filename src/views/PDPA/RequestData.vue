@@ -68,6 +68,8 @@
         </div>
       </CCardBody>
     </CCard>
+
+    <CElementCover :opacity="0.7" v-show="loading" />
   </div>
 </template>
 
@@ -94,6 +96,8 @@ export default {
         text: "บันทึกเสร็จสิ้น",
         color: "success",
       },
+
+      loading: false,
     };
   },
   methods: {
@@ -122,6 +126,7 @@ export default {
       } while (hasMoreItems);
     },
     request() {
+      this.loading = true;
       this.$http
         .post(`${process.env.VUE_APP_PDPA_SERVICES}personal_data`, {
           requester: {
@@ -135,6 +140,7 @@ export default {
           consents: this.consents,
         })
         .then((res) => {
+          this.loading = false;
           if (res.response) {
             this.alertConfig = {
               show: true,
@@ -152,6 +158,9 @@ export default {
           setTimeout(() => {
             this.alertConfig.show = false;
           }, 1500);
+        })
+        .catch((err) => {
+          this.loading = false;
         });
     },
   },
