@@ -12,11 +12,11 @@
               name="status"
               class="mb-2"
               :key="index"
-              v-for="(item, index) in status"
-              :label="item.charAt(0).toUpperCase() + item.slice(1)"
-              :value="item"
-              :checked="statusFilter.indexOf(item) != -1"
-              @update:checked="filter(item)"
+              v-for="(item, index) in statusOption"
+              :label="item.label"
+              :value="item.value"
+              :checked="statusFilter.indexOf(item.value) != -1"
+              @update:checked="filter(item.value)"
             />
           </CCardBody>
         </CCard>
@@ -31,8 +31,8 @@
             <CDataTable
               :items="tableRecords"
               :fields="[
-                { key: 'name', label: 'Name', _style: 'width:25%' },
-                { key: 'requester', label: 'Requester', _style: 'width:20%' },
+                { key: 'dataName', label: 'Name', _style: 'width:25%' },
+                { key: 'requesterName', label: 'Requester', _style: 'width:20%' },
                 { key: 'consents', label: 'Consents', _style: 'width:20%' },
                 { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
                 { key: 'statusLabel', label: 'Status', _style: 'width:5%' },
@@ -55,9 +55,9 @@
               <template #no-items-view>
                 <div class="text-center">ไม่พบข้อมูล</div>
               </template>
-              <template #name="{ item }">
+              <template #dataName="{ item }">
                 <td>
-                  <p class="text-primary">{{ item.data.name }}</p>
+                  <p class="text-primary">{{ item.dataName }}</p>
                   <span v-if="item.publish.isPublished">
                     Link:
                     <CLink
@@ -67,12 +67,6 @@
                       {{ getSharedURL(item.publish.id).label }}
                     </CLink>
                   </span>
-                </td>
-              </template>
-
-              <template #requester="{ item }">
-                <td>
-                  {{ item.requester.name }}
                 </td>
               </template>
 
@@ -226,7 +220,12 @@ export default {
 
       expiredAt: new Date(),
 
-      status: ["pending", "approved", "disapproved", "expired"],
+      statusOption: [
+        { label: "รออนุมัติ", value: "pending" },
+        { label: "อนุมัติ", value: "approved" },
+        { label: "ไม่อนุมัติ", value: "disapproved" },
+        { label: "หมดอายุ", value: "expired" },
+      ],
       statusFilter: ["pending", "approved", "disapproved", "expired"],
     };
   },
@@ -246,6 +245,9 @@ export default {
             const statusData = this.getStatusBadgeStyle(item.status);
             item.statusLabel = statusData.label;
             item.statusColor = statusData.color;
+
+            item.dataName = item.data.name;
+            item.requesterName = item.requester.name;
 
             return item;
           });
