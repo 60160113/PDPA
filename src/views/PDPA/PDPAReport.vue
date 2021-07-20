@@ -53,6 +53,8 @@
         />
       </CCardBody>
     </CCard>
+
+    <CElementCover :opacity="0.7" v-show="loading" />
   </div>
 </template>
 
@@ -97,10 +99,13 @@ export default {
       status: "pending",
 
       chartData: {},
+
+      loading: false,
     };
   },
   methods: {
     getData() {
+      this.loading = true;
       this.$http
         .get(`${process.env.VUE_APP_PDPA_SERVICES}personal_data`)
         .then((res) => {
@@ -131,6 +136,11 @@ export default {
               ).length;
             });
           });
+
+          this.loading = false;
+        })
+        .catch((err) => {
+          this.loading = false;
         });
     },
   },
