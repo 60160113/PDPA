@@ -297,9 +297,9 @@ export default {
         case "disapproved":
           return { color: "danger", label: "ไม่อนุมัติ" };
         case "expired":
-          return { color: "secondary", label: "หมดอายุ" };
+          return { color: "dark", label: "หมดอายุ" };
         default:
-          return { color: "info", label: status || "unknown" };
+          return { color: "secondary", label: status || "unknown" };
       }
     },
   },
