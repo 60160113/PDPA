@@ -515,32 +515,35 @@ export default {
   },
   methods: {
     // Properties
-    getProperties() {
-      this.$http
-        .get(
+    async getProperties() {
+      try {
+        const response = await this.$http.get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}?include=allowableOperations,path`
-        )
-        .then((res) => {
-          this.properties = res.data.entry;
+        );
+        if (response.response) throw response.response;
 
-          if (this.properties.properties.hasOwnProperty("qshare:sharedId")) {
-            this.sharedLink.id = this.properties.properties["qshare:sharedId"];
-          }
+        this.properties = response.data.entry;
 
-          // Get Content
-          if (
-            this.previewableTypes.includes(this.properties.content.mimeType)
-          ) {
-            this.getContent();
-          } else {
-            document
-              .getElementById("viewer")
-              .setAttribute(
-                "srcdoc",
-                "<h1>This document can't be previewed.</h1>"
-              );
-          }
-        });
+        if (this.properties.properties.hasOwnProperty("qshare:sharedId")) {
+          this.sharedLink.id = this.properties.properties["qshare:sharedId"];
+        }
+
+        // Get Content
+        if (this.previewableTypes.includes(this.properties.content.mimeType)) {
+          this.getContent();
+        } else {
+          document
+            .getElementById("viewer")
+            .setAttribute(
+              "srcdoc",
+              "<h1>This document can't be previewed.</h1>"
+            );
+        }
+      } catch (error) {
+        if (error.status === 404) {
+          this.$router.replace("/404")
+        }
+      }
     },
     // Preview
     getContent() {
