@@ -6,17 +6,36 @@
       </CCardHeader>
 
       <CCardBody>
-        <b style="font-size: 16px" class="text-primary">ไฟล์</b>
+        <b style="font-size: 16px" class="text-primary">ข้อมูล</b>
         <CRow class="mt-3">
           <CCol col="2">
-            <label style="margin-top: 5px"
-              >เลือกไฟล์&nbsp;<b style="color: red">*</b>
+            <label style="margin-top: 5px">
+              เจ้าของข้อมูล&nbsp;
+              <b style="color: red">*</b>
             </label>
           </CCol>
           <CCol>
             <v-select
-              v-model="personalData"
-              :options="personalDataList"
+              v-model="personalDataId"
+              :options="personalDataOptions"
+              :reduce="(item) => item.id"
+              label="name"
+              placeholder="กรุณาเลือก"
+            />
+          </CCol>
+        </CRow>
+
+        <CRow class="mt-3" v-if="personalDataId">
+          <CCol col="2">
+            <label style="margin-top: 5px">
+              ข้อมูล&nbsp;
+              <b style="color: red">*</b>
+            </label>
+          </CCol>
+          <CCol>
+            <v-select
+              v-model="data"
+              :options="dataOptions"
               label="name"
               placeholder="กรุณาเลือก"
             />
@@ -58,16 +77,33 @@
             </CButton>
           </CCol>
         </CRow>
-        <CAlert :show="alertConfig.show" :color="alertConfig.color">
-          {{ alertConfig.text }}
-        </CAlert>
+
         <div class="text-right">
-          <CButton color="primary" :disabled="!personalData" @click="request">
+          <CButton
+            color="primary"
+            :disabled="!personalDataId || !data"
+            @click="request"
+          >
             บันทึก
           </CButton>
         </div>
       </CCardBody>
     </CCard>
+
+    <!-- notify -->
+    <CModal
+      :show.sync="notify"
+      :no-close-on-backdrop="true"
+      :centered="true"
+      title="เสร็จสิ้น"
+      size="sm"
+      color="success"
+    >
+      ส่งคำร้องขอเสร็จสิ้น
+      <template #footer>
+        <CButton @click="notify = false" color="secondary"> ปิด </CButton>
+      </template>
+    </CModal>
 
     <CElementCover :opacity="0.7" v-show="loading" />
   </div>
@@ -82,59 +118,86 @@ export default {
     vSelect,
   },
   created() {
-    this.getPersonalDataList();
+    this.getpersonalDataOptions();
+  },
+  watch: {
+    personalDataId: async function (id) {
+      if (id) {
+        this.dataOptions = await this.getNodeChildrenById(id, {
+          where: "(isFile=true)",
+          fields: ["name", "id"],
+        });
+
+        const filter = await this.$http.get(
+          `${process.env.VUE_APP_PDPA_SERVICES}personal_data?status=pending&status=approved&requester.id=${this.$store.state.user.userId}`
+        );
+
+        this.dataOptions = await this.dataOptions.filter((element) => {
+          return (
+            filter.data.filter((item) => item.data.id == element.id).length == 0
+          );
+        });
+
+        this.data = this.dataOptions[0];
+      } else {
+        this.dataOptions = [];
+        this.data = null;
+      }
+    },
   },
   data() {
     return {
-      personalDataList: [],
-      personalData: null,
+      personalDataOptions: [],
+      personalDataId: null,
+
+      dataOptions: [],
+
+      data: null,
 
       consents: [""],
 
-      alertConfig: {
-        show: false,
-        text: "บันทึกเสร็จสิ้น",
-        color: "success",
-      },
-
       loading: false,
+
+      notify: false,
     };
   },
   methods: {
-    async getPersonalDataList() {
-      this.personalDataList = [];
+    async getNodeChildrenById(id, query = {}) {
+      try {
+        let hasMoreItems = false;
+        const maxItems = 1000;
+        let skipCount = 0;
+        let arr = [];
 
-      let hasMoreItems = false,
-        maxItems = 1000,
-        skipCount = 0;
+        const BASE_URL = `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children`;
 
-      do {
-        const res = await this.$http.get(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${process.env.VUE_APP_PERSONAL_DATA_FOLDER}/children?maxItems=${maxItems}&skipCount=${skipCount}&where=(isFile=true)`
-        );
+        let query_string = "";
 
-        this.personalDataList.push(
-          ...res.data.list.entries.map((item) => {
-            return {
-              id: item.entry.id,
-              name: item.entry.name,
-            };
-          })
-        );
-        hasMoreItems = res.data.list.pagination.hasMoreItems;
-        skipCount += maxItems;
-      } while (hasMoreItems);
+        await Object.keys(query).forEach((key) => {
+          query_string += `&${key}=${query[key]}`;
+        });
 
-      const filter = await this.$http.get(
-        `${process.env.VUE_APP_PDPA_SERVICES}personal_data?status=pending&status=approved&requester.id=${this.$store.state.user.userId}`
+        do {
+          const res = await this.$http.get(
+            `${BASE_URL}?maxItems=${maxItems}&skipCount=${skipCount}${query_string}`
+          );
+
+          arr.push(...res.data.list.entries.map((item) => item.entry));
+
+          hasMoreItems = res.data.list.pagination.hasMoreItems;
+          skipCount += maxItems;
+        } while (hasMoreItems);
+
+        return arr;
+      } catch (error) {
+        return [];
+      }
+    },
+    async getpersonalDataOptions() {
+      this.personalDataOptions = await this.getNodeChildrenById(
+        process.env.VUE_APP_PERSONAL_DATA_FOLDER,
+        { where: "(isFolder=true)", fields: ["name", "id"] }
       );
-
-      this.personalDataList = this.personalDataList.filter((item) => {
-        return (
-          filter.data.filter((element) => element.data.id == item.id).length ===
-          0
-        );
-      });
     },
     request() {
       this.loading = true;
@@ -144,33 +207,18 @@ export default {
             id: this.$store.state.user.userId,
             name: this.$store.state.user.displayName,
           },
-          data: {
-            id: this.personalData.id,
-            name: this.personalData.name,
-          },
+          data: this.data,
+
           consents: this.consents,
         })
-        .then((res) => {
-          this.loading = false;
-          if (res.response) {
-            this.alertConfig = {
-              show: true,
-              text: res.response.data,
-              color: "danger",
-            };
-          } else {
-            this.alertConfig = {
-              show: true,
-              text: "บันทึกเสร็จสิ้น",
-              color: "success",
-            };
-            this.personalData = null;
-            this.getPersonalDataList();
-          }
-
+        .then(() => {
           setTimeout(() => {
-            this.alertConfig.show = false;
-          }, 1500);
+            this.loading = false;
+            this.personalDataId = null;
+
+            this.notify = true;
+            this.getPersonalDataList();
+          }, 1000);
         })
         .catch((err) => {
           this.loading = false;
