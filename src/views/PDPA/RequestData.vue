@@ -217,7 +217,6 @@ export default {
             this.personalDataId = null;
 
             this.notify = true;
-            this.getPersonalDataList();
           }, 1000);
         })
         .catch((err) => {
