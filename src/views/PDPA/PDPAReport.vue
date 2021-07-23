@@ -4,7 +4,7 @@
     <CRow>
       <CCol :key="index" v-for="(item, index) in statusFields" md="3" sm="12">
         <CWidgetIcon
-          :header="total[item.label]"
+          :header="total[item.value]"
           :text="item.label"
           :color="item.color"
         >
@@ -23,7 +23,14 @@
           class="float-right mb-0"
           size="sm"
           :value.sync="status"
-          :options="statusFields.map((item) => item.label)"
+          :options="
+            statusFields.map((item) => {
+              return {
+                value: item.value,
+                label: item.label,
+              };
+            })
+          "
           custom
         />
       </CCardHeader>
@@ -79,21 +86,29 @@ export default {
 
       statusFields: [
         {
-          label: "pending",
+          value: "pending",
+          label: "รออนุมัติ",
           color: "gradient-primary",
           icon: "cil-media-pause",
         },
         {
-          label: "approved",
+          value: "approved",
+          label: "อนุมัติ",
           color: "gradient-success",
           icon: "cil-check-circle",
         },
         {
-          label: "disapproved",
+          value: "disapproved",
+          label: "ไม่อนุมัติ",
           color: "gradient-danger",
           icon: "cil-x-circle",
         },
-        { label: "expired", color: "gradient-dark", icon: "cil-clock" },
+        {
+          value: "expired",
+          label: "หมดอายุ",
+          color: "gradient-dark",
+          icon: "cil-clock",
+        },
       ],
 
       status: "pending",
@@ -111,8 +126,8 @@ export default {
         .then((res) => {
           // widget
           this.statusFields.forEach((item) => {
-            this.total[item.label] = res.data
-              .filter((element) => element.status == item.label)
+            this.total[item.value] = res.data
+              .filter((element) => element.status == item.value)
               .length.toString();
           });
 
