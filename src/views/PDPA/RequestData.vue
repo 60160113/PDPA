@@ -117,8 +117,11 @@ export default {
   components: {
     vSelect,
   },
-  created() {
-    this.getpersonalDataOptions();
+  async created() {
+    this.personalDataOptions = await this.getNodeChildrenById(
+      process.env.VUE_APP_PERSONAL_DATA_FOLDER,
+      { where: "(isFolder=true)", fields: ["name", "id"] }
+    );
   },
   watch: {
     personalDataId: async function (id) {
@@ -192,12 +195,6 @@ export default {
       } catch (error) {
         return [];
       }
-    },
-    async getpersonalDataOptions() {
-      this.personalDataOptions = await this.getNodeChildrenById(
-        process.env.VUE_APP_PERSONAL_DATA_FOLDER,
-        { where: "(isFolder=true)", fields: ["name", "id"] }
-      );
     },
     request() {
       this.loading = true;
