@@ -32,7 +32,11 @@
               :items="tableRecords"
               :fields="[
                 { key: 'dataName', label: 'Name', _style: 'width:25%' },
-                { key: 'requesterName', label: 'Requester', _style: 'width:20%' },
+                {
+                  key: 'requesterName',
+                  label: 'Requester',
+                  _style: 'width:20%',
+                },
                 { key: 'consents', label: 'Consents', _style: 'width:20%' },
                 { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
                 { key: 'statusLabel', label: 'Status', _style: 'width:5%' },
@@ -61,10 +65,10 @@
                   <span v-if="item.publish.isPublished">
                     Link:
                     <CLink
-                      :href="getSharedURL(item.publish.id).href"
+                      :href="getSharedURL(item.publish.id)"
                       target="_blank"
                     >
-                      {{ getSharedURL(item.publish.id).label }}
+                      {{ getSharedURL(item.publish.id) }}
                     </CLink>
                   </span>
                 </td>
@@ -287,8 +291,14 @@ export default {
         });
     },
     getSharedURL(id) {
-      const href = `/#/property/${id}`;
-      return { label: `${window.location.host}${href}`, href };
+      return (
+        window.location.href.substring(
+          0,
+          window.location.href.lastIndexOf("/")
+        ) +
+        "/property/" +
+        id
+      );
     },
     getStatusBadgeStyle(status) {
       switch (status) {
