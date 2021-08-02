@@ -4,10 +4,23 @@
       <!-- Preview Section -->
       <CCol>
         <p><b>PATH: </b>{{ properties.path.name }}/{{ properties.name }}</p>
-        <iframe id="viewer" frameborder="0" style="width: 100%; height: 500px">
-          <p>Your browser does not support iframes.</p>
-        </iframe>
-        <CElementCover :opacity="0.8" v-show="isContentLoaded" />
+
+        <CProgress
+          v-if="loading"
+          :value="loadingProgress"
+          animated
+          show-percentage
+          style="margin-top: 250px"
+        />
+        <div :style="`display: ${loading ? 'none' : 'block'}`">
+          <iframe
+            id="viewer"
+            frameborder="0"
+            style="width: 100%; height: 500px"
+          >
+            <p>Your browser does not support iframes.</p>
+          </iframe>
+        </div>
       </CCol>
       <!-- Properties Section -->
       <CCol col="3" style="word-wrap: break-word">
@@ -456,7 +469,8 @@ export default {
   data() {
     return {
       openEditor: false,
-      isContentLoaded: false,
+      loading: false,
+      loadingProgress: 0,
 
       accordion: 0,
 
@@ -541,17 +555,22 @@ export default {
         }
       } catch (error) {
         if (error.status === 404) {
-          this.$router.replace("/404")
+          this.$router.replace("/404");
         }
       }
     },
     // Preview
     getContent() {
-      this.isContentLoaded = true;
+      this.loading = true;
       this.$http
         .get(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content`,
-          { responseType: "blob" }
+          {
+            responseType: "blob",
+            onDownloadProgress: (evt) => {
+              this.loadingProgress = parseInt((evt.loaded / evt.total) * 100);
+            },
+          }
         )
         .then(async (res) => {
           const viewer = await document.getElementById("viewer");
@@ -560,7 +579,7 @@ export default {
           viewer.setAttribute("src", `${url}#toolbar=0`);
 
           viewer.removeAttribute("srcdoc");
-          this.isContentLoaded = false;
+          this.loading = false;
           viewer.onload = await function () {
             // Disable Download Video
             if (viewer.contentWindow.document.querySelector("[name='media']")) {
@@ -573,7 +592,7 @@ export default {
           };
         })
         .catch(() => {
-          this.isContentLoaded = false;
+          this.loading = false;
         });
     },
     // comment
