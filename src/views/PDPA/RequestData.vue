@@ -50,7 +50,6 @@
               v-if="documentOptions.length != 0"
               :options="documentOptions"
               :search="true"
-              inline
               @update="
                 (value) => {
                   personalData.documents = value;
