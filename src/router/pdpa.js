@@ -2,7 +2,7 @@ export default [
   {
     path: "/request",
     name: "Request Data",
-    component: () => import("@/views/PDPA/RequestData.vue")
+    component: () => import("@/views/PDPA/request/RequestData.vue")
   },
   {
     path: "/request-approval",
