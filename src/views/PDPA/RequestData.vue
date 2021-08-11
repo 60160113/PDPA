@@ -18,7 +18,6 @@
             <v-select
               v-model="dataType"
               :options="dataTypeOptions"
-              :reduce="(item) => item.id"
               label="name"
               placeholder="กรุณาเลือก"
             />
@@ -36,26 +35,49 @@
           ]"
           custom
           inline
+          :checked.sync="selectType"
         />
 
         <CRow class="mt-3" v-if="dataType">
           <CCol col="2">
             <label style="margin-top: 5px">
-              ชื่อพนักงาน&nbsp;
+              {{ selectType == "individual" ? "รายบุคคล" : "แผนก" }}&nbsp;
               <b style="color: red">*</b>
             </label>
           </CCol>
           <CCol>
-            <CMultiSelect
-              v-if="documentOptions.length != 0"
-              :options="documentOptions"
-              :search="true"
-              @update="
-                (value) => {
-                  personalData.documents = value;
-                }
-              "
-            />
+            <div
+              :style="`display: ${
+                selectType == 'individual' ? 'inline' : 'none'
+              }`"
+            >
+              <CMultiSelect
+                v-if="documentOptions.length != 0"
+                :options="documentOptions"
+                :search="true"
+                @update="
+                  (value) => {
+                    documents = value;
+                  }
+                "
+              />
+            </div>
+            <div
+              :style="`display: ${
+                selectType == 'department' ? 'inline' : 'none'
+              }`"
+            >
+              <CMultiSelect
+                v-if="departmentOptions.length != 0"
+                :options="departmentOptions"
+                :search="true"
+                @update="
+                  (value) => {
+                    departments = value;
+                  }
+                "
+              />
+            </div>
           </CCol>
         </CRow>
 
@@ -67,8 +89,18 @@
             custom
             :label="item.label"
             :value="item.value"
+            @update:checked="
+              () => {
+                const index = documentTypes.indexOf(item.value);
+                index !== -1
+                  ? documentTypes.splice(index, 1)
+                  : documentTypes.push(item.value);
+              }
+            "
           />
         </div>
+
+        <CButton @click="request" color="primary">บันทึก</CButton>
       </CCardBody>
     </CCard>
 
@@ -85,10 +117,20 @@ export default {
     vSelect,
   },
   async created() {
-    this.dataTypeOptions = await this.getNodeChildrenById(
+    this.dataTypeOptions = await this.getNodeChildren(
       process.env.VUE_APP_PERSONAL_DATA_FOLDER,
       { where: "(isFolder=true)", fields: "name,id" }
     );
+    this.departmentOptions = await this.getChildren(
+      `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
+      { where: "(memberType='GROUP')" }
+    );
+    this.departmentOptions = this.departmentOptions.map((item) => {
+      return {
+        value: item.id,
+        text: item.displayName,
+      };
+    });
     this.$http
       .get(`${process.env.VUE_APP_PDPA_SERVICES}data/document_type`)
       .then((res) => {
@@ -96,9 +138,10 @@ export default {
       });
   },
   watch: {
-    dataType: async function (id) {
-      if (id) {
-        this.documentOptions = await this.getNodeChildrenById(id, {
+    dataType: async function (value) {
+      if (value) {
+        this.requestData.label = value.name;
+        this.documentOptions = await this.getNodeChildren(value.id, {
           where: "(isFolder=true)",
           fields: "name,id",
         });
@@ -115,26 +158,37 @@ export default {
   },
   data() {
     return {
-      personalData: {
+      requestData: {
         requester: {
           id: this.$store.state.user.userId,
           name: this.$store.state.user.displayName,
         },
         documents: [],
+        label: "",
       },
 
+      // ขอเอกสาร
       dataType: null,
       dataTypeOptions: [],
 
+      // ชื่อพนักงาน
       documentOptions: [],
+      documents: [],
 
+      // เอกสาร
       documentTypeOptions: [],
+      documentTypes: [],
 
       loading: false,
+
+      selectType: "individual",
+
+      departmentOptions: [],
+      departments: [],
     };
   },
   methods: {
-    async getNodeChildrenById(id, query = {}) {
+    async getChildren(url, query = {}) {
       try {
         let hasMoreItems = false;
         const maxItems = 1000;
@@ -144,7 +198,7 @@ export default {
         do {
           const res = await this.$http({
             method: "get",
-            url: `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children`,
+            url: url,
             params: {
               maxItems,
               skipCount,
@@ -161,6 +215,77 @@ export default {
         return arr;
       } catch (error) {
         return [];
+      }
+    },
+    async getNodeChildren(id, query = {}) {
+      try {
+        var arr = await this.getChildren(
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}/children`,
+          query
+        );
+        return arr;
+      } catch (error) {
+        return [];
+      }
+    },
+    async request() {
+      try {
+        this.loading = true;
+        this.requestData.documents = [];
+
+        var documentList = [];
+
+        if (this.selectType == "individual") {
+          documentList = this.documents;
+        } else {
+          const res = await this.getNodeChildren(this.dataType.id, {
+            where: "(isFolder=true)",
+            include: "properties",
+            fields: "name,id,properties",
+          });
+          documentList = res.filter(
+            (item) =>
+              this.departments.indexOf(item.properties["op:groupId"]) != -1
+          );
+        }
+        documentList.forEach(async (item, index) => {
+          const res = await this.getNodeChildren(item.id, {
+            where: "(isFile=true)",
+            include: "properties",
+            fields: "name,id,properties",
+          });
+          this.requestData.documents.push(
+            ...res
+              .filter(
+                (element) =>
+                  this.documentTypes.indexOf(element.properties["op:type"]) !=
+                  -1
+              )
+              .map((element) => {
+                return {
+                  parent: item,
+                  name: element.name,
+                  id: element.id,
+                };
+              })
+          );
+
+          if (index == documentList.length - 1) {
+            this.$http
+              .post(
+                `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
+                this.requestData
+              )
+              .then(() => {
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+              });
+          }
+        });
+      } catch (error) {
+        this.loading = false;
       }
     },
   },
