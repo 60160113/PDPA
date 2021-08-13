@@ -11,11 +11,6 @@
           :items="requests"
           :fields="[
             { key: 'name', label: 'Name', _style: 'width:25%' },
-            {
-              key: 'requesterName',
-              label: 'Requester',
-              _style: 'width:20%',
-            },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
             { key: 'status', label: 'Status', _style: 'width:5%' },
           ]"
@@ -132,10 +127,7 @@ export default {
           `${process.env.VUE_APP_PDPA_SERVICES}data/request_data?requester.id=${this.$store.state.user.userId}`
         )
         .then((res) => {
-          this.requests = res.data.map((item) => {
-            item.requesterName = item.requester.name;
-            return item;
-          });
+          this.requests = res.data;
           this.loading = false;
         })
         .catch((err) => {
