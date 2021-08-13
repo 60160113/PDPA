@@ -58,6 +58,30 @@
             </div>
           </template>
 
+          <template #name="{ item }">
+            <td>
+              <b>{{ item.name }}</b>
+
+              <ul class="mt-2" v-if="item.type == 'regular'">
+                <li :key="i" v-for="(element, i) in item.documents">
+                  {{ element.parent.name }} : {{ element.name }}
+                </li>
+              </ul>
+
+              <ul class="mt-2" v-else>
+                <li :key="i" v-for="(element, i) in item.assignTo">
+                  {{ element.displayName }} : {{ element.response }}
+                </li>
+              </ul>
+
+              <div v-if="item.folder" class="mt-2">
+                <CLink :href="getSharedURL(item.folder)" target="_blank">
+                  Link
+                </CLink>
+              </div>
+            </td>
+          </template>
+
           <template #createdAt="{ item }">
             <td>
               {{ new Date(item.createdAt).toLocaleDateString() }}
@@ -133,6 +157,13 @@ export default {
         .catch((err) => {
           this.loading = false;
         });
+    },
+    getSharedURL(id) {
+      const routeData = this.$router.resolve({
+        name: "Repository",
+        query: { id },
+      });
+      return routeData.href;
     },
   },
 };
