@@ -64,14 +64,20 @@ export default [
     },
     {
         _name: "CSidebarNavItem",
+        name: "Inbox",
+        to: "/inbox",
+        icon: "cil-inbox"
+    },
+    {
+        _name: "CSidebarNavItem",
         name: "Request Approval",
         to: "/request-approval",
         icon: "cil-check"
     },
-    {
-        _name: "CSidebarNavItem",
-        name: "PDPA Report",
-        to: "/PDPA/report",
-        icon: "cil-shield-alt"
-    },
+    // {
+    //     _name: "CSidebarNavItem",
+    //     name: "PDPA Report",
+    //     to: "/PDPA/report",
+    //     icon: "cil-shield-alt"
+    // },
 ];

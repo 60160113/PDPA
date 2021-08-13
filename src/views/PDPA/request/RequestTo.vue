@@ -119,6 +119,7 @@ export default {
         value: {
           id: item.id,
           displayName: item.displayName,
+          response: "pending",
         },
         text: item.displayName,
       };
@@ -178,6 +179,7 @@ export default {
                 return {
                   id: item.id,
                   displayName: item.displayName,
+                  response: "pending",
                 };
               })
             );
@@ -203,8 +205,6 @@ export default {
       } catch (error) {
         this.loading = false;
       }
-
-      //   console.log(this.requestData);
     },
     async getChildren(url, query = {}) {
       try {
