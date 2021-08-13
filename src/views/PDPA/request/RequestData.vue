@@ -1,108 +1,108 @@
 <template>
   <div>
-    <CCard>
-      <CCardHeader>
-        <strong class="text-primary">ร้องขอข้อมูล</strong>
-      </CCardHeader>
-
-      <CCardBody>
-        <b style="font-size: 16px" class="text-primary">ข้อมูล</b>
-        <CRow class="mt-3">
-          <CCol col="2">
-            <label style="margin-top: 5px">
-              ขอเอกสาร&nbsp;
-              <b style="color: red">*</b>
-            </label>
-          </CCol>
-          <CCol>
-            <v-select
-              v-model="dataType"
-              :options="dataTypeOptions"
-              label="name"
-              placeholder="กรุณาเลือก"
-            />
-          </CCol>
-        </CRow>
-
-        <CInputRadioGroup
-          class="mt-3"
-          :options="[
-            { value: 'individual', label: 'รายบุคคล' },
-            {
-              value: 'department',
-              label: 'แผนก',
-            },
-          ]"
-          custom
-          inline
-          :checked.sync="selectType"
+    <b style="font-size: 16px" class="text-primary">ข้อมูล</b>
+    <CRow class="mt-3">
+      <CCol col="2">
+        <label style="margin-top: 5px">
+          ขอเอกสาร&nbsp;
+          <b style="color: red">*</b>
+        </label>
+      </CCol>
+      <CCol>
+        <v-select
+          v-model="dataType"
+          :options="dataTypeOptions"
+          label="name"
+          placeholder="กรุณาเลือก"
         />
+      </CCol>
+    </CRow>
 
-        <CRow class="mt-3" v-if="dataType">
-          <CCol col="2">
-            <label style="margin-top: 5px">
-              {{ selectType == "individual" ? "รายบุคคล" : "แผนก" }}&nbsp;
-              <b style="color: red">*</b>
-            </label>
-          </CCol>
-          <CCol>
-            <div
-              :style="`display: ${
-                selectType == 'individual' ? 'inline' : 'none'
-              }`"
-            >
-              <CMultiSelect
-                v-if="documentOptions.length != 0"
-                :options="documentOptions"
-                :search="true"
-                @update="
-                  (value) => {
-                    documents = value;
-                  }
-                "
-              />
-            </div>
-            <div
-              :style="`display: ${
-                selectType == 'department' ? 'inline' : 'none'
-              }`"
-            >
-              <CMultiSelect
-                v-if="departmentOptions.length != 0"
-                :options="departmentOptions"
-                :search="true"
-                @update="
-                  (value) => {
-                    departments = value;
-                  }
-                "
-              />
-            </div>
-          </CCol>
-        </CRow>
+    <CInputRadioGroup
+      class="mt-3"
+      :options="[
+        { value: 'individual', label: 'รายบุคคล' },
+        {
+          value: 'department',
+          label: 'แผนก',
+        },
+      ]"
+      custom
+      inline
+      :checked.sync="selectType"
+    />
 
-        <div class="mt-3">
-          <CInputCheckbox
-            class="mb-2"
-            :key="index"
-            v-for="(item, index) in documentTypeOptions"
-            custom
-            :label="item.label"
-            :value="item.value"
-            @update:checked="
-              () => {
-                const index = documentTypes.indexOf(item.value);
-                index !== -1
-                  ? documentTypes.splice(index, 1)
-                  : documentTypes.push(item.value);
+    <CRow class="mt-3" v-if="dataType">
+      <CCol col="2">
+        <label style="margin-top: 5px">
+          {{ selectType == "individual" ? "รายบุคคล" : "แผนก" }}&nbsp;
+          <b style="color: red">*</b>
+        </label>
+      </CCol>
+      <CCol>
+        <div
+          :style="`display: ${selectType == 'individual' ? 'inline' : 'none'}`"
+        >
+          <CMultiSelect
+            v-if="documentOptions.length != 0"
+            :options="documentOptions"
+            :search="true"
+            @update="
+              (value) => {
+                documents = value;
               }
             "
           />
         </div>
+        <div
+          :style="`display: ${selectType == 'department' ? 'inline' : 'none'}`"
+        >
+          <CMultiSelect
+            v-if="departmentOptions.length != 0"
+            :options="departmentOptions"
+            :search="true"
+            @update="
+              (value) => {
+                departments = value;
+              }
+            "
+          />
+        </div>
+      </CCol>
+    </CRow>
 
-        <CButton @click="request" color="primary">บันทึก</CButton>
-      </CCardBody>
-    </CCard>
+    <div class="mt-3">
+      <CInputCheckbox
+        class="mb-2"
+        :key="index"
+        v-for="(item, index) in documentTypeOptions"
+        custom
+        :label="item.label"
+        :value="item.value"
+        @update:checked="
+          () => {
+            const index = documentTypes.indexOf(item.value);
+            index !== -1
+              ? documentTypes.splice(index, 1)
+              : documentTypes.push(item.value);
+          }
+        "
+      />
+    </div>
+
+    <CButton
+      @click="request"
+      block
+      color="primary"
+      class="mt-3"
+      :disabled="
+        documentTypes.length == 0 ||
+        (selectType == 'individual'
+          ? documents.length == 0
+          : departments.length == 0)
+      "
+      >บันทึก</CButton
+    >
 
     <CElementCover :opacity="0.7" v-show="loading" />
   </div>
@@ -113,6 +113,14 @@ import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 
 export default {
+  props: {
+    onComplete: {
+      type: Function,
+      default: function () {
+        return true;
+      },
+    },
+  },
   components: {
     vSelect,
   },
@@ -140,10 +148,11 @@ export default {
   watch: {
     dataType: async function (value) {
       if (value) {
-        this.requestData.label = value.name;
+        this.requestData.name = value.name;
         this.documentOptions = await this.getNodeChildren(value.id, {
           where: "(isFolder=true)",
-          fields: "name,id",
+          include: "properties",
+          fields: "name,id,properties",
         });
         this.documentOptions = this.documentOptions.map((item) => {
           return {
@@ -164,7 +173,7 @@ export default {
           name: this.$store.state.user.displayName,
         },
         documents: [],
-        label: "",
+        name: "",
       },
 
       // ขอเอกสาร
@@ -263,21 +272,28 @@ export default {
               )
               .map((element) => {
                 return {
-                  parent: item,
+                  parent: {
+                    id: item.id,
+                    name: item.name,
+                    group: item.properties["op:groupId"] || "",
+                    owner: item.properties["op:ownerId"] || "",
+                  },
                   name: element.name,
                   id: element.id,
+                  type: element.properties["op:type"],
                 };
               })
           );
 
           if (index == documentList.length - 1) {
-            this.$http
+            await this.$http
               .post(
                 `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
                 this.requestData
               )
               .then(() => {
                 this.loading = false;
+                this.onComplete();
               })
               .catch((err) => {
                 this.loading = false;
