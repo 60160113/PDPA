@@ -110,20 +110,34 @@ export default {
     "v-date-picker": DatePicker,
   },
   async created() {
-    this.peopleOptions = await this.getChildren(
+    let people = await this.getChildren(
       `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
       { where: "(memberType='PERSON')" }
     );
-    this.peopleOptions = this.peopleOptions.map((item) => {
-      return {
+    let member = [];
+
+    await people.forEach(async (item, index) => {
+      const res = await this.$http.get(
+        `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/${item.id}`
+      );
+      const displayName =
+        res.data.entry.firstName +
+        (res.data.entry.lastName ? " " + res.data.entry.lastName : "");
+
+      member.push({
         value: {
           id: item.id,
-          displayName: item.displayName,
+          displayName: displayName,
           response: "pending",
         },
-        text: item.displayName,
-      };
-    });
+        text: displayName,
+      });
+
+      if (index == people.length - 1) {
+        this.peopleOptions = member;
+      }
+    });    
+
     this.groupOptions = await this.getChildren(
       `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
       { where: "(memberType='GROUP')" }
