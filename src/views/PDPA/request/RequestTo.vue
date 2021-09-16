@@ -118,7 +118,7 @@ export default {
 
     await people.forEach(async (item, index) => {
       const res = await this.$http.get(
-        `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/${item.id}`
+        `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/${item.id}?fields=firstName,lastName`
       );
       const displayName =
         res.data.entry.firstName +
@@ -136,7 +136,7 @@ export default {
       if (index == people.length - 1) {
         this.peopleOptions = member;
       }
-    });    
+    });
 
     this.groupOptions = await this.getChildren(
       `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
