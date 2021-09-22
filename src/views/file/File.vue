@@ -538,7 +538,7 @@ export default {
         this.list = responseList;
         this.isTableLoaded = false;
       } catch (error) {
-        if (error.status === 404) {
+        if (error.status === 404 || error.status === 403) {
           this.$router.replace(this.$route.path);
         }
         this.isTableLoaded = false;
