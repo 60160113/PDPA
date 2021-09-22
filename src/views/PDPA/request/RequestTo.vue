@@ -114,9 +114,7 @@ export default {
       `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
       { where: "(memberType='PERSON')" }
     );
-    let member = [];
-
-    await people.forEach(async (item, index) => {
+    people = people.map(async (item) => {
       const res = await this.$http.get(
         `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/${item.id}?fields=firstName,lastName`
       );
@@ -124,19 +122,16 @@ export default {
         res.data.entry.firstName +
         (res.data.entry.lastName ? " " + res.data.entry.lastName : "");
 
-      member.push({
+      return {
         value: {
           id: item.id,
           displayName: displayName,
           response: "pending",
         },
         text: displayName,
-      });
-
-      if (index == people.length - 1) {
-        this.peopleOptions = member;
-      }
+      };
     });
+    this.peopleOptions = await Promise.all(people)
 
     this.groupOptions = await this.getChildren(
       `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
