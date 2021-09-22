@@ -131,7 +131,7 @@ export default {
         text: displayName,
       };
     });
-    this.peopleOptions = await Promise.all(people)
+    this.peopleOptions = await Promise.all(people);
 
     this.groupOptions = await this.getChildren(
       `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/GROUP_PDPA/members`,
@@ -177,43 +177,55 @@ export default {
         this.loading = true;
         if (this.assignType == "individual") {
           this.requestData.assignTo = this.assignTo;
+
+          await this.requestTo();
         } else {
-          await this.assignTo.forEach(async (element) => {
-            const people = await this.getChildren(
+          this.assignTo.forEach(async (element, index) => {
+            let people = await this.getChildren(
               `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/groups/${element}/members`,
               { where: "(memberType='PERSON')" }
             );
-            this.requestData.assignTo.push(
-              ...people.map((item) => {
-                return {
-                  id: item.id,
-                  displayName: item.displayName,
-                  response: "pending",
-                };
-              })
-            );
+            people = people.map(async (person) => {
+              const res = await this.$http.get(
+                `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/people/${person.id}?fields=firstName,lastName`
+              );
+              const displayName =
+                res.data.entry.firstName +
+                (res.data.entry.lastName ? " " + res.data.entry.lastName : "");
+
+              return {
+                id: person.id,
+                displayName: displayName,
+                response: "pending",
+              };
+            });
+            this.requestData.assignTo.push(...(await Promise.all(people)));
+
+            if (index == this.assignTo.length - 1) {
+              await this.requestTo();
+            }
           });
         }
-
-        const folder = await this.$http.post(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${process.env.VUE_APP_PUBLISHED_DATA_FOLDER}/children?autoRename=true`,
-          {
-            name: `ร้องขอข้อมูล${this.requestData.name}_โดย_${this.requestData.requester.name}`,
-            nodeType: "cm:folder",
-          }
-        );
-        this.requestData.folder = folder.data.entry.id;
-
-        await this.$http.post(
-          `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
-          this.requestData
-        );
         this.loading = false;
-
-        this.onComplete();
       } catch (error) {
         this.loading = false;
       }
+    },
+    async requestTo() {
+      const folder = await this.$http.post(
+        `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${process.env.VUE_APP_PUBLISHED_DATA_FOLDER}/children?autoRename=true`,
+        {
+          name: `ร้องขอข้อมูล${this.requestData.name}_โดย_${this.requestData.requester.name}`,
+          nodeType: "cm:folder",
+        }
+      );
+      this.requestData.folder = folder.data.entry.id;
+
+      await this.$http.post(
+        `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
+        this.requestData
+      );
+      this.onComplete();
     },
     async getChildren(url, query = {}) {
       try {
