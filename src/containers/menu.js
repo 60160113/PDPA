@@ -58,7 +58,7 @@ export default [
     },
     {
         _name: "CSidebarNavItem",
-        name: "Request Data",
+        name: "Request",
         to: "/request",
         icon: "cil-phone"
     },
