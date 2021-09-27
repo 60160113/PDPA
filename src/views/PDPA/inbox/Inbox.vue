@@ -197,7 +197,7 @@ export default {
     rejectRequest() {
       this.loading = true;
       this.$http
-        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request, {
+        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request`, {
           condition: {
             _id: this.selectedItem,
             "assignTo.id": this.$store.state.user.userId,
