@@ -160,7 +160,7 @@ export default {
       this.loading = true;
       this.$http({
         method: "get",
-        url: `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
+        url: `${process.env.VUE_APP_PDPA_SERVICES}data/request`,
         params: {
           "assignTo.id": this.$store.state.user.userId,
         },
@@ -197,7 +197,7 @@ export default {
     rejectRequest() {
       this.loading = true;
       this.$http
-        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request_data`, {
+        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request, {
           condition: {
             _id: this.selectedItem,
             "assignTo.id": this.$store.state.user.userId,
@@ -230,7 +230,7 @@ export default {
 
         // update
         await this.$http.put(
-          `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
+          `${process.env.VUE_APP_PDPA_SERVICES}data/request`,
           {
             condition: {
               _id: this.selectedItem["_id"],

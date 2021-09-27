@@ -222,7 +222,7 @@ export default {
       this.requestData.folder = folder.data.entry.id;
 
       await this.$http.post(
-        `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
+        `${process.env.VUE_APP_PDPA_SERVICES}data/request`,
         this.requestData
       );
       this.onComplete();

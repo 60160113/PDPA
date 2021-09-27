@@ -288,7 +288,7 @@ export default {
           if (index == documentList.length - 1) {
             await this.$http
               .post(
-                `${process.env.VUE_APP_PDPA_SERVICES}data/request_data`,
+                `${process.env.VUE_APP_PDPA_SERVICES}data/request`,
                 this.requestData
               )
               .then(() => {

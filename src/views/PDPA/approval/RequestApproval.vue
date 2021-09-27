@@ -202,7 +202,7 @@ export default {
       this.loading = true;
       this.$http
         .get(
-          `${process.env.VUE_APP_PDPA_SERVICES}data/request_data?type=regular`
+          `${process.env.VUE_APP_PDPA_SERVICES}data/request?type=regular`
         )
         .then((res) => {
           this.requests = res.data.map((item) => {
@@ -218,7 +218,7 @@ export default {
     },
     disapproveRequest(id) {
       this.$http
-        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request_data/${id}`, {
+        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request/${id}`, {
           status: "disapproved",
         })
         .then(() => {
@@ -231,7 +231,7 @@ export default {
       this.loading = true;
       this.$http
         .post(
-          `${process.env.VUE_APP_PDPA_SERVICES}request_data/publish/${item["_id"]}`,
+          `${process.env.VUE_APP_PDPA_SERVICES}request/publish/${item["_id"]}`,
           {
             expiredAt: this.expiredAt,
           }

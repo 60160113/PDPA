@@ -148,7 +148,7 @@ export default {
       this.loading = true;
       this.$http
         .get(
-          `${process.env.VUE_APP_PDPA_SERVICES}data/request_data?requester.id=${this.$store.state.user.userId}`
+          `${process.env.VUE_APP_PDPA_SERVICES}data/request?requester.id=${this.$store.state.user.userId}`
         )
         .then((res) => {
           this.requests = res.data;
