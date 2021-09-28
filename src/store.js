@@ -14,7 +14,8 @@ const state = {
     ticket: userData ? userData.ticket : "",
     userId: userData ? userData.userId : "",
     displayName: userData ? userData.displayName : "",
-    groups: userData ? userData.groups : []
+    groups: userData ? userData.groups : [],
+    email: userData ? userData.email : ""
   }
 };
 

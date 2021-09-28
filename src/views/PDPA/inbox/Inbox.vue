@@ -2,23 +2,18 @@
   <div>
     <CCard>
       <CCardHeader>
-        <strong class="text-primary"
-          >รายการที่ถูกร้องขอมายัง {{ $store.state.user.displayName }}</strong
-        >
+        <strong class="text-primary">รายการที่ถูกร้องขอ</strong>
       </CCardHeader>
       <CCardBody>
         <CDataTable
           :items="requests"
           :fields="[
             { key: 'name', label: 'Name', _style: 'width:25%' },
-            {
-              key: 'requesterName',
-              label: 'Requester',
-              _style: 'width:20%',
-            },
+            { key: 'requesterName', label: 'Requester', _style: 'width:25%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
-            { key: 'responseLabel', label: 'Response', _style: 'width:15%' },
-            { key: 'action', label: 'Action', _style: 'width:15%' },
+            { key: 'expiredAt', label: 'Deadline', _style: 'width:15%' },
+            { key: 'status', label: 'Status', _style: 'width:10%' },
+            { key: 'action', label: 'Action', _style: 'width:10%' },
           ]"
           :tableFilter="{
             label: 'ค้นหา: ',
@@ -41,6 +36,8 @@
           <template #name="{ item }">
             <td>
               <b>{{ item.name }}</b>
+              <br />
+              <b>Description: </b>{{ item.description }}
             </td>
           </template>
 
@@ -56,30 +53,10 @@
               <CButton
                 color="success"
                 @click="
-                  selectedItem = item;
-                  modal = {
-                    title: 'ดำเนินการ',
-                    color: 'primary',
-                    id: 'accept',
-                    show: true,
-                  };
+                  selectedItem = item.folder;
+                  modal = true;
                 "
-                :disabled="item.response != 'pending'"
                 >ดำเนินการ</CButton
-              >&nbsp;
-              <CButton
-                color="danger"
-                @click="
-                  selectedItem = item['_id'];
-                  modal = {
-                    title: 'ปฏิเสธ',
-                    color: 'danger',
-                    id: 'reject',
-                    show: true,
-                  };
-                "
-                :disabled="item.response != 'pending'"
-                >ปฏิเสธ</CButton
               >
             </td>
           </template>
@@ -88,17 +65,14 @@
     </CCard>
 
     <CModal
-      :show.sync="modal.show"
+      :show.sync="modal"
       :no-close-on-backdrop="true"
       :centered="true"
-      :title="modal.title"
+      title="อัปโหลดไฟล์"
       size="lg"
-      :color="modal.color"
+      color="primary"
     >
-      <div v-if="modal.id == 'reject'">
-        คุณต้องการลบรายการที่เลือกนี้หรือไม่ ?
-      </div>
-      <div v-else class="row">
+      <div class="row">
         <label class="col-sm-3">อัปโหลดไฟล์</label>
         <input
           type="file"
@@ -108,13 +82,11 @@
         />
       </div>
       <template #footer>
-        <CButton @click="modal.show = false" color="danger"> ยกเลิก </CButton>
+        <CButton @click="modal = false" color="danger"> ยกเลิก </CButton>
         <CButton
-          @click="modal.id == 'reject' ? rejectRequest() : acceptRequest()"
+          @click="upload()"
           color="success"
-          :disabled="
-            modal.id == 'accept' ? (file == null ? true : false) : false
-          "
+          :disabled="file == null ? true : false"
         >
           ตกลง
         </CButton>
@@ -130,7 +102,7 @@ export default {
     this.getRequests();
   },
   watch: {
-    "modal.show": function (val) {
+    modal: function (val) {
       if (!val) {
         this.file = null;
         this.$refs["fileInput"].value = null;
@@ -147,12 +119,7 @@ export default {
 
       file: null,
 
-      modal: {
-        title: "",
-        color: "primary",
-        show: false,
-        id: "",
-      },
+      modal: false,
     };
   },
   methods: {
@@ -162,30 +129,12 @@ export default {
         method: "get",
         url: `${process.env.VUE_APP_PDPA_SERVICES}data/request`,
         params: {
-          "assignTo.id": this.$store.state.user.userId,
+          status: "approved",
         },
       })
         .then((res) => {
           this.requests = res.data.map((item) => {
             item.requesterName = item.requester.name;
-
-            item.response = item.assignTo.filter(
-              (value) => value.id == this.$store.state.user.userId
-            )[0].response;
-
-            switch (item.response) {
-              case "pending":
-                item.responseLabel = "ยังไม่ได้ดำเนินการ";
-                break;
-              case "reject":
-                item.responseLabel = "ปฏิเสธ";
-                break;
-
-              default:
-                item.responseLabel = "ดำเนินการ";
-                break;
-            }
-
             return item;
           });
           this.loading = false;
@@ -194,60 +143,24 @@ export default {
           this.loading = false;
         });
     },
-    rejectRequest() {
-      this.loading = true;
-      this.$http
-        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request`, {
-          condition: {
-            _id: this.selectedItem,
-            "assignTo.id": this.$store.state.user.userId,
-          },
-          data: {
-            $set: {
-              "assignTo.$.response": "reject",
-            },
-          },
-        })
-        .then(() => {
-          this.modal.show = false;
-          this.loading = false;
-          this.getRequests();
-        });
-    },
     uploadHandler() {
       this.file = event.currentTarget.files[0];
     },
-    async acceptRequest() {
+    async upload() {
       try {
         this.loading = true;
         // upload
         let formData = new FormData();
         formData.append("filedata", this.file);
         await this.$http.post(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectedItem.folder}/children?autoRename=true`,
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectedItem}/children?autoRename=true`,
           formData
         );
-
-        // update
-        await this.$http.put(
-          `${process.env.VUE_APP_PDPA_SERVICES}data/request`,
-          {
-            condition: {
-              _id: this.selectedItem["_id"],
-              "assignTo.id": this.$store.state.user.userId,
-            },
-            data: {
-              $set: {
-                "assignTo.$.response": "accept",
-              },
-            },
-          }
-        );
-        this.modal.show = false;
+        this.modal = false;
         this.loading = false;
         this.getRequests();
       } catch (error) {
-        this.modal.show = false;
+        this.modal = false;
       }
     },
   },

@@ -10,8 +10,9 @@
         <CDataTable
           :items="requests"
           :fields="[
-            { key: 'name', label: 'Name', _style: 'width:25%' },
+            { key: 'name', label: 'Name', _style: 'width:50%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
+            { key: 'expiredAt', label: 'Deadline', _style: 'width:15%' },
             { key: 'status', label: 'Status', _style: 'width:5%' },
           ]"
           :tableFilter="{
@@ -33,27 +34,9 @@
           </template>
           <template #over-table>
             <div style="margin-bottom: 10px">
-              <CButton
-                color="primary"
-                shape="pill"
-                @click="
-                  component = 'RequestData';
-                  modal = true;
-                "
-              >
-                <CIcon name="cil-phone" />
-                ร้องขอข้อมูล</CButton
-              >&nbsp;
-              <CButton
-                color="primary"
-                shape="pill"
-                @click="
-                  component = 'RequestTo';
-                  modal = true;
-                "
-              >
+              <CButton color="primary" shape="pill" @click="modal = true">
                 <CIcon name="cil-people" />
-                ร้องขอข้อมูลจากพนักงาน
+                ร้องขอข้อมูล
               </CButton>
             </div>
           </template>
@@ -61,24 +44,8 @@
           <template #name="{ item }">
             <td>
               <b>{{ item.name }}</b>
-
-              <ul class="mt-2" v-if="item.type == 'regular'">
-                <li :key="i" v-for="(element, i) in item.documents">
-                  {{ element.parent.name }} : {{ element.name }}
-                </li>
-              </ul>
-
-              <ul class="mt-2" v-else>
-                <li :key="i" v-for="(element, i) in item.assignTo">
-                  {{ element.displayName }} : {{ element.response }}
-                </li>
-              </ul>
-
-              <div v-if="item.folder" class="mt-2">
-                <CLink :href="getSharedURL(item.folder)" target="_blank">
-                  Link
-                </CLink>
-              </div>
+              <br />
+              <b>Description: </b>{{ item.description }}
             </td>
           </template>
 
@@ -99,8 +66,7 @@
       size="xl"
       color="primary"
     >
-      <component
-        :is="component"
+      <request
         :onComplete="
           () => {
             getRequest();
@@ -120,14 +86,11 @@
 </template>
 
 <script>
-import RequestData from "@/views/PDPA/request/RequestData";
-
-import RequestTo from "@/views/PDPA/request/RequestTo";
+import request from "@/views/PDPA/request/Request";
 
 export default {
   components: {
-    RequestData,
-    RequestTo,
+    request,
   },
   created() {
     this.getRequest();
@@ -139,8 +102,6 @@ export default {
       loading: false,
 
       modal: false,
-
-      component: "",
     };
   },
   methods: {
@@ -157,13 +118,6 @@ export default {
         .catch((err) => {
           this.loading = false;
         });
-    },
-    getSharedURL(id) {
-      const routeData = this.$router.resolve({
-        name: "Repository",
-        query: { id },
-      });
-      return routeData.href;
     },
   },
 };

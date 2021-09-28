@@ -7,7 +7,7 @@
 
       <CCardBody>
         <CDataTable
-          :items="tableRecords"
+          :items="requests"
           :fields="[
             { key: 'name', label: 'Name', _style: 'width:30%' },
             {
@@ -16,7 +16,8 @@
               _style: 'width:15%',
             },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
-            { key: 'status', label: 'Status', _style: 'width:5%' },
+            { key: 'expiredAt', label: 'Deadline', _style: 'width:15%' },
+            { key: 'status', label: 'Status', _style: 'width:10%' },
             { key: 'actions', label: 'Actions', _style: 'width:15%' },
           ]"
           :tableFilter="{
@@ -36,21 +37,12 @@
           <template #no-items-view>
             <div class="text-center">ไม่พบข้อมูล</div>
           </template>
+
           <template #name="{ item }">
             <td>
               <b>{{ item.name }}</b>
-
-              <ul class="mt-2">
-                <li :key="i" v-for="(element, i) in item.documents">
-                  {{ element.parent.name }} : {{ element.name }}
-                </li>
-              </ul>
-
-              <div v-if="item.folder" class="mt-2">
-                <CLink :href="getSharedURL(item.folder)" target="_blank">
-                  Link
-                </CLink>
-              </div>
+              <br />
+              <b>Description: </b>{{ item.description }}
             </td>
           </template>
 
@@ -67,8 +59,9 @@
                 color="success"
                 :disabled="item.status !== 'pending'"
                 @click="
-                  selectedItem = item;
-                  approvedModal = true;
+                  selectedRequest = { id: item._id, name: item.name };
+                  isApproved = true;
+                  modal = true;
                 "
               >
                 อนุมัติ </CButton
@@ -77,8 +70,9 @@
                 color="danger"
                 :disabled="item.status !== 'pending'"
                 @click="
-                  selectedItem = item;
-                  disapprovedModal = true;
+                  selectedRequest = item._id;
+                  isApproved = false;
+                  modal = true;
                 "
               >
                 ไม่อนุมัติ
@@ -89,84 +83,36 @@
       </CCardBody>
     </CCard>
 
-    <!-- ไม่อนุมัติ -->
     <CModal
-      :show.sync="disapprovedModal"
+      :show.sync="modal"
       :no-close-on-backdrop="true"
       :centered="true"
-      title="ไม่อนุมัติ"
+      :title="isApproved ? 'อนุมัติ' : 'ไม่อนุมัติ'"
       size="lg"
-      color="danger"
+      :color="isApproved ? 'success' : 'danger'"
     >
-      คุณต้องการลบรายการที่เลือกนี้หรือไม่ ?
+      คุณต้องการ{{ isApproved ? "เพิ่มรายการ" : "ลบรายการที่เลือก" }}นี้หรือไม่
+      ?
       <template #footer>
-        <CButton @click="disapprovedModal = false" color="danger">
-          ยกเลิก
-        </CButton>
+        <CButton @click="modal = false" color="danger"> ยกเลิก </CButton>
         <CButton
-          @click="disapproveRequest(selectedItem['_id'])"
+          @click="
+            isApproved
+              ? approveRequest(selectedRequest)
+              : disapproveRequest(selectedRequest)
+          "
           color="success"
         >
           ตกลง
         </CButton>
       </template>
-    </CModal>
-
-    <!-- อนุมัติ -->
-    <CModal
-      :show.sync="approvedModal"
-      :no-close-on-backdrop="true"
-      :centered="true"
-      title="อนุมัติ"
-      size="lg"
-      color="primary"
-    >
-      <CRow>
-        <CCol col="2">
-          <label style="margin-top: 6px">วันหมดอายุ: </label>
-        </CCol>
-        <CCol>
-          <v-date-picker
-            :min-date="disabledDate"
-            mode="date"
-            :masks="{
-              input: 'DD/MM/YYYY',
-            }"
-            v-model="expiredAt"
-          />
-        </CCol>
-      </CRow>
-
-      <template #footer>
-        <CButton
-          :disabled="loading"
-          @click="approvedModal = false"
-          color="danger"
-        >
-          ยกเลิก
-        </CButton>
-        <CButton
-          :disabled="!expiredAt || loading"
-          @click="approveRequest(selectedItem)"
-          color="success"
-        >
-          ตกลง
-        </CButton>
-      </template>
-      <CElementCover :opacity="0.8" v-show="loading" />
     </CModal>
   </div>
 </template>
 
 <script>
-import { DatePicker } from "v-calendar";
-
 export default {
-  components: {
-    "v-date-picker": DatePicker,
-  },
   created() {
-    this.expiredAt.setDate(this.expiredAt.getDate() + 7);
     this.getRequests();
   },
   data() {
@@ -175,35 +121,18 @@ export default {
 
       loading: false,
 
-      disapprovedModal: false,
-      approvedModal: false,
+      modal: false,
 
-      selectedItem: null,
+      isApproved: false,
 
-      expiredAt: new Date(),
-
-      statusOption: [
-        { label: "รออนุมัติ", value: "pending" },
-        { label: "อนุมัติ", value: "approved" },
-        { label: "ไม่อนุมัติ", value: "disapproved" },
-        { label: "หมดอายุ", value: "expired" },
-      ],
-      statusFilter: ["pending", "approved", "disapproved", "expired"],
+      selectedRequest: null,
     };
   },
   methods: {
-    filter(status) {
-      const index = this.statusFilter.indexOf(status);
-      index !== -1
-        ? this.statusFilter.splice(index, 1)
-        : this.statusFilter.push(status);
-    },
     getRequests() {
       this.loading = true;
       this.$http
-        .get(
-          `${process.env.VUE_APP_PDPA_SERVICES}data/request?type=regular`
-        )
+        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/request`)
         .then((res) => {
           this.requests = res.data.map((item) => {
             item.requesterName = item.requester.name;
@@ -212,55 +141,54 @@ export default {
           });
           this.loading = false;
         })
-        .catch(() => {
+        .catch((err) => {
           this.loading = false;
         });
     },
     disapproveRequest(id) {
+      this.loading = true;
       this.$http
         .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request/${id}`, {
           status: "disapproved",
         })
         .then(() => {
           this.getRequests();
-
-          this.disapprovedModal = false;
-        });
-    },
-    approveRequest(item) {
-      this.loading = true;
-      this.$http
-        .post(
-          `${process.env.VUE_APP_PDPA_SERVICES}request/publish/${item["_id"]}`,
-          {
-            expiredAt: this.expiredAt,
-          }
-        )
-        .then(() => {
-          this.getRequests();
-
-          this.approvedModal = false;
+          this.modal = false;
+          this.loading = false;
+        })
+        .catch((err) => {
           this.loading = false;
         });
     },
-    getSharedURL(id) {
-      const routeData = this.$router.resolve({
-        name: "Repository",
-        query: { id },
-      });
-      return routeData.href;
-    },
-  },
-  computed: {
-    disabledDate() {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      return tomorrow;
-    },
-    tableRecords() {
-      return this.requests.filter((item) => {
-        return this.statusFilter.includes(item.status);
-      });
+    async approveRequest(item) {
+      try {
+        this.loading = true;
+
+        const folder = await axios({
+          method: "post",
+          url: `${process.env.ALFRESCO_API}alfresco/versions/1/nodes/${process.env.PUBLISHED_DATA_FOLDER}/children?autoRename=true`,
+          data: {
+            name: item.name,
+            nodeType: "cm:folder",
+          },
+        });
+
+        await this.$http.put(
+          `${process.env.VUE_APP_PDPA_SERVICES}data/request/${item.id}`,
+          {
+            status: "approved",
+            folder: folder.data.entry.id,
+          }
+        );
+
+        this.getRequests();
+        this.modal = false;
+        this.loading = false;
+
+        this.loading = false;
+      } catch (error) {
+        this.loading = false;
+      }
     },
   },
 };

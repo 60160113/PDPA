@@ -111,6 +111,7 @@ export default {
           groups: userGroupsResponse.data.list.entries.map(
             (item) => item.entry.id
           ),
+          email: userDataResponse.data.entry.email,
         };
         this.$store.commit("set", ["user", data]);
         localStorage.setItem("user", JSON.stringify(data));
