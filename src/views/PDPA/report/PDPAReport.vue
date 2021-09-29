@@ -73,7 +73,7 @@ export default {
     CChartBar,
   },
   created() {
-    this.getData();
+    this.getRequests();
   },
   data() {
     return {
@@ -119,10 +119,10 @@ export default {
     };
   },
   methods: {
-    getData() {
+    getRequests() {
       this.loading = true;
       this.$http
-        .get(`${process.env.VUE_APP_PDPA_SERVICES}personal_data`)
+        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/request`)
         .then((res) => {
           // widget
           this.statusFields.forEach((item) => {
