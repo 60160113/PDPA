@@ -27,5 +27,13 @@ export default [
       restriction: "GROUP_PDPA_APPROVER"
     },
     component: () => import("@/views/PDPA/report/PDPAReport.vue")
+  },
+  {
+    path: "/PDPA/configuration/document",
+    name: "PDPA Document",
+    meta: {
+      restriction: "GROUP_PDPA_APPROVER"
+    },
+    component: () => import("@/views/PDPA/configuration/Documents.vue")
   }
 ];

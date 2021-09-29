@@ -1,10 +1,25 @@
 <template>
   <div>
-    <CInput horizontal label="เอกสารที่ต้องการขอ" v-model="form.name" />
+    <CRow>
+      <CCol col="3"
+        ><label style="margin-top: 6px">เอกสารที่ต้องการขอ: </label></CCol
+      >
+      <CCol
+        ><CSelect :value.sync="requestName" :options="documents" custom
+      /></CCol>
+    </CRow>
+    <CInput
+      v-if="requestName === false"
+      horizontal
+      label="ชื่อเอกสาร"
+      v-model="form.name"
+    />
+
+    <hr />
     <CTextarea horizontal label="คำอธิบาย" v-model="form.description" />
 
     <CRow class="mt-3">
-      <CCol col="2">
+      <CCol col="3">
         <label style="margin-top: 6px">ขอเอกสารภายในวันที่: </label>
       </CCol>
       <CCol>
@@ -19,7 +34,14 @@
       </CCol>
     </CRow>
 
-    <CButton block color="primary" class="mt-3">บันทึก</CButton>
+    <CButton
+      block
+      color="primary"
+      class="mt-3"
+      :disabled="(!requestName && !form.name) || !form.expiredAt"
+      @click="request()"
+      >บันทึก</CButton
+    >
 
     <CElementCover :opacity="0.7" v-show="loading" />
   </div>
@@ -40,6 +62,9 @@ export default {
   components: {
     "v-date-picker": DatePicker,
   },
+  created() {
+    this.getDocument();
+  },
   data() {
     return {
       form: {
@@ -56,12 +81,37 @@ export default {
         expiredAt: null,
       },
 
+      documents: [],
+      requestName: "",
+
       loading: false,
     };
   },
   methods: {
+    getDocument() {
+      this.loading = true;
+      this.documents = [];
+      this.$http
+        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/document`)
+        .then((res) => {
+          this.documents.push({
+            value: "",
+            label: "กรุณาเลือก",
+            disabled: true,
+          });
+          this.documents.push(...res.data);
+          this.documents.push({
+            value: false,
+            label: "อื่น ๆ",
+          });
+          this.loading = false;
+        });
+    },
     request() {
       this.loading = true;
+      if (this.requestName) {
+        this.form.name = this.requestName;
+      }
       this.$http
         .post(`${process.env.VUE_APP_PDPA_SERVICES}data/request`, this.form)
         .then(() => {

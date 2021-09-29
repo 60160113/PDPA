@@ -35,9 +35,10 @@
 
           <template #name="{ item }">
             <td>
-              <b>{{ item.name }}</b>
-              <br />
-              <b>Description: </b>{{ item.description }}
+              {{ item.name }}
+              <br /><br />
+              <b>Description: </b
+              >{{ item.description ? item.description : "-" }}
             </td>
           </template>
 
@@ -45,6 +46,13 @@
             <td>
               {{ new Date(item.createdAt).toLocaleDateString() }}
               {{ new Date(item.createdAt).toLocaleTimeString() }}
+            </td>
+          </template>
+
+          <template #expiredAt="{ item }">
+            <td>
+              {{ new Date(item.expiredAt).toLocaleDateString() }}
+              {{ new Date(item.expiredAt).toLocaleTimeString() }}
             </td>
           </template>
 

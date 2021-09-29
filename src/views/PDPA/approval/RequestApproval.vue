@@ -40,9 +40,10 @@
 
           <template #name="{ item }">
             <td>
-              <b>{{ item.name }}</b>
-              <br />
-              <b>Description: </b>{{ item.description }}
+              {{ item.name }}
+              <br /><br />
+              <b>Description: </b
+              >{{ item.description ? item.description : "-" }}
             </td>
           </template>
 
@@ -53,6 +54,12 @@
             </td>
           </template>
 
+          <template #expiredAt="{ item }">
+            <td>
+              {{ new Date(item.expiredAt).toLocaleDateString() }}
+              {{ new Date(item.expiredAt).toLocaleTimeString() }}
+            </td>
+          </template>
           <template #actions="{ item }">
             <td>
               <CButton
@@ -91,8 +98,7 @@
       size="lg"
       :color="isApproved ? 'success' : 'danger'"
     >
-      คุณต้องการ{{ isApproved ? "เพิ่มรายการ" : "ลบรายการที่เลือก" }}นี้หรือไม่
-      ?
+      คุณต้องการ{{ isApproved ? "" : "ไม่" }}อนุมัติรายการนี้หรือไม่ ?
       <template #footer>
         <CButton @click="modal = false" color="danger"> ยกเลิก </CButton>
         <CButton
@@ -164,9 +170,9 @@ export default {
       try {
         this.loading = true;
 
-        const folder = await axios({
+        const folder = await this.$http({
           method: "post",
-          url: `${process.env.ALFRESCO_API}alfresco/versions/1/nodes/${process.env.PUBLISHED_DATA_FOLDER}/children?autoRename=true`,
+          url: `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${process.env.VUE_APP_PUBLISHED_DATA_FOLDER}/children?autoRename=true`,
           data: {
             name: item.name,
             nodeType: "cm:folder",

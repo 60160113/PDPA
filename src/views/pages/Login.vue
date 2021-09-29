@@ -116,7 +116,7 @@ export default {
         this.$store.commit("set", ["user", data]);
         localStorage.setItem("user", JSON.stringify(data));
 
-        this.$router.push("/myfiles");
+        this.$router.push("/request");
       } catch (error) {
         this.loginErrorModal = true;
       }

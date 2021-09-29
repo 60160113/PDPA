@@ -64,7 +64,7 @@ router.beforeEach((to, from, next) => {
   if (!user && to.name != "Login") {
     return next({ name: "Login" });
   } else if (user && to.name == "Login") {
-    return next("/myfiles");
+    return next("/request");
   }
   return next();
 });
