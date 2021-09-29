@@ -63,6 +63,22 @@
               {{ new Date(item.expiredAt).toLocaleTimeString() }}
             </td>
           </template>
+
+          <template #status="{ item }">
+            <td>
+              <CBadge
+                shape="pill"
+                :color="
+                  statusList.filter((e) => e.value == item.status)[0].color
+                "
+                style="font-size: 12px"
+              >
+                {{
+                  statusList.filter((e) => e.value == item.status)[0].label
+                }}</CBadge
+              >
+            </td>
+          </template>
         </CDataTable>
       </CCardBody>
     </CCard>
@@ -101,11 +117,14 @@ export default {
     request,
   },
   created() {
+    this.getStatus();
     this.getRequest();
   },
   data() {
     return {
       requests: [],
+
+      statusList: [],
 
       loading: false,
 
@@ -125,6 +144,14 @@ export default {
         })
         .catch((err) => {
           this.loading = false;
+        });
+    },
+    getStatus() {
+      this.loading = true;
+      this.$http
+        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`)
+        .then((res) => {
+          this.statusList = res.data;
         });
     },
   },

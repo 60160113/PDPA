@@ -2,7 +2,7 @@
   <div>
     <!-- Widget -->
     <CRow>
-      <CCol :key="index" v-for="(item, index) in statusFields" md="3" sm="12">
+      <CCol :key="index" v-for="(item, index) in statusList" md="3" sm="12">
         <CWidgetIcon
           :header="total[item.value]"
           :text="item.label"
@@ -17,14 +17,14 @@
     <CCard>
       <CCardHeader>
         <strong class="text-primary">
-          Requests in {{ new Date().getFullYear() }}
+          แผนภูมิการร้องขอข้อมูลในปี {{ new Date().getFullYear() }}
         </strong>
         <CSelect
           class="float-right mb-0"
           size="sm"
           :value.sync="status"
           :options="
-            statusFields.map((item) => {
+            statusList.map((item) => {
               return {
                 value: item.value,
                 label: item.label,
@@ -61,6 +61,81 @@
       </CCardBody>
     </CCard>
 
+    <CCard>
+      <CCardHeader>
+        <strong class="text-primary">รายการการร้องขอ</strong>
+      </CCardHeader>
+
+      <CCardBody>
+        <CDataTable
+          :items="requests"
+          :fields="[
+            { key: 'name', label: 'Name', _style: 'width:30%' },
+            { key: 'requesterName', label: 'Requester', _style: 'width:25%' },
+            { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
+            { key: 'expiredAt', label: 'Deadline', _style: 'width:15%' },
+            { key: 'status', label: 'Status', _style: 'width:15%' },
+          ]"
+          :tableFilter="{
+            label: 'ค้นหา: ',
+            placeholder: 'ค้นหา',
+          }"
+          pagination
+          :items-per-page="5"
+          :itemsPerPageSelect="{
+            label: 'แสดง',
+          }"
+          :loading="loading"
+          hover
+          striped
+          border
+        >
+          <template #no-items-view
+            ><div class="text-center">ไม่พบข้อมูล</div>
+          </template>
+
+          <template #name="{ item }">
+            <td>
+              {{ item.name }}
+              <br /><br />
+              <b>Description: </b
+              >{{ item.description ? item.description : "-" }}
+            </td>
+          </template>
+
+          <template #createdAt="{ item }">
+            <td>
+              {{ new Date(item.createdAt).toLocaleDateString() }}
+              {{ new Date(item.createdAt).toLocaleTimeString() }}
+            </td>
+          </template>
+
+          <template #expiredAt="{ item }">
+            <td>
+              {{ new Date(item.expiredAt).toLocaleDateString() }}
+              {{ new Date(item.expiredAt).toLocaleTimeString() }}
+            </td>
+          </template>
+
+          <template #status="{ item }">
+            <td>
+              <CBadge
+                shape="pill"
+                :color="
+                  statusList.filter((e) => e.value == item.status)[0].color
+                "
+                style="font-size: 12px"
+              >
+                {{
+                  statusList.filter((e) => e.value == item.status)[0].label
+                }}</CBadge
+              >
+            </td>
+          </template>
+        </CDataTable>
+      </CCardBody>
+    </CCard>
+
     <CElementCover :opacity="0.7" v-show="loading" />
   </div>
 </template>
@@ -73,7 +148,7 @@ export default {
     CChartBar,
   },
   created() {
-    this.getRequests();
+    this.getStatus();
   },
   data() {
     return {
@@ -84,34 +159,11 @@ export default {
         expired: "",
       },
 
-      statusFields: [
-        {
-          value: "pending",
-          label: "รออนุมัติ",
-          color: "gradient-primary",
-          icon: "cil-media-pause",
-        },
-        {
-          value: "approved",
-          label: "อนุมัติ",
-          color: "gradient-success",
-          icon: "cil-check-circle",
-        },
-        {
-          value: "disapproved",
-          label: "ไม่อนุมัติ",
-          color: "gradient-danger",
-          icon: "cil-x-circle",
-        },
-        {
-          value: "expired",
-          label: "หมดอายุ",
-          color: "gradient-dark",
-          icon: "cil-clock",
-        },
-      ],
-
       status: "pending",
+
+      requests: [],
+
+      statusList: [],
 
       chartData: {},
 
@@ -124,8 +176,15 @@ export default {
       this.$http
         .get(`${process.env.VUE_APP_PDPA_SERVICES}data/request`)
         .then((res) => {
+          // table
+          this.requests = res.data.map((item) => {
+            item.requesterName = item.requester.name;
+
+            return item;
+          });
+
           // widget
-          this.statusFields.forEach((item) => {
+          this.statusList.forEach((item) => {
             this.total[item.value] = res.data
               .filter((element) => element.status == item.value)
               .length.toString();
@@ -156,6 +215,15 @@ export default {
         })
         .catch((err) => {
           this.loading = false;
+        });
+    },
+    getStatus() {
+      this.loading = true;
+      this.$http
+        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`)
+        .then((res) => {
+          this.statusList = res.data;
+          this.getRequests();
         });
     },
   },

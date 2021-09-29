@@ -56,6 +56,22 @@
             </td>
           </template>
 
+          <template #status="{ item }">
+            <td>
+              <CBadge
+                shape="pill"
+                :color="
+                  statusList.filter((e) => e.value == item.status)[0].color
+                "
+                style="font-size: 12px"
+              >
+                {{
+                  statusList.filter((e) => e.value == item.status)[0].label
+                }}</CBadge
+              >
+            </td>
+          </template>
+
           <template #action="{ item }">
             <td>
               <CButton
@@ -107,6 +123,7 @@
 <script>
 export default {
   created() {
+    this.getStatus();
     this.getRequests();
   },
   watch: {
@@ -121,6 +138,8 @@ export default {
     return {
       requests: [],
 
+      statusList: [],
+
       loading: false,
 
       selectedItem: null,
@@ -131,6 +150,14 @@ export default {
     };
   },
   methods: {
+    getStatus() {
+      this.loading = true;
+      this.$http
+        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`)
+        .then((res) => {
+          this.statusList = res.data;
+        });
+    },
     getRequests() {
       this.loading = true;
       this.$http({
