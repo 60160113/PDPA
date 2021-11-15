@@ -42,8 +42,8 @@
             <td>
               {{ item.name }}
               <br /><br />
-              <b>Description: </b
-              >{{ item.description ? item.description : "-" }}
+              <b>เหตุผล: </b
+              >{{ item.reason ? item.reason : "-" }}
             </td>
           </template>
 

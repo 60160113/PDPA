@@ -16,7 +16,7 @@
     />
 
     <hr />
-    <CTextarea horizontal label="เหตุผลในการขอข้อมูล" v-model="form.description" />
+    <CTextarea horizontal label="เหตุผลในการขอข้อมูล" v-model="form.reason" />
 
     <CRow class="mt-3">
       <CCol col="3">
@@ -77,7 +77,7 @@ export default {
         },
 
         folder: "",
-        description: "",
+        reason: "",
         expiredAt: null,
       },
 
