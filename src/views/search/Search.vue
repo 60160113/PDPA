@@ -31,7 +31,7 @@
           <CTextarea label="หัวข้อ" horizontal v-model="search.title" />
         </CCol>
         <CCol>
-          <CTextarea label="คำอธิบาย" horizontal v-model="search.description" />
+          <CTextarea label="เหตุผลในการขอข้อมูล" horizontal v-model="search.description" />
         </CCol>
       </CRow>
       <div v-show="tabIndex == 0">

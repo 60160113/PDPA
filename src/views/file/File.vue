@@ -198,7 +198,7 @@
     >
       <CInput label="ชื่อ" horizontal v-model="properties.name" />
       <CInput label="หัวข้อ" horizontal v-model="properties.title" />
-      <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
+      <CTextarea label="เหตุผลในการขอข้อมูล" horizontal v-model="properties.description" />
       <template #header>
         <h6 class="modal-title">สร้างโฟลเดอร์ใหม่</h6>
         <CButtonClose
@@ -242,7 +242,7 @@
       <hr />
       <CInput label="ชื่อ" horizontal v-model="properties.name" />
       <CInput label="หัวข้อ" horizontal v-model="properties.title" />
-      <CTextarea label="คำอธิบาย" horizontal v-model="properties.description" />
+      <CTextarea label="เหตุผลในการขอข้อมูล" horizontal v-model="properties.description" />
       <template #header>
         <h6 class="modal-title">อัปโหลด</h6>
         <CButtonClose @click="modalStatus.upload = false" class="text-white" />

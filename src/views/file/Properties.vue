@@ -59,7 +59,7 @@
           }}
           <br />
 
-          <b>คำอธิบาย:</b>
+          <b>เหตุผลในการขอข้อมูล:</b>
           {{
             properties.properties.hasOwnProperty("cm:description")
               ? properties.properties["cm:description"]
@@ -267,7 +267,7 @@
       />
       <br />
       <CTextarea
-        label="คำอธิบาย"
+        label="เหตุผลในการขอข้อมูล"
         horizontal
         v-model="versionProperties.comment"
       />
@@ -312,7 +312,7 @@
       />
       <br />
       <CTextarea
-        label="คำอธิบาย"
+        label="เหตุผลในการขอข้อมูล"
         horizontal
         v-model="versionProperties.comment"
       />

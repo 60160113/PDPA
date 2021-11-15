@@ -16,7 +16,7 @@
     />
 
     <hr />
-    <CTextarea horizontal label="คำอธิบาย" v-model="form.description" />
+    <CTextarea horizontal label="เหตุผลในการขอข้อมูล" v-model="form.description" />
 
     <CRow class="mt-3">
       <CCol col="3">
