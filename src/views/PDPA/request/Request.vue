@@ -24,7 +24,7 @@
       </CCol>
       <CCol>
         <v-date-picker
-          :min-date="new Date()"
+          :min-date="disabledDate"
           mode="date"
           :masks="{
             input: 'DD/MM/YYYY',
@@ -118,6 +118,13 @@ export default {
           this.loading = false;
           this.onComplete();
         });
+    },
+  },
+  computed: {
+    disabledDate() {
+      var date = new Date();
+      date.setDate(date.getDate() + 1);
+      return date;
     },
   },
 };

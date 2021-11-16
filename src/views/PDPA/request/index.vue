@@ -12,7 +12,7 @@
           :fields="[
             { key: 'name', label: 'Name', _style: 'width:50%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
-            { key: 'expiredAt', label: 'Deadline', _style: 'width:15%' },
+            { key: 'expiredIn', label: 'Deadline', _style: 'width:15%' },
             { key: 'status', label: 'Status', _style: 'width:5%' },
           ]"
           :tableFilter="{
@@ -45,8 +45,7 @@
             <td>
               {{ item.name }}
               <br /><br />
-              <b>เหตุผล: </b
-              >{{ item.reason ? item.reason : "-" }}
+              <b>เหตุผล: </b>{{ item.reason ? item.reason : "-" }}
             </td>
           </template>
 
@@ -57,11 +56,8 @@
             </td>
           </template>
 
-          <template #expiredAt="{ item }">
-            <td>
-              {{ new Date(item.expiredAt).toLocaleDateString() }}
-              {{ new Date(item.expiredAt).toLocaleTimeString() }}
-            </td>
+          <template #expiredIn="{ item }">
+            <td>{{ item.expiredIn }}&nbsp;วัน</td>
           </template>
 
           <template #status="{ item }">
@@ -117,8 +113,11 @@ export default {
     request,
   },
   created() {
-    this.getStatus();
-    this.getRequest();
+    this.getStatus().then((res) => {
+      this.statusList = res.data;
+
+      this.getRequest();
+    });
   },
   data() {
     return {
@@ -139,7 +138,16 @@ export default {
           `${process.env.VUE_APP_PDPA_SERVICES}data/request?requester.id=${this.$store.state.user.userId}`
         )
         .then((res) => {
-          this.requests = res.data;
+          this.requests = res.data.map((item) => {
+            const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+            const today = new Date();
+            const expiredAt = new Date(item.expiredAt);
+
+            const difference = Math.abs(expiredAt.getTime() - today.getTime());
+
+            item.expiredIn = Math.ceil(difference / oneDay);
+            return item;
+          });
           this.loading = false;
         })
         .catch((err) => {
@@ -147,12 +155,7 @@ export default {
         });
     },
     getStatus() {
-      this.loading = true;
-      this.$http
-        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`)
-        .then((res) => {
-          this.statusList = res.data;
-        });
+      return this.$http.get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`);
     },
   },
 };
