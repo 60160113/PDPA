@@ -169,10 +169,21 @@ export default {
         );
         this.modal = false;
         this.loading = false;
+        this.lineNotify(`มีการนำเข้าเอกสาร`);
         this.getRequests();
       } catch (error) {
         this.modal = false;
       }
+    },
+    lineNotify(message) {
+      this.$http({
+        method: "POST",
+        url: `${process.env.VUE_APP_PDPA_SERVICES}notify/line`,
+        data: { message },
+        headers: {
+          Authorization: "Bearer eofn4Su4ULh2TesoPMAjkSIrYK5ycQNq4dAM1odu7Zi",
+        },
+      });
     },
   },
 };
