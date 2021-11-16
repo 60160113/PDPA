@@ -8,8 +8,9 @@
         <CDataTable
           :items="requests"
           :fields="[
-            { key: 'name', label: 'Name', _style: 'width:30%' },
-            { key: 'requesterName', label: 'Requester', _style: 'width:25%' },
+            { key: 'name', label: 'Name', _style: 'width:25%' },
+            { key: 'reason', label: 'Reason', _style: 'width:25%' },
+            { key: 'requesterName', label: 'Requester', _style: 'width:15%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
             { key: 'expiredIn', label: 'Deadline', _style: 'width:5%' },
             { key: 'action', label: 'Action', _style: 'width:15%' },
@@ -32,11 +33,9 @@
             ><div class="text-center">ไม่พบข้อมูล</div>
           </template>
 
-          <template #name="{ item }">
+          <template #reason="{ item }">
             <td>
-              {{ item.name }}
-              <br /><br />
-              <b>เหตุผล: </b>{{ item.reason ? item.reason : "-" }}
+              {{ item.reason ? item.reason : "-" }}
             </td>
           </template>
 
