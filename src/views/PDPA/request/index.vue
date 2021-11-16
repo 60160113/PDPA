@@ -10,10 +10,10 @@
         <CDataTable
           :items="requests"
           :fields="[
-            { key: 'name', label: 'Name', _style: 'width:50%' },
-            { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
-            { key: 'expiredIn', label: 'Deadline', _style: 'width:15%' },
-            { key: 'status', label: 'Status', _style: 'width:5%' },
+            { key: 'name', label: 'Name', _style: 'width:60%' },
+            { key: 'createdAt', label: 'Created At', _style: 'width:20%' },
+            { key: 'expiredIn', label: 'Deadline', _style: 'width:10%' },
+            { key: 'status', label: 'Status', _style: 'width:10%' },
           ]"
           :tableFilter="{
             label: 'ค้นหา: ',
