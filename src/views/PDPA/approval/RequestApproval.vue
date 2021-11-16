@@ -212,7 +212,9 @@ export default {
           method: "post",
           url: `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${process.env.VUE_APP_PUBLISHED_DATA_FOLDER}/children?autoRename=true`,
           data: {
-            name: item.name,
+            name: `${item.name}_${item.requester}_${
+              new Date().toISOString().split("T")[0]
+            }`,
             nodeType: "cm:folder",
           },
         });
