@@ -12,7 +12,6 @@
             { key: 'requesterName', label: 'Requester', _style: 'width:25%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
             { key: 'expiredIn', label: 'Deadline', _style: 'width:5%' },
-            { key: 'status', label: 'Status', _style: 'width:10%' },
             { key: 'action', label: 'Action', _style: 'width:15%' },
           ]"
           :tableFilter="{
@@ -50,22 +49,6 @@
 
           <template #expiredIn="{ item }">
             <td>{{ item.expiredIn }}&nbsp;วัน</td>
-          </template>
-
-          <template #status="{ item }">
-            <td>
-              <CBadge
-                shape="pill"
-                :color="
-                  statusList.filter((e) => e.value == item.status)[0].color
-                "
-                style="font-size: 12px"
-              >
-                {{
-                  statusList.filter((e) => e.value == item.status)[0].label
-                }}</CBadge
-              >
-            </td>
           </template>
 
           <template #action="{ item }">
@@ -119,11 +102,7 @@
 <script>
 export default {
   created() {
-    this.getStatus().then((res) => {
-      this.statusList = res.data;
-
-      this.getRequests();
-    });
+    this.getRequests();
   },
   watch: {
     modal: function (val) {
@@ -137,8 +116,6 @@ export default {
     return {
       requests: [],
 
-      statusList: [],
-
       loading: false,
 
       selectedItem: null,
@@ -149,9 +126,6 @@ export default {
     };
   },
   methods: {
-    getStatus() {
-      return this.$http.get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`);
-    },
     getRequests() {
       this.loading = true;
       this.$http({
