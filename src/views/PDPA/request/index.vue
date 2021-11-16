@@ -3,7 +3,10 @@
     <CCard>
       <CCardHeader>
         <strong class="text-primary"
-          >รายการการร้องขอข้อมูลของ {{ $store.state.user.displayName }}</strong
+          >รายการการร้องขอข้อมูลของ
+          <b class="text-info" style="font-size: 18px">{{
+            $store.state.user.displayName
+          }}</b></strong
         >
       </CCardHeader>
       <CCardBody>
