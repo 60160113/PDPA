@@ -8,12 +8,12 @@
         <CDataTable
           :items="requests"
           :fields="[
-            { key: 'name', label: 'Name', _style: 'width:25%' },
+            { key: 'name', label: 'Name', _style: 'width:30%' },
             { key: 'requesterName', label: 'Requester', _style: 'width:25%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:15%' },
-            { key: 'expiredAt', label: 'Deadline', _style: 'width:15%' },
+            { key: 'expiredIn', label: 'Deadline', _style: 'width:5%' },
             { key: 'status', label: 'Status', _style: 'width:10%' },
-            { key: 'action', label: 'Action', _style: 'width:10%' },
+            { key: 'action', label: 'Action', _style: 'width:15%' },
           ]"
           :tableFilter="{
             label: 'ค้นหา: ',
@@ -37,8 +37,7 @@
             <td>
               {{ item.name }}
               <br /><br />
-              <b>เหตุผล: </b
-              >{{ item.reason ? item.reason : "-" }}
+              <b>เหตุผล: </b>{{ item.reason ? item.reason : "-" }}
             </td>
           </template>
 
@@ -49,11 +48,8 @@
             </td>
           </template>
 
-          <template #expiredAt="{ item }">
-            <td>
-              {{ new Date(item.expiredAt).toLocaleDateString() }}
-              {{ new Date(item.expiredAt).toLocaleTimeString() }}
-            </td>
+          <template #expiredIn="{ item }">
+            <td>{{ item.expiredIn }}&nbsp;วัน</td>
           </template>
 
           <template #status="{ item }">
@@ -123,8 +119,11 @@
 <script>
 export default {
   created() {
-    this.getStatus();
-    this.getRequests();
+    this.getStatus().then((res) => {
+      this.statusList = res.data;
+
+      this.getRequests();
+    });
   },
   watch: {
     modal: function (val) {
@@ -151,12 +150,7 @@ export default {
   },
   methods: {
     getStatus() {
-      this.loading = true;
-      this.$http
-        .get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`)
-        .then((res) => {
-          this.statusList = res.data;
-        });
+      return this.$http.get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`);
     },
     getRequests() {
       this.loading = true;
@@ -170,6 +164,14 @@ export default {
         .then((res) => {
           this.requests = res.data.map((item) => {
             item.requesterName = item.requester.name;
+
+            const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+            const today = new Date();
+            const expiredAt = new Date(item.expiredAt);
+
+            const difference = Math.abs(expiredAt.getTime() - today.getTime());
+
+            item.expiredIn = Math.ceil(difference / oneDay);
             return item;
           });
           this.loading = false;
