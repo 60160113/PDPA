@@ -13,7 +13,8 @@
         <CDataTable
           :items="requests"
           :fields="[
-            { key: 'name', label: 'Name', _style: 'width:60%' },
+            { key: 'name', label: 'Name', _style: 'width:30%' },
+            { key: 'reason', label: 'Reason', _style: 'width:30%' },
             { key: 'createdAt', label: 'Created At', _style: 'width:20%' },
             { key: 'expiredIn', label: 'Deadline', _style: 'width:10%' },
             { key: 'status', label: 'Status', _style: 'width:10%' },
@@ -44,11 +45,9 @@
             </div>
           </template>
 
-          <template #name="{ item }">
+          <template #reason="{ item }">
             <td>
-              {{ item.name }}
-              <br /><br />
-              <b>เหตุผล: </b>{{ item.reason ? item.reason : "-" }}
+              {{ item.reason ? item.reason : "-" }}
             </td>
           </template>
 
