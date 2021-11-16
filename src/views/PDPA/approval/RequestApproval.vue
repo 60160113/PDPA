@@ -79,7 +79,11 @@
                 color="success"
                 :disabled="item.status !== 'pending'"
                 @click="
-                  selectedRequest = { id: item._id, name: item.name };
+                  selectedRequest = {
+                    id: item._id,
+                    name: item.name,
+                    requester: item.requesterName,
+                  };
                   isApproved = true;
                   modal = true;
                 "
@@ -90,7 +94,11 @@
                 color="danger"
                 :disabled="item.status !== 'pending'"
                 @click="
-                  selectedRequest = item._id;
+                  selectedRequest = {
+                    id: item._id,
+                    name: item.name,
+                    requester: item.requesterName,
+                  };
                   isApproved = false;
                   modal = true;
                 "
@@ -178,14 +186,17 @@ export default {
           this.loading = false;
         });
     },
-    disapproveRequest(id) {
+    disapproveRequest(item) {
       this.loading = true;
       this.$http
-        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request/${id}`, {
+        .put(`${process.env.VUE_APP_PDPA_SERVICES}data/request/${item.id}`, {
           status: "disapproved",
         })
         .then(() => {
           this.getRequests();
+          this.lineNotify(
+            `การร้องขอ "${item.name}" ของคุณ ${item.requester} ไม่ได้รับการอนุมัติ`
+          );
           this.modal = false;
           this.loading = false;
         })
@@ -213,7 +224,9 @@ export default {
             folder: folder.data.entry.id,
           }
         );
-
+        this.lineNotify(
+          `การร้องขอ "${item.name}" ของคุณ ${item.requester} ได้รับการอนุมัติ`
+        );
         this.getRequests();
         this.modal = false;
         this.loading = false;
@@ -222,6 +235,16 @@ export default {
       } catch (error) {
         this.loading = false;
       }
+    },
+    lineNotify(message) {
+      this.$http({
+        method: "POST",
+        url: `${process.env.VUE_APP_PDPA_SERVICES}notify/line`,
+        data: { message },
+        headers: {
+          Authorization: "Bearer eofn4Su4ULh2TesoPMAjkSIrYK5ycQNq4dAM1odu7Zi",
+        },
+      });
     },
   },
 };
