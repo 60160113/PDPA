@@ -74,6 +74,7 @@
       size="lg"
       color="primary"
     >
+      <FilesTable :id="selectedItem" v-if="selectedItem && modal" />
       <div class="row">
         <label class="col-sm-3">อัปโหลดไฟล์</label>
         <input
@@ -99,7 +100,11 @@
 </template>
 
 <script>
+import FilesTable from "@/views/PDPA/inbox/FilesTable.vue";
 export default {
+  components: {
+    FilesTable,
+  },
   created() {
     this.getRequests();
   },
