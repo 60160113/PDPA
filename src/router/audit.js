@@ -3,7 +3,8 @@ export default [
     path: "/files-report",
     name: "Files Report",
     meta: {
-      restriction: "GROUP_ALFRESCO_ADMINISTRATORS"
+      restriction: "GROUP_ALFRESCO_ADMINISTRATORS",
+      requiresAuth: true
     },
     component: () => import("@/views/audit/Files-Report.vue")
   },
@@ -11,7 +12,8 @@ export default [
     path: "/users-report",
     name: "Users Report",
     meta: {
-      restriction: "GROUP_ALFRESCO_ADMINISTRATORS"
+      restriction: "GROUP_ALFRESCO_ADMINISTRATORS",
+      requiresAuth: true
     },
     component: () => import("@/views/audit/Users-Report.vue")
   }

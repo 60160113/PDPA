@@ -8,9 +8,12 @@ import audit from "./audit";
 
 import pdpa from "./pdpa";
 
+import Meta from "vue-meta";
+
 // Containers
 const TheContainer = () => import("@/containers/TheContainer");
 
+Vue.use(Meta);
 Vue.use(Router);
 
 const router = new Router({
@@ -31,17 +34,34 @@ const router = new Router({
         {
           path: "login",
           name: "Login",
-          component: () => import("@/views/pages/Login.vue")
+          component: () => import("@/views/pages/Login.vue"),
+          meta: {
+            requiresAuth: false
+          }
         },
         {
           path: "404",
           name: "404",
-          component: () => import("@/views/pages/Page404.vue")
+          component: () => import("@/views/pages/Page404.vue"),
+          meta: {
+            requiresAuth: false
+          }
         },
         {
           path: "500",
           name: "500",
-          component: () => import("@/views/pages/Page500.vue")
+          component: () => import("@/views/pages/Page500.vue"),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: "register",
+          name: "Register",
+          component: () => import("@/views/pages/Register.vue"),
+          meta: {
+            requiresAuth: false
+          }
         }
       ]
     },
@@ -60,13 +80,17 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!user && to.name != "Login") {
-    return next({ name: "Login" });
-  } else if (user && to.name == "Login") {
-    return next("/request");
+  if (to.meta.requiresAuth) {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user && to.name != "Login") {
+      return next({ name: "Login" });
+    } else if (user && to.name == "Login") {
+      return next("/request");
+    }
+    return next();
+  } else {
+    return next();
   }
-  return next();
 });
 
 export default router;

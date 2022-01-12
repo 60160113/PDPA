@@ -2,7 +2,10 @@ export default [
   {
     path: "/request",
     name: "Request",
-    component: () => import("@/views/PDPA/request")
+    component: () => import("@/views/PDPA/request"),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/inbox",
@@ -10,7 +13,10 @@ export default [
     meta: {
       restriction: "GROUP_HR"
     },
-    component: () => import("@/views/PDPA/inbox/Inbox.vue")
+    component: () => import("@/views/PDPA/inbox/Inbox.vue"),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/request-approval",
@@ -18,7 +24,10 @@ export default [
     meta: {
       restriction: "GROUP_PDPA_APPROVER"
     },
-    component: () => import("@/views/PDPA/approval/RequestApproval.vue")
+    component: () => import("@/views/PDPA/approval/RequestApproval.vue"),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/PDPA/report",
@@ -26,7 +35,10 @@ export default [
     meta: {
       restriction: "GROUP_PDPA_APPROVER"
     },
-    component: () => import("@/views/PDPA/report/PDPAReport.vue")
+    component: () => import("@/views/PDPA/report/PDPAReport.vue"),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/PDPA/configuration/document",
@@ -34,6 +46,9 @@ export default [
     meta: {
       restriction: "GROUP_PDPA_APPROVER"
     },
-    component: () => import("@/views/PDPA/configuration/Documents.vue")
+    component: () => import("@/views/PDPA/configuration/Documents.vue"),
+    meta: {
+      requiresAuth: true
+    }
   }
 ];
