@@ -45,6 +45,19 @@
             </div>
           </template>
 
+          <template #name="{ item }">
+            <td>
+              {{ item.name }}
+              <CButton
+                class="mt-2"
+                v-if="item.status == 'approved'"
+                color="primary"
+                @click.prevent="openFolderUrl(item.folder)"
+                >เปิด link</CButton
+              >
+            </td>
+          </template>
+
           <template #reason="{ item }">
             <td>
               {{ item.reason ? item.reason : "-" }}
@@ -158,6 +171,16 @@ export default {
     },
     getStatus() {
       return this.$http.get(`${process.env.VUE_APP_PDPA_SERVICES}data/status`);
+    },
+    openFolderUrl(id) {
+      let routeData = this.$router.resolve({
+        name: "Shared Files",
+        query: { id },
+      });
+      Object.assign(document.createElement("a"), {
+        target: "_blank",
+        href: routeData.href,
+      }).click();
     },
   },
 };
