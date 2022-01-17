@@ -75,24 +75,8 @@
       color="primary"
     >
       <FilesTable :id="selectedItem" v-if="selectedItem && modal" />
-      <div class="row">
-        <label class="col-sm-3">อัปโหลดไฟล์</label>
-        <input
-          type="file"
-          class="col-sm-9"
-          ref="fileInput"
-          @change="uploadHandler"
-        />
-      </div>
       <template #footer>
-        <CButton @click="modal = false" color="danger"> ยกเลิก </CButton>
-        <CButton
-          @click="upload()"
-          color="success"
-          :disabled="file == null ? true : false"
-        >
-          ตกลง
-        </CButton>
+        <CButton @click="modal = false" color="secondary"> ปิด </CButton>
       </template>
       <CElementCover :opacity="0.8" v-show="loading" style="z-index: 9999" />
     </CModal>
@@ -108,14 +92,6 @@ export default {
   created() {
     this.getRequests();
   },
-  watch: {
-    modal: function (val) {
-      if (!val) {
-        this.file = null;
-        this.$refs["fileInput"].value = null;
-      }
-    },
-  },
   data() {
     return {
       requests: [],
@@ -123,8 +99,6 @@ export default {
       loading: false,
 
       selectedItem: null,
-
-      file: null,
 
       modal: false,
     };
@@ -157,37 +131,6 @@ export default {
         .catch((err) => {
           this.loading = false;
         });
-    },
-    uploadHandler() {
-      this.file = event.currentTarget.files[0];
-    },
-    async upload() {
-      try {
-        this.loading = true;
-        // upload
-        let formData = new FormData();
-        formData.append("filedata", this.file);
-        await this.$http.post(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.selectedItem}/children?autoRename=true`,
-          formData
-        );
-        this.modal = false;
-        this.loading = false;
-        this.lineNotify(`มีการนำเข้าเอกสาร`);
-        this.getRequests();
-      } catch (error) {
-        this.modal = false;
-      }
-    },
-    lineNotify(message) {
-      this.$http({
-        method: "POST",
-        url: `${process.env.VUE_APP_PDPA_SERVICES}notify/line`,
-        data: { message },
-        headers: {
-          Authorization: "Bearer eofn4Su4ULh2TesoPMAjkSIrYK5ycQNq4dAM1odu7Zi",
-        },
-      });
     },
   },
 };
