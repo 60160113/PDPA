@@ -58,25 +58,25 @@ export default [
     },
     {
         _name: "CSidebarNavItem",
-        name: "Request",
+        name: "การร้องขอ",
         to: "/request",
         icon: "cil-phone"
     },
     {
         _name: "CSidebarNavItem",
-        name: "Inbox",
+        name: "ส่งเอกสารตามคำร้อง",
         to: "/inbox",
         icon: "cil-inbox"
     },
     {
         _name: "CSidebarNavItem",
-        name: "Request Approval",
+        name: "อนุมัติคำร้อง",
         to: "/request-approval",
         icon: "cil-check"
     },
     {
         _name: "CSidebarNavItem",
-        name: "PDPA Report",
+        name: "รายงาน",
         to: "/PDPA/report",
         icon: "cil-shield-alt"
     },
@@ -87,7 +87,7 @@ export default [
     },
     {
         _name: "CSidebarNavItem",
-        name: "PDPA Document",
+        name: "เอกสารที่ต้องการขอ",
         to: "/PDPA/configuration/document",
         icon: "cil-file"
     }

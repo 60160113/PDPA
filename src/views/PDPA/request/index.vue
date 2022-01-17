@@ -13,11 +13,11 @@
         <CDataTable
           :items="requests"
           :fields="[
-            { key: 'name', label: 'Name', _style: 'width:30%' },
-            { key: 'reason', label: 'Reason', _style: 'width:30%' },
-            { key: 'createdAt', label: 'Created At', _style: 'width:20%' },
-            { key: 'expiredIn', label: 'Deadline', _style: 'width:10%' },
-            { key: 'status', label: 'Status', _style: 'width:10%' },
+            { key: 'name', label: 'ชื่อคำร้อง', _style: 'width:30%' },
+            { key: 'reason', label: 'เหตุผล', _style: 'width:30%' },
+            { key: 'createdAt', label: 'วันที่ร้องขอ', _style: 'width:20%' },
+            { key: 'expiredIn', label: 'กำหนดการ', _style: 'width:10%' },
+            { key: 'status', label: 'สถานะ', _style: 'width:10%' },
           ]"
           :tableFilter="{
             label: 'ค้นหา: ',
