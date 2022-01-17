@@ -10,45 +10,37 @@ export default [
   {
     path: "/inbox",
     name: "Inbox",
-    meta: {
-      restriction: "GROUP_HR"
-    },
     component: () => import("@/views/PDPA/inbox/Inbox.vue"),
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      restriction: "GROUP_HR"
     }
   },
   {
     path: "/request-approval",
     name: "Request Approval",
-    meta: {
-      restriction: "GROUP_PDPA_APPROVER"
-    },
     component: () => import("@/views/PDPA/approval/RequestApproval.vue"),
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      restriction: "GROUP_PDPA_APPROVER"
     }
   },
   {
     path: "/PDPA/report",
     name: "PDPA Report",
-    meta: {
-      restriction: "GROUP_PDPA_APPROVER"
-    },
     component: () => import("@/views/PDPA/report/PDPAReport.vue"),
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      restriction: "GROUP_PDPA_APPROVER"
     }
   },
   {
     path: "/PDPA/configuration/document",
     name: "PDPA Document",
-    meta: {
-      restriction: "GROUP_PDPA_APPROVER"
-    },
     component: () => import("@/views/PDPA/configuration/Documents.vue"),
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      restriction: "GROUP_PDPA_APPROVER"
     }
   }
 ];
