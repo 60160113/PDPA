@@ -50,6 +50,7 @@
               {{ item.name }}
               <br />
               <CButton
+                size="sm"
                 class="mt-2"
                 v-if="item.status == 'approved'"
                 color="primary"
