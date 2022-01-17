@@ -29,7 +29,9 @@
       </template>
       <template #actions="{ item }">
         <td>
-          <CButton color="danger" @click="removeFile(item.id)">ลบ</CButton>
+          <CButton color="danger" @click="removeFile(item.id, item.name)"
+            >ลบ</CButton
+          >
         </td>
       </template>
     </CDataTable>
@@ -144,12 +146,13 @@ export default {
         this.loading = false;
       }
     },
-    removeFile(id) {
+    removeFile(id, name = "") {
       this.$http
         .delete(
           `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${id}`
         )
         .then(async () => {
+          this.lineNotify(`เอกสารชื่อ "${name}" ถูกลบ`);
           this.files = await this.getFiles(this.id);
         });
     },
@@ -169,7 +172,7 @@ export default {
       this.newFiles.forEach(async (item, index) => {
         await this.upload(item);
         if (index == this.newFiles.length - 1) {
-          this.lineNotify(`มีการนำเข้าเอกสาร`);
+          this.lineNotify(`มีการนำเข้าเอกสาร ${this.newFiles.length} รายการ`);
           this.files = await this.getFiles(this.id);
           this.newFiles = [];
 
