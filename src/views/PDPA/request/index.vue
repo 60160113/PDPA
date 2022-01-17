@@ -48,6 +48,7 @@
           <template #name="{ item }">
             <td>
               {{ item.name }}
+              <br />
               <CButton
                 class="mt-2"
                 v-if="item.status == 'approved'"
