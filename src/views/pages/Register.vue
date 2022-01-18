@@ -7,30 +7,51 @@
       <CRow class="justify-content-center">
         <CCol md="6">
           <CCard class="mx-4 mb-0">
-            <CCardBody class="p-4">
+            <CCardHeader
+              ><h1><b>สมัคร</b></h1>
+              <p class="text-muted mb-0">สร้างบัญชีใหม่</p></CCardHeader
+            >
+            <CCardBody>
               <CForm>
-                <h1>Register</h1>
-                <p class="text-muted">Create your account</p>
-                <CInput placeholder="Username" autocomplete="username">
-                  <template #prepend-content
-                    ><CIcon name="cil-user"
-                  /></template>
-                </CInput>
-                <CInput placeholder="Email" autocomplete="email" prepend="@" />
+                <CRow>
+                  <CCol md="6">
+                    <CInput
+                      size="lg"
+                      placeholder="ชื่อ"
+                      v-model="form.firstName"
+                  /></CCol>
+                  <CCol md="6">
+                    <CInput
+                      size="lg"
+                      placeholder="นามสกุล"
+                      v-model="form.lastName"
+                  /></CCol>
+                </CRow>
                 <CInput
-                  placeholder="Password"
+                  size="lg"
+                  placeholder="อีเมล"
+                  autocomplete="email"
+                  prepend="@"
+                  v-model="form.email"
+                />
+                <CInput
+                  size="lg"
+                  placeholder="รหัสผ่าน"
                   type="password"
                   autocomplete="new-password"
+                  v-model="form.password"
                 >
                   <template #prepend-content
                     ><CIcon name="cil-lock-locked"
                   /></template>
                 </CInput>
                 <CInput
-                  placeholder="Repeat password"
+                  size="lg"
+                  placeholder="กรอกรหัสผ่านอีกครั้ง"
                   type="password"
                   autocomplete="new-password"
                   class="mb-4"
+                  v-model="confirmPassword"
                 >
                   <template #prepend-content
                     ><CIcon name="cil-lock-locked"
@@ -38,8 +59,10 @@
                 </CInput>
               </CForm>
             </CCardBody>
-            <CCardFooter class="p-4">
-              <CButton color="success" block>Create Account</CButton>
+            <CCardFooter>
+              <CButton color="success" block size="lg" @click="register()"
+                ><b>สมัคร</b></CButton
+              >
             </CCardFooter>
           </CCard>
         </CCol>
@@ -68,8 +91,12 @@ export default {
   },
   methods: {
     register() {
-      console.log(this.form)
-    }
+      // set data
+      var data = { ...this.form };
+      data.id = data.email;
+      data.displayName = `${data.firstName} ${data.lastName}`;
+      console.log(data);
+    },
   },
 };
 </script>

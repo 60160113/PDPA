@@ -18,11 +18,8 @@
                   placeholder="อีเมล"
                   autocomplete="username email"
                   v-model="user.userId"
-                >
-                  <template #prepend-content
-                    ><CIcon name="cil-user"
-                  /></template>
-                </CInput>
+                  prepend="@"
+                />
                 <CInput
                   size="lg"
                   placeholder="รหัสผ่าน"
