@@ -160,7 +160,10 @@ export default {
             const today = new Date();
             const expiredAt = new Date(item.expiredAt);
 
-            const difference = Math.abs(expiredAt.getTime() - today.getTime());
+            const difference =
+              expiredAt > today
+                ? Math.abs(expiredAt.getTime() - today.getTime())
+                : 0;
 
             item.expiredIn = Math.ceil(difference / oneDay);
             return item;
