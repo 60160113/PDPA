@@ -149,7 +149,10 @@ export default {
     },
     openRegisterPage() {
       let routeData = this.$router.resolve("/register");
-      window.open(routeData.href, "_blank");
+      Object.assign(document.createElement("a"), {
+        target: "_blank",
+        href: routeData.href,
+      }).click();
     },
   },
 };
