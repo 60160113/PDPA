@@ -83,9 +83,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user && to.name != "Main") {
-      return next({ name: "Main" });
-    } else if (user && to.name == "Main") {
-      return next("/request");
+      return next("/");
     }
     return next();
   } else {

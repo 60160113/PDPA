@@ -89,6 +89,12 @@
 
 <script>
 export default {
+  beforeCreate() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      this.$router.push("/request");
+    }
+  },
   data() {
     return {
       user: {
