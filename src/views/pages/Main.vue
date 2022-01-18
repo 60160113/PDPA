@@ -5,14 +5,17 @@
   >
     <CContainer>
       <CRow class="justify-content-center">
-        <CCol lg="6">
-          <CCard class="p-4">
+        <CCol>
+          <h1 class="text-primary"><b>PDPA</b></h1>
+          <h5>Personal Data Protection Act (PDPA)</h5>
+        </CCol>
+        <CCol md="6">
+          <CCard>
             <CCardBody>
               <CForm>
-                <h1>Login</h1>
-                <p class="text-muted">Sign In to your account</p>
                 <CInput
-                  placeholder="Username"
+                  size="lg"
+                  placeholder="อีเมล"
                   autocomplete="username email"
                   v-model="user.userId"
                 >
@@ -21,33 +24,49 @@
                   /></template>
                 </CInput>
                 <CInput
-                  placeholder="Password"
-                  type="password"
+                  size="lg"
+                  placeholder="รหัสผ่าน"
+                  :type="showPassword ? 'text' : 'password'"
                   autocomplete="curent-password"
                   v-model="user.password"
                 >
                   <template #prepend-content
                     ><CIcon name="cil-lock-locked"
                   /></template>
+                  <template #append-content
+                    ><span @click="showPassword = !showPassword">
+                      <CIcon
+                        :name="
+                          showPassword ? 'cil-toggle-on' : 'cil-toggle-off'
+                        " /></span
+                  ></template>
                 </CInput>
-                <CRow>
-                  <CCol col="6" class="text-left">
-                    <CButton color="primary" class="px-4" @click="login"
-                      >Login</CButton
-                    >
-                  </CCol>
-                  <CCol col="6" class="text-right">
-                    <!-- <CButton color="link" class="px-0"
-                      >Forgot password?</CButton
-                    > -->
-                  </CCol>
-                </CRow>
+                <CButton
+                  size="lg"
+                  block
+                  color="primary"
+                  class="px-4"
+                  @click.prevent="login"
+                  ><b>เข้าสู่ระบบ</b>
+                </CButton>
+                <hr />
+                <center>
+                  <CButton
+                    size="lg"
+                    color="success"
+                    class="px-4"
+                    @click.prevent="openRegisterPage"
+                    ><b>สร้างบัญชีใหม่</b>
+                  </CButton>
+                </center>
               </CForm>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
     </CContainer>
+
+    <!-- login error modal -->
     <CModal
       title="ข้อมูลไม่ถูกต้อง"
       color="danger"
@@ -70,7 +89,6 @@
 
 <script>
 export default {
-  name: "Login",
   data() {
     return {
       user: {
@@ -78,6 +96,8 @@ export default {
         password: "",
       },
       loginErrorModal: false,
+
+      showPassword: false,
     };
   },
   methods: {
@@ -120,6 +140,10 @@ export default {
       } catch (error) {
         this.loginErrorModal = true;
       }
+    },
+    openRegisterPage() {
+      let routeData = this.$router.resolve("/register");
+      window.open(routeData.href, "_blank");
     },
   },
 };

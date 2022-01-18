@@ -23,7 +23,7 @@ const router = new Router({
   routes: [
     {
       path: "/",
-      redirect: "/login",
+      redirect: "/",
       name: "FullPage",
       component: {
         render(c) {
@@ -32,9 +32,9 @@ const router = new Router({
       },
       children: [
         {
-          path: "login",
-          name: "Login",
-          component: () => import("@/views/pages/Login.vue"),
+          path: "",
+          name: "Main",
+          component: () => import("@/views/pages/Main.vue"),
           meta: {
             requiresAuth: false
           }
@@ -82,9 +82,9 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user && to.name != "Login") {
-      return next({ name: "Login" });
-    } else if (user && to.name == "Login") {
+    if (!user && to.name != "Main") {
+      return next({ name: "Main" });
+    } else if (user && to.name == "Main") {
       return next("/request");
     }
     return next();
