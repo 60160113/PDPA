@@ -41,7 +41,7 @@
             {
               data: chartData[status],
               backgroundColor: '#4638c2',
-              label: 'Request',
+              label: 'การร้องขอ',
             },
           ]"
           labels="months"
