@@ -17,7 +17,7 @@
 
     <hr />
     <CTextarea horizontal label="เหตุผลในการขอข้อมูล" v-model="form.reason" />
-    <CTextarea horizontal label="หมายเหตุ" v-model="form.reason" />
+    <CTextarea horizontal label="หมายเหตุ" v-model="form.note" />
 
     <CRow class="mt-3">
       <CCol col="3">
