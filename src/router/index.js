@@ -62,6 +62,14 @@ const router = new Router({
           meta: {
             requiresAuth: false
           }
+        },
+        {
+          path: "confirm_register/:id",
+          name: "Confirm Register",
+          component: () => import("@/views/pages/ConfirmRegister.vue"),
+          meta: {
+            requiresAuth: false
+          }
         }
       ]
     },
