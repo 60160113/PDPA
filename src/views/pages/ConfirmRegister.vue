@@ -12,7 +12,12 @@
             >
             <CCardBody>
               <CForm>
-                <CInput size="lg" placeholder="รหัสผ่าน" v-model="password" />
+                <CInput
+                  size="lg"
+                  placeholder="รหัสผ่าน"
+                  type="password"
+                  v-model="password"
+                />
               </CForm>
             </CCardBody>
             <CCardFooter>
@@ -105,7 +110,7 @@ export default {
               firstName: this.registerData.firstName,
               lastName: this.registerData.lastName,
               email: this.registerData.email,
-            //   displayName: `${this.registerData.firstName} ${this.registerData.lastName}`,
+              //   displayName: `${this.registerData.firstName} ${this.registerData.lastName}`,
               password: this.password,
             },
             {
