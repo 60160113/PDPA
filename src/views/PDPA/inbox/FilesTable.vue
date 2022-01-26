@@ -99,6 +99,10 @@ export default {
       type: String,
       default: "",
     },
+    email: {
+      type: String,
+      default: "",
+    },
   },
   async created() {
     this.files = await this.getFiles(this.id);
@@ -153,11 +157,14 @@ export default {
         )
         .then(async () => {
           this.lineNotify(`เอกสารชื่อ "${name}" ถูกลบ`);
-          this.sendMail(
-            this.$store.state.user.email,
-            `<p>เอกสารชื่อ "${name}" ถูกลบ</p>`,
-            "เอกสรถูกลบ"
-          );
+          if (this.email) {
+            this.sendMail(
+              this.email,
+              `<p>เอกสารชื่อ "${name}" ถูกลบ</p>`,
+              "เอกสรถูกลบ"
+            );
+          }
+
           this.files = await this.getFiles(this.id);
         });
     },
@@ -178,11 +185,14 @@ export default {
         await this.upload(item);
         if (index == this.newFiles.length - 1) {
           this.lineNotify(`มีการนำเข้าเอกสาร ${this.newFiles.length} รายการ`);
-          this.sendMail(
-            this.$store.state.user.email,
-            `<p>มีการนำเข้าเอกสาร ${this.newFiles.length} รายการ</p>`,
-            "มีการนำเข้าเอกสาร"
-          );
+          if (this.email) {
+            this.sendMail(
+              this.email,
+              `<p>มีการนำเข้าเอกสาร ${this.newFiles.length} รายการ</p>`,
+              "มีการนำเข้าเอกสาร"
+            );
+          }
+
           this.files = await this.getFiles(this.id);
           this.newFiles = [];
 
