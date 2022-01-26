@@ -202,6 +202,11 @@ export default {
         })
         .then(() => {
           this.getRequests();
+          this.sendMail(
+            item.requester.email,
+            `<p>การร้องขอ "${item.name}" ของคุณ ${item.requester} ไม่ได้รับการอนุมัติ</p>`,
+            "การร้องขอไม่ได้รับการอนุมัติ"
+          );
           this.lineNotify(
             `การร้องขอ "${item.name}" ของคุณ ${item.requester} ไม่ได้รับการอนุมัติ`
           );
@@ -234,6 +239,12 @@ export default {
             folder: folder.data.entry.id,
           }
         );
+
+        this.sendMail(
+          item.requester.email,
+          `<p>การร้องขอ "${item.name}" ของคุณ ${item.requester} ได้รับการอนุมัติ</p>`,
+          "การร้องขอได้รับการอนุมัติ"
+        );
         this.lineNotify(
           `การร้องขอ "${item.name}" ของคุณ ${item.requester} ได้รับการอนุมัติ`
         );
@@ -254,6 +265,14 @@ export default {
         headers: {
           Authorization: "Bearer eofn4Su4ULh2TesoPMAjkSIrYK5ycQNq4dAM1odu7Zi",
         },
+      });
+    },
+    sendMail(to, html, subject = "") {
+      this.$http.post(`${process.env.VUE_APP_PDPA_SERVICES}notify/mail`, {
+        from: "jrk-crm@jorakay.co.th",
+        to: to,
+        subject: subject,
+        html,
       });
     },
   },
