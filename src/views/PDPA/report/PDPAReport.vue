@@ -101,6 +101,12 @@
             </td>
           </template>
 
+          <template #requesterName="{ item }">
+            <td>
+              <b class="text-primary">{{ item.requesterName }}</b>
+            </td>
+          </template>
+
           <template #createdAt="{ item }">
             <td>
               {{ new Date(item.createdAt).toLocaleDateString() }}
