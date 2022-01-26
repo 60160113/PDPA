@@ -55,7 +55,7 @@
               <CButton
                 color="success"
                 @click="
-                  selectedItem = item.folder;
+                  selectedItem = item;
                   modal = true;
                 "
                 >ดำเนินการ</CButton
@@ -74,7 +74,11 @@
       size="lg"
       color="primary"
     >
-      <FilesTable :id="selectedItem" v-if="selectedItem && modal" />
+      <FilesTable
+        :id="selectedItem.folder"
+        :email="selectedItem.requester.email"
+        v-if="selectedItem && modal"
+      />
       <template #footer>
         <CButton @click="modal = false" color="secondary"> ปิด </CButton>
       </template>
