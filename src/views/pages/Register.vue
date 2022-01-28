@@ -157,7 +157,7 @@ export default {
     sendMail() {
       var html = document.getElementById("email-content").outerHTML;
       this.$http.post(`${process.env.VUE_APP_PDPA_SERVICES}notify/mail`, {
-        from: "jrk-crm@jorakay.co.th",
+        from: process.env.VUE_APP_MAIL,
         to: this.form.email,
         subject: "สมัครสมาชิก PDPA: ยืนยันตัวตน",
         html,

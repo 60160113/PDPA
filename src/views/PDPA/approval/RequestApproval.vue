@@ -269,7 +269,7 @@ export default {
     },
     sendMail(to, html, subject = "") {
       this.$http.post(`${process.env.VUE_APP_PDPA_SERVICES}notify/mail`, {
-        from: "jrk-crm@jorakay.co.th",
+        from: process.env.VUE_APP_MAIL,
         to: to,
         subject: subject,
         html,
