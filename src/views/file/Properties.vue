@@ -24,7 +24,7 @@
       </CCol>
       <!-- Properties Section -->
       <CCol col="3" style="word-wrap: break-word">
-        <CButtonToolbar justify>
+        <!-- <CButtonToolbar justify>
           <CButton block color="primary" @click="download()">ดาวน์โหลด</CButton
           ><CButton block color="primary" @click="sharedModal = true"
             >แชร์</CButton
@@ -38,7 +38,7 @@
           >
         </CButtonToolbar>
 
-        <hr />
+        <hr /> -->
 
         <CButton
           block
@@ -91,7 +91,7 @@
         </CCollapse>
         <hr />
         <!-- Versions Section -->
-        <CButton
+        <!-- <CButton
           block
           class="card-header"
           @click="accordion = accordion === 1 ? false : 1"
@@ -146,7 +146,7 @@
               </td>
             </template>
           </CDataTable>
-        </CCollapse>
+        </CCollapse> -->
       </CCol>
     </CRow>
     <hr />
@@ -398,10 +398,38 @@ import { DatePicker } from "v-calendar";
 
 import previewableTypes from "@/views/file/previewableTypes";
 
+const { PDFDocument, rgb } = require("pdf-lib");
+
+import fontkit from "@pdf-lib/fontkit";
+
+import THSarabunNew from "@/assets/fonts/THSarabunNew-Bold.ttf";
+
 const fields = [
   { key: "id", label: "Version" },
   { key: "actions", label: "Actions" },
 ];
+
+function hexToRgb(hex) {
+  hex = hex.replace("#", "");
+  const aRgbHex = hex.match(/.{1,2}/g);
+  return {
+    r: parseInt(aRgbHex[0], 16) / 255,
+    g: parseInt(aRgbHex[1], 16) / 255,
+    b: parseInt(aRgbHex[2], 16) / 255,
+  };
+}
+
+function getTextSize(text, fontSize) {
+  let newCanvas = document.createElement("canvas");
+  let newContext = newCanvas.getContext("2d");
+  newContext.font = `${fontSize}px THSarabunNew`;
+  let textWidth = newContext.measureText(text).width;
+  let textHeight =
+    newContext.measureText(text).actualBoundingBoxAscent +
+    newContext.measureText(text).actualBoundingBoxDescent;
+
+  return { textWidth, textHeight };
+}
 
 export default {
   props: {
@@ -544,7 +572,10 @@ export default {
 
         // Get Content
         if (this.previewableTypes.includes(this.properties.content.mimeType)) {
-          this.getContent();
+          this.getContent(
+            this.properties.name,
+            this.properties.content.mimeType
+          );
         } else {
           document
             .getElementById("viewer")
@@ -560,27 +591,33 @@ export default {
       }
     },
     // Preview
-    getContent() {
+    getContent(name, mimeType) {
       this.loading = true;
       this.$http
         .get(
-          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content`,
+          `${process.env.VUE_APP_BACKEND_URL}alfresco/versions/1/nodes/${this.id}/content`,
           {
-            responseType: "blob",
+            responseType: "arraybuffer",
             onDownloadProgress: (evt) => {
               this.loadingProgress = parseInt((evt.loaded / evt.total) * 100);
             },
           }
         )
         .then(async (res) => {
-          const viewer = await document.getElementById("viewer");
-          const url = await URL.createObjectURL(res.data);
+          var fileBytes = res.data;
+          if (name.includes(".pdf")) {
+            fileBytes = await this.pdf_watermark(res.data);
+          }
+          const blob = new Blob([fileBytes], { type: mimeType });
+
+          const viewer = document.getElementById("viewer");
+          const url = URL.createObjectURL(blob);
 
           viewer.setAttribute("src", `${url}#toolbar=0`);
 
           viewer.removeAttribute("srcdoc");
           this.loading = false;
-          viewer.onload = await function () {
+          viewer.onload = function () {
             // Disable Download Video
             if (viewer.contentWindow.document.querySelector("[name='media']")) {
               viewer.contentWindow.document
@@ -591,9 +628,51 @@ export default {
             body.setAttribute("oncontextmenu", "return false");
           };
         })
-        .catch(() => {
+        .catch((error) => {
           this.loading = false;
         });
+    },
+    async pdf_watermark(content) {
+      var config = {
+        fill: "#e60000",
+        text: "ลายน้ำ",
+        x: 170,
+        y: 280,
+        fontSize: 150,
+        fontFamily: '"THSarabunNew"',
+        opacity: 0.53,
+        rotation: 0,
+      };
+      // font
+      const fontBytes = await fetch(THSarabunNew).then((res) =>
+        res.arrayBuffer()
+      );
+
+      const pdfDoc = await PDFDocument.load(content);
+      pdfDoc.registerFontkit(fontkit);
+
+      const customFont = await pdfDoc.embedFont(fontBytes);
+
+      const pages = pdfDoc.getPages();
+
+      const { r, g, b } = hexToRgb(config.fill);
+
+      let { textHeight } = getTextSize(config.text, Number(config.fontSize));
+
+      pages.forEach((page) => {
+        const { height } = page.getSize();
+        page.drawText(config.text, {
+          x: Number(config.x),
+          y: Number(height - config.y - textHeight),
+          size: Number(config.fontSize),
+          font: customFont,
+          color: rgb(r, g, b),
+          opacity: Number(config.opacity),
+        });
+      });
+
+      const pdfBytes = await pdfDoc.save();
+      return pdfBytes;
     },
     // comment
     getComments() {
@@ -770,3 +849,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+@font-face {
+  font-family: THSarabunNew;
+  src: url("../../assets/fonts/THSarabunNew-Bold.ttf");
+}
+</style>
