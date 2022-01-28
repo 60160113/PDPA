@@ -19,27 +19,11 @@
     <CTextarea horizontal label="เหตุผลในการขอข้อมูล" v-model="form.reason" />
     <CTextarea horizontal label="หมายเหตุ" v-model="form.note" />
 
-    <CRow class="mt-3">
-      <CCol col="3">
-        <label style="margin-top: 6px">ขอเอกสารภายในวันที่: </label>
-      </CCol>
-      <CCol>
-        <v-date-picker
-          :min-date="disabledDate"
-          mode="date"
-          :masks="{
-            input: 'DD/MM/YYYY',
-          }"
-          v-model="form.expiredAt"
-        />
-      </CCol>
-    </CRow>
-
     <CButton
       block
       color="primary"
       class="mt-3"
-      :disabled="(!requestName && !form.name) || !form.expiredAt"
+      :disabled="(!requestName && !form.name)"
       @click="request()"
       >บันทึก</CButton
     >
@@ -120,13 +104,6 @@ export default {
           this.loading = false;
           this.onComplete();
         });
-    },
-  },
-  computed: {
-    disabledDate() {
-      var date = new Date();
-      date.setDate(date.getDate() + 1);
-      return date;
     },
   },
 };

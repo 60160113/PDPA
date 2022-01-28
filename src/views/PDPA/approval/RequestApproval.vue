@@ -124,7 +124,24 @@
       size="lg"
       :color="isApproved ? 'success' : 'danger'"
     >
-      คุณต้องการ{{ isApproved ? "" : "ไม่" }}อนุมัติรายการนี้หรือไม่ ?
+      <div v-if="isApproved">
+        <CRow class="mt-3">
+          <CCol col="3">
+            <label style="margin-top: 6px">ขอเอกสารภายในวันที่: </label>
+          </CCol>
+          <CCol>
+            <v-date-picker
+              :min-date="disabledDate"
+              mode="date"
+              :masks="{
+                input: 'DD/MM/YYYY',
+              }"
+              v-model="expiredAt"
+            />
+          </CCol>
+        </CRow>
+      </div>
+      <p v-else>คุณต้องการไม่อนุมัติรายการนี้หรือไม่ ?</p>
       <template #footer>
         <CButton @click="modal = false" color="danger"> ยกเลิก </CButton>
         <CButton
@@ -143,7 +160,11 @@
 </template>
 
 <script>
+import { DatePicker } from "v-calendar";
 export default {
+  components: {
+    "v-date-picker": DatePicker,
+  },
   created() {
     this.getStatus().then((res) => {
       this.statusList = res.data;
@@ -162,6 +183,8 @@ export default {
       isApproved: false,
 
       selectedRequest: null,
+
+      expiredAt: null,
     };
   },
   methods: {
@@ -237,6 +260,7 @@ export default {
           {
             status: "approved",
             folder: folder.data.entry.id,
+            expiredAt: this.expiredAt,
           }
         );
 
@@ -274,6 +298,13 @@ export default {
         subject: subject,
         html,
       });
+    },
+  },
+  computed: {
+    disabledDate() {
+      var date = new Date();
+      date.setDate(date.getDate() + 1);
+      return date;
     },
   },
 };
