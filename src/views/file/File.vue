@@ -33,7 +33,7 @@
         <div style="margin-top: 10px; opacity: 0.7">
           <span>Path :</span>
           <span :key="index" v-for="(item, index) in breadCrumb">
-            <CLink @click="openFilePage(item.id)"> {{ item.name }} </CLink>/
+            <CLink> {{ item.name }} </CLink>/
           </span>
           <span>
             <CLink disabled>
@@ -67,7 +67,7 @@
             ><div class="text-center">ไม่พบข้อมูล</div>
           </template>
 
-          <template #over-table>
+          <!-- <template #over-table>
             <div style="margin-bottom: 10px">
               <CButton
                 color="primary"
@@ -97,7 +97,7 @@
                 ><CIcon name="cil-file" /> อัปโหลด</CButton
               >
             </div>
-          </template>
+          </template> -->
           <template #name="{ item }">
             <td
               style="cursor: pointer"
@@ -198,7 +198,11 @@
     >
       <CInput label="ชื่อ" horizontal v-model="properties.name" />
       <CInput label="หัวข้อ" horizontal v-model="properties.title" />
-      <CTextarea label="เหตุผลในการขอข้อมูล" horizontal v-model="properties.description" />
+      <CTextarea
+        label="เหตุผลในการขอข้อมูล"
+        horizontal
+        v-model="properties.description"
+      />
       <template #header>
         <h6 class="modal-title">สร้างโฟลเดอร์ใหม่</h6>
         <CButtonClose
@@ -242,7 +246,11 @@
       <hr />
       <CInput label="ชื่อ" horizontal v-model="properties.name" />
       <CInput label="หัวข้อ" horizontal v-model="properties.title" />
-      <CTextarea label="เหตุผลในการขอข้อมูล" horizontal v-model="properties.description" />
+      <CTextarea
+        label="เหตุผลในการขอข้อมูล"
+        horizontal
+        v-model="properties.description"
+      />
       <template #header>
         <h6 class="modal-title">อัปโหลด</h6>
         <CButtonClose @click="modalStatus.upload = false" class="text-white" />
@@ -331,9 +339,9 @@
 
 <script>
 const fields = [
-  { key: "name", label: "Name", _style: "min-width:40%" },
-  { key: "modifiedAt", label: "Modified Date", _style: "min-width:20%;" },
-  { key: "actions", label: "Actions", _style: "min-width:20%;" },
+  { key: "name", label: "Name", _style: "width:60%" },
+  { key: "modifiedAt", label: "Modified Date", _style: "width:40%;" },
+  // { key: "actions", label: "Actions", _style: "min-width:20%;" },
 ];
 
 import Properties from "./Properties";
