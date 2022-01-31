@@ -16,7 +16,7 @@
           <iframe
             id="viewer"
             frameborder="0"
-            style="width: 100%; height: 500px"
+            style="width: 100%; height: 750px"
           >
             <p>Your browser does not support iframes.</p>
           </iframe>
@@ -39,12 +39,7 @@
         </CButtonToolbar>
 
         <hr /> -->
-
-        <CButton
-          block
-          class="card-header"
-          @click="accordion = accordion === 0 ? false : 0"
-        >
+        <CButton block class="card-header" @click="accordion = 0">
           <h5 class="m-0">รายละเอียด</h5>
         </CButton>
         <CCollapse :show="accordion === 0">
@@ -89,7 +84,7 @@
           {{ new Date(properties.modifiedAt).toLocaleDateString() }}
           <br />
         </CCollapse>
-        <hr />
+        <!-- <hr /> -->
         <!-- Versions Section -->
         <!-- <CButton
           block
@@ -149,10 +144,10 @@
         </CCollapse> -->
       </CCol>
     </CRow>
-    <hr />
+    <!-- <hr /> -->
 
     <!-- Comment Section -->
-    <strong class="text-primary">ความคิดเห็น </strong>
+    <!-- <strong class="text-primary">ความคิดเห็น </strong>
     <CButton
       color="primary"
       size="sm"
@@ -160,7 +155,7 @@
       @click="openEditor = true"
       >เพิ่มความคิดเห็น</CButton
     >
-    <hr />
+    <hr /> -->
 
     <!-- Editor -->
     <div v-show="openEditor">
@@ -192,7 +187,7 @@
     <br />
 
     <!-- Comments -->
-    <p v-if="comments.length == 0">ไม่มีความคิดเห็น</p>
+    <!-- <p v-if="comments.length == 0">ไม่มีความคิดเห็น</p>
     <CListGroup v-else style="height: 200px; overflow-y: auto">
       <CListGroupItem :key="index" v-for="(item, index) in comments">
         <strong class="text-primary"
@@ -223,7 +218,7 @@
         <br />
         <p v-html="item.content" />
       </CListGroupItem>
-    </CListGroup>
+    </CListGroup> -->
 
     <!-- Remove comment Modal -->
     <CModal
@@ -489,10 +484,10 @@ export default {
     this.getProperties();
 
     // Get Versions
-    this.getVersions();
+    // this.getVersions();
 
     // Get Comment
-    this.getComments();
+    // this.getComments();
   },
   data() {
     return {
@@ -595,7 +590,7 @@ export default {
       this.loading = true;
       this.$http
         .get(
-          `${process.env.VUE_APP_BACKEND_URL}alfresco/versions/1/nodes/${this.id}/content`,
+          `${process.env.VUE_APP_ALFRESCO_API}alfresco/versions/1/nodes/${this.id}/content`,
           {
             responseType: "arraybuffer",
             onDownloadProgress: (evt) => {
@@ -616,6 +611,7 @@ export default {
           viewer.setAttribute("src", `${url}#toolbar=0`);
 
           viewer.removeAttribute("srcdoc");
+
           this.loading = false;
           viewer.onload = function () {
             // Disable Download Video
