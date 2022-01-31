@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Widget -->
-    <CRow>
+    <!-- <CRow>
       <CCol col="6">
         <CWidgetIcon
           :header="countFiles"
@@ -23,7 +23,7 @@
           <CIcon name="cil-folder" width="24" />
         </CWidgetIcon>
       </CCol>
-    </CRow>
+    </CRow> -->
 
     <!-- Table -->
     <CCard>
