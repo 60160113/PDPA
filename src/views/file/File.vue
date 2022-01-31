@@ -46,7 +46,6 @@
         <CDataTable
           :items="list"
           :fields="fields"
-          column-filter
           :items-per-page="5"
           :itemsPerPageSelect="{
             label: 'แสดง',
@@ -61,7 +60,6 @@
           striped
           border
           pagination
-          cleaner
         >
           <template #no-items-view
             ><div class="text-center">ไม่พบข้อมูล</div>
@@ -339,8 +337,8 @@
 
 <script>
 const fields = [
-  { key: "name", label: "Name", _style: "width:60%" },
-  { key: "modifiedAt", label: "Modified Date", _style: "width:40%;" },
+  { key: "name", label: "Name", _style: "width:70%" },
+  { key: "modifiedAt", label: "Modified Date", _style: "width:30%;" },
   // { key: "actions", label: "Actions", _style: "min-width:20%;" },
 ];
 
