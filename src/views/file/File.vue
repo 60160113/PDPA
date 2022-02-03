@@ -337,8 +337,8 @@
 
 <script>
 const fields = [
-  { key: "name", label: "Name", _style: "width:70%" },
-  { key: "modifiedAt", label: "Modified Date", _style: "width:30%;" },
+  { key: "name", label: "ชื่อไฟล์", _style: "width:70%" },
+  { key: "modifiedAt", label: "วันที่", _style: "width:30%;" },
   // { key: "actions", label: "Actions", _style: "min-width:20%;" },
 ];
 
