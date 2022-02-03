@@ -88,6 +88,7 @@
                     id: item._id,
                     name: item.name,
                     requester: item.requesterName,
+                    data: item,
                   };
                   isApproved = true;
                   modal = true;
@@ -103,6 +104,7 @@
                     id: item._id,
                     name: item.name,
                     requester: item.requesterName,
+                    data: item,
                   };
                   isApproved = false;
                   modal = true;
@@ -226,7 +228,7 @@ export default {
         .then(() => {
           this.getRequests();
           this.sendMail(
-            item.requester.email,
+            item.data.requester.email,
             `<p>การร้องขอ "${item.name}" ของคุณ ${item.requester} ไม่ได้รับการอนุมัติ</p>`,
             "การร้องขอไม่ได้รับการอนุมัติ"
           );
@@ -265,7 +267,7 @@ export default {
         );
 
         this.sendMail(
-          item.requester.email,
+          item.data.requester.email,
           `<p>การร้องขอ "${item.name}" ของคุณ ${item.requester} ได้รับการอนุมัติ</p>`,
           "การร้องขอได้รับการอนุมัติ"
         );
@@ -296,7 +298,7 @@ export default {
         from: process.env.VUE_APP_MAIL,
         to: to,
         subject: subject,
-        html,
+        html: html,
       });
     },
   },
