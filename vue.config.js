@@ -1,5 +1,9 @@
 module.exports = {
-  publicPath:'',
+  publicPath:'/PDPA/',
+  outputDir: "PDPA",
+  chainWebpack: config => {
+    config.performance.maxEntrypointSize(400000).maxAssetSize(400000);
+  },
   lintOnSave: false,
   runtimeCompiler: true,
   configureWebpack: {
