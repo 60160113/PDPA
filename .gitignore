@@ -29,3 +29,7 @@ yarn-error.log*
 
 # release
 /coreui-pro-vue-admin-template*.zip
+
+# build
+PDPA
+dist
