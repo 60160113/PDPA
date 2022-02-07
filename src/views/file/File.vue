@@ -351,22 +351,22 @@ export default {
     Properties,
     Destination,
   },
-  async created() {
-    const id = () => {
-      if (this.$route.query.id) {
-        return this.$route.query.id;
-      } else {
-        switch (this.$route.name) {
-          case "My Files":
-            return "-my-";
-          case "Shared Files":
-            return "-shared-";
-          case "Repository":
-            return "-root-";
+  created() {
+    // Check if
+    this.$http
+      .get(
+        `${process.env.VUE_APP_PDPA_SERVICES}data/request?folder=${this.$route.query.id}`
+      )
+      .then((res) => {
+        if (
+          res.data[0] &&
+          res.data[0].requester.id == this.$store.state.user.userId
+        ) {
+          this.getList(this.$route.query.id);
+        } else {
+          this.$router.replace("/404");
         }
-      }
-    };
-    await this.getList(id());
+      });
   },
   computed: {
     countFiles() {
