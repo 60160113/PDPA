@@ -1,6 +1,5 @@
 // axios
 import axios from "axios";
-import router from "@/router";
 import { authHeader } from "@/helpers/auth-header";
 
 const request = axios.create({
