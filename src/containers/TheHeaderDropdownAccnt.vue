@@ -10,6 +10,10 @@
         <div class="c-avatar">
           <img id="avatar-img" class="c-avatar-img" />
         </div>
+        <div class="text-primary">
+          {{ $store.state.user.displayName }} <br />
+          {{ $store.state.user.email }}
+        </div>
       </CHeaderNavLink>
     </template>
     <CDropdownHeader tag="div" class="text-center" color="primary">
