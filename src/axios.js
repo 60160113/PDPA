@@ -14,7 +14,7 @@ request.interceptors.response.use(
   error => {
     if (error.response.status === 401) {
       localStorage.removeItem("user");
-      router.push("/");
+      location.reload();
     }
     return error;
   }
