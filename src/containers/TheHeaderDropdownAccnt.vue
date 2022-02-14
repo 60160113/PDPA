@@ -10,7 +10,7 @@
         <div class="c-avatar">
           <img id="avatar-img" class="c-avatar-img" />
         </div>
-        <div class="text-primary">
+        <div class="text-primary ml-2">
           {{ $store.state.user.displayName }} <br />
           {{ $store.state.user.email }}
         </div>
