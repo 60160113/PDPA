@@ -31,5 +31,4 @@ yarn-error.log*
 /coreui-pro-vue-admin-template*.zip
 
 # build
-PDPA
 dist

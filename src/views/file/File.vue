@@ -353,20 +353,21 @@ export default {
   },
   created() {
     // Check if
-    this.$http
-      .get(
-        `${process.env.VUE_APP_PDPA_SERVICES}data/request?folder=${this.$route.query.id}`
-      )
-      .then((res) => {
-        if (
-          res.data[0] &&
-          res.data[0].requester.id == this.$store.state.user.userId
-        ) {
-          this.getList(this.$route.query.id);
-        } else {
-          this.$router.replace("/404");
-        }
-      });
+    // this.$http
+    //   .get(
+    //     `${process.env.VUE_APP_PDPA_SERVICES}data/request?folder=${this.$route.query.id}`
+    //   )
+    //   .then((res) => {
+    //     if (
+    //       res.data[0] &&
+    //       res.data[0].requester.id == this.$store.state.user.userId
+    //     ) {
+    //       this.getList(this.$route.query.id);
+    //     } else {
+    //       this.$router.replace("/404");
+    //     }
+    //   });
+    this.getList(this.$route.query.id);
   },
   computed: {
     countFiles() {

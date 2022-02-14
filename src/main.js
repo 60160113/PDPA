@@ -10,6 +10,12 @@ import store from "./store";
 import i18n from "./i18n.js";
 import axios from "./axios.js";
 
+import VueSweetalert2 from 'vue-sweetalert2';
+
+import 'sweetalert2/dist/sweetalert2.min.css';
+
+Vue.use(VueSweetalert2);
+
 Vue.prototype.$http = axios;
 Vue.use(CoreuiVuePro);
 Vue.prototype.$log = console.log.bind(console);

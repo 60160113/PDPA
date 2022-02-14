@@ -42,5 +42,13 @@ export default [
       requiresAuth: true,
       restriction: "GROUP_PDPA_APPROVER"
     }
-  }
+  },
+  {
+    path: "/sites",
+    name: "Sites",
+    component: () => import("@/views/PDPA/sites/index.vue"),
+    meta: {
+      requiresAuth: true
+    }
+  },
 ];
