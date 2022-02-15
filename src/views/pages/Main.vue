@@ -15,17 +15,25 @@
               <CForm>
                 <CInput
                   size="lg"
+                  id="email"
                   placeholder="อีเมล"
                   autocomplete="username email"
                   v-model="user.userId"
                   prepend="@"
+                  @keypress.enter="user.userId ? focusInput('password') : false"
                 />
                 <CInput
                   size="lg"
+                  id="password"
                   placeholder="รหัสผ่าน"
                   :type="showPassword ? 'text' : 'password'"
                   autocomplete="curent-password"
                   v-model="user.password"
+                  @keypress.enter="
+                    Object.values(user).filter((val) => !val).length == 0
+                      ? login()
+                      : focusInput('email')
+                  "
                 >
                   <template #prepend-content
                     ><CIcon name="cil-lock-locked"
@@ -43,7 +51,10 @@
                   block
                   color="primary"
                   class="px-4"
-                  @click.prevent="login"
+                  :disabled="
+                    Object.values(user).filter((val) => !val).length !== 0
+                  "
+                  @click.prevent="login()"
                   ><b>เข้าสู่ระบบ</b>
                 </CButton>
                 <hr />
@@ -86,10 +97,10 @@
 
 <script>
 export default {
-  beforeCreate() {
+  async beforeCreate() {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      this.$router.push("/request");
+      await this.$router.push("/request");
     }
   },
   data() {
@@ -104,6 +115,9 @@ export default {
     };
   },
   methods: {
+    focusInput(id) {
+      document.getElementById(id).focus();
+    },
     async login() {
       try {
         const loginResponse = await this.$http.post(
